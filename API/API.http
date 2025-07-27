@@ -1,6 +1,32 @@
 @API_HostAddress = http://localhost:5089
 
-GET {{API_HostAddress}}/
+### Get all users
+GET {{API_HostAddress}}/api/user
 Accept: application/json
 
-###
+### Get user by ID
+GET {{API_HostAddress}}/api/user/1
+Accept: application/json
+
+###Create a new user
+POST {{API_HostAddress}}/api/user
+Content-Type: application/json
+
+{
+  "username": "username",
+  "email": "username@example.com",
+  "password": "hpassword"
+}
+
+### Update an existing user
+PUT {{API_HostAddress}}/api/user/1
+Content-Type: application/json
+
+{
+  "username": "username123",
+  "email": "email123@example.com",
+  "password": "password"
+}
+
+### Delete user by ID
+DELETE {{API_HostAddress}}/api/user/1
