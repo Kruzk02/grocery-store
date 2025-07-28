@@ -1,6 +1,6 @@
 using API.Data;
-using API.Services;
-using API.Services.Impl;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite("Data Source=user.db"));
 
-builder.Services.AddDbContext<UserDbContext>();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
@@ -21,6 +24,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.MapIdentityApi<IdentityUser>();
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
