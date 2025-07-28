@@ -27,4 +27,13 @@ if (app.Environment.IsDevelopment())
 app.MapIdentityApi<IdentityUser>();
 app.UseHttpsRedirection();
 app.MapControllers();
+
+app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager) => 
+    {
+        await signInManager.SignOutAsync();
+        return Results.Ok(new { message = "Logged out successfully" });
+    })
+    .WithOpenApi()
+    .RequireAuthorization();
+
 app.Run();
