@@ -1,6 +1,11 @@
 using API.Data;
+using API.Dtos;
+using API.Entity;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +14,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=user.db"));
+    options.UseSqlite("Data Source=app.db"));
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!))
+        };
+    });
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
@@ -24,16 +48,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.MapIdentityApi<IdentityUser>();
 app.UseHttpsRedirection();
 app.MapControllers();
-
-app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager) => 
-    {
-        await signInManager.SignOutAsync();
-        return Results.Ok(new { message = "Logged out successfully" });
-    })
-    .WithOpenApi()
-    .RequireAuthorization();
-
 app.Run();
+
+
+
