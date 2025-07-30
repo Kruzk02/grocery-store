@@ -3,6 +3,7 @@ using API.Dtos;
 using API.Entity;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,8 +19,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 
-builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+builder.Services.AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddSignInManager()
     .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -37,7 +40,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
 
 builder.Services.AddControllers();
 
@@ -50,6 +56,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    await DataSeeder.SeedRolesAndAdminAsync(scope.ServiceProvider);
+}
+
 app.Run();
 
 
