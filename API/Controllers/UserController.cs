@@ -1,8 +1,6 @@
 ﻿using API.Dtos;
-using API.Entity;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -10,54 +8,46 @@ namespace API.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class UserController(
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager, 
-        ITokenService tokenService
+        IUserService userService
     ) : ControllerBase
 {
     
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
-        var user = await userManager.GetUserAsync(User);
-        if (user == null) return Unauthorized();
-        var roles = await userManager.GetRolesAsync(user);
-        return Ok(new { user.UserName, user.Email, roles });
+        var user = await userService.GetUser(User);
+        return Ok(new { user.User });
     }
 
     [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        var user = new ApplicationUser
-        {
-            UserName = dto.Username,
-            Email = dto.Email
-        };
-        
-        var result = await userManager.CreateAsync(user, dto.Password);
-
-        if (result.Succeeded) await userManager.AddToRoleAsync(user, "User");
-        
-        return !result.Succeeded
-            ? BadRequest(result.Errors)
-            : Ok(new { message = "User registered successfully" });
+        var isCreated = await userService.CreateUser(dto);
+        return isCreated ? Ok() : BadRequest();
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        var user = await userManager.FindByNameAsync(dto.UserNameOrEmail)
-                   ?? await userManager.FindByEmailAsync(dto.UserNameOrEmail);
-        if (user == null) Unauthorized();
+        var loginResponse = await userService.Login(dto);
+        return loginResponse.Success ? Ok(loginResponse) : Unauthorized(loginResponse);
+    }
 
-        var result = await signInManager.CheckPasswordSignInAsync(user!, dto.Password, false);
-        
-        if (!result.Succeeded) Unauthorized();
+    [Authorize]
+    [HttpPut("update")]
+    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
+    {
+        var isUpdated = await userService.UpdateUser(User, dto);
+        return isUpdated ? Ok() : BadRequest();
+    }
 
-        var token = tokenService.CreateToken(user!);
-
-        return Ok(new { token });
+    [Authorize]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest request)
+    {
+        var isDeleted = await userService.DeleteUser(request.Id);
+        return isDeleted ? Ok() : BadRequest();
     }
 }
