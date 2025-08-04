@@ -15,39 +15,44 @@ public class UserController(
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
-        var user = await userService.GetUser(User);
-        return Ok(new { user.User });
+        var result = await userService.GetUser(User);
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 
     [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        var isCreated = await userService.CreateUser(dto);
-        return isCreated ? Ok() : BadRequest();
+        var result = await userService.CreateUser(dto);
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        var loginResponse = await userService.Login(dto);
-        return loginResponse.Success ? Ok(loginResponse) : Unauthorized(loginResponse);
+        var result = await userService.Login(dto);
+        return result.Success ? Ok(result) : Unauthorized(result);
     }
 
     [Authorize]
     [HttpPut("update")]
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
     {
-        var isUpdated = await userService.UpdateUser(User, dto);
-        return isUpdated ? Ok() : BadRequest();
+        var result = await userService.UpdateUser(User, dto);
+        if (result.Success) return Ok(result);
+
+        if (result.Errors.Any(e => e.Contains("not found")))
+            return NotFound(result);
+
+        return BadRequest(result);
     }
 
     [Authorize]
     [HttpDelete]
     public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest request)
     {
-        var isDeleted = await userService.DeleteUser(request.Id);
-        return isDeleted ? Ok() : BadRequest();
+        var result = await userService.DeleteUser(request.Id);
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 }

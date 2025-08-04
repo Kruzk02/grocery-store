@@ -1,14 +1,15 @@
 ﻿using System.Security.Claims;
 using API.Dtos;
 using API.Entity;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Services;
 
 public interface IUserService
 {
-    Task<bool> CreateUser(RegisterDto dto);
-    Task<LoginResponse> Login(LoginDto dto);
-    Task<bool> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto);
-    Task<UserProfileResponse> GetUser(ClaimsPrincipal user);
-    Task<bool> DeleteUser(string id);
+    Task<ServiceResult> CreateUser(RegisterDto dto);
+    Task<ServiceResult> Login(LoginDto dto);
+    Task<ServiceResult> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto);
+    Task<ServiceResult<ApplicationUser>> GetUser(ClaimsPrincipal user);
+    Task<ServiceResult> DeleteUser(string id);
 }
