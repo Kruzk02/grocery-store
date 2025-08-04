@@ -3,7 +3,7 @@ using API.Dtos;
 using API.Entity;
 using Microsoft.AspNetCore.Identity;
 
-namespace API.Services;
+namespace API.Services.impl;
 
 public class UserService(
     UserManager<ApplicationUser> userManager,
@@ -12,7 +12,7 @@ public class UserService(
     IPasswordHasher<ApplicationUser> passwordHasher
     ) : IUserService
 {
-    public async Task<bool> CreateUser(RegisterDto dto)
+    public async Task<ServiceResult> CreateUser(RegisterDto dto)
     {
         var user = new ApplicationUser
         {
@@ -22,51 +22,70 @@ public class UserService(
         
         var result = await userManager.CreateAsync(user, dto.Password);
 
-        if (result.Succeeded) await userManager.AddToRoleAsync(user, "User");
+        if (!result.Succeeded) return ServiceResult.Failed("User creation failed", result.Errors.Select(e => e.Description));
+        var roleResult = await userManager.AddToRoleAsync(user, "User");
 
-        return result.Succeeded; 
+        return roleResult.Succeeded ? 
+            ServiceResult.Ok("User created successfully") : 
+            ServiceResult.Failed("User created, but role assignment failed", result.Errors.Select(e => e.Description)); 
     }
 
-    public async Task<LoginResponse> Login(LoginDto dto)
+    public async Task<ServiceResult> Login(LoginDto dto)
     {
         var user = await userManager.FindByNameAsync(dto.UserNameOrEmail) ?? await  userManager.FindByEmailAsync(dto.UserNameOrEmail);
-        if (user == null) return new LoginResponse(false, string.Empty, "User not found");
+        if (user == null) return ServiceResult.Failed("User not found");
         
         var result = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
         if (!result.Succeeded)
-            return new LoginResponse(false, string.Empty, "Invalid password");
+            return ServiceResult.Failed("Invalid password");
 
         var token = tokenService.CreateToken(user);
-        return new LoginResponse(true, token, string.Empty);
-
+        return ServiceResult.Ok(token);
     }
 
-    public async Task<bool> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto)
+    public async Task<ServiceResult> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto)
     {
         var existingUser = await userManager.GetUserAsync(user);
-        if (existingUser == null) return false;
+        if (existingUser == null) return ServiceResult.Failed("User not found");
+
+        if (!string.IsNullOrEmpty(dto.Email))
+        {
+            var emailResult = await userManager.SetEmailAsync(existingUser, dto.Email);
+            if (!emailResult.Succeeded)  return ServiceResult.Failed("Failed to update email", emailResult.Errors.Select(e => e.Description));
+        }
+
+        if (!string.IsNullOrEmpty(dto.Username))
+        {
+            var usernameResult = await userManager.SetUserNameAsync(existingUser, dto.Username);
+            if (!usernameResult.Succeeded) return ServiceResult.Failed("Failed to update username", usernameResult.Errors.Select(e => e.Description));
+        }
+
+        if (!string.IsNullOrEmpty(dto.Password))
+        {
+            var removePassword = await userManager.RemovePasswordAsync(existingUser);
+            if (!removePassword.Succeeded) return ServiceResult.Failed("Failed to remove password", removePassword.Errors.Select(e => e.Description));
+            
+            var addPassword = await userManager.AddPasswordAsync(existingUser, dto.Password);
+            if (!addPassword.Succeeded) return ServiceResult.Failed("Failed to add password", addPassword.Errors.Select(e => e.Description));
+        }
         
-        existingUser.Email = dto.Email ?? existingUser.Email;
-        existingUser.UserName = dto.Username ?? existingUser.UserName;
-        existingUser.PasswordHash = passwordHasher.HashPassword(existingUser, dto.Password) ?? existingUser.PasswordHash;
-        
-        var result = await userManager.UpdateAsync(existingUser);
-        
-        return result.Succeeded;
+        return ServiceResult.Ok("User updated successfully");
     }
 
-    public async Task<UserProfileResponse> GetUser(ClaimsPrincipal user)
+    public async Task<ServiceResult<ApplicationUser>> GetUser(ClaimsPrincipal user)
     {
         var existingUser = await userManager.GetUserAsync(user);
-        return existingUser == null ? new UserProfileResponse(false, null!, "User not found") : new UserProfileResponse(true, existingUser, string.Empty);
+        if (existingUser == null) return ServiceResult<ApplicationUser>.Failed("User not found");
+        
+        return ServiceResult<ApplicationUser>.Ok(existingUser, "User retrieved successfully");
     }
 
-    public async Task<bool> DeleteUser(string id)
+    public async Task<ServiceResult> DeleteUser(string id)
     {
         var existingUser = await userManager.FindByIdAsync(id);
-        if (existingUser == null) return false;
+        if (existingUser == null) return ServiceResult.Failed("User not found");
         
         var result = await userManager.DeleteAsync(existingUser);
-        return result.Succeeded;
+        return result.Succeeded ? ServiceResult.Ok("User deleted successfully") : ServiceResult.Failed("Failed to delete user", result.Errors.Select(e => e.Description));
     }
 }
