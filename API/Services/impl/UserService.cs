@@ -9,7 +9,8 @@ public class UserService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     ITokenService tokenService, 
-    IPasswordHasher<ApplicationUser> passwordHasher
+    VerificationTokenService verificationTokenService,
+    EmailService emailService
     ) : IUserService
 {
     public async Task<ServiceResult> CreateUser(RegisterDto dto)
@@ -24,7 +25,10 @@ public class UserService(
 
         if (!result.Succeeded) return ServiceResult.Failed("User creation failed", result.Errors.Select(e => e.Description));
         var roleResult = await userManager.AddToRoleAsync(user, "User");
-
+        
+        var verificationToken = await verificationTokenService.GenerateVerificationToken(user);
+        emailService.SendVerify(user.Email, verificationToken.Token);
+        
         return roleResult.Succeeded ? 
             ServiceResult.Ok("User created successfully") : 
             ServiceResult.Failed("User created, but role assignment failed", result.Errors.Select(e => e.Description)); 
@@ -87,5 +91,13 @@ public class UserService(
         
         var result = await userManager.DeleteAsync(existingUser);
         return result.Succeeded ? ServiceResult.Ok("User deleted successfully") : ServiceResult.Failed("Failed to delete user", result.Errors.Select(e => e.Description));
+    }
+
+    public async Task<ServiceResult> VerifyAccount(string code)
+    {
+        var result = await verificationTokenService.VerifyToken(code);
+        return result
+            ? ServiceResult.Ok("User verify successfully")
+            : ServiceResult.Failed("User verify failed");
     }
 }
