@@ -10,4 +10,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public ApplicationDbContext(DbContextOptions options) : base(options)
     {
     }
+    
+    public DbSet<VerificationToken> VerificationTokens { get; set; }
 }
