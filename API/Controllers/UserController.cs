@@ -55,4 +55,12 @@ public class UserController(
         var result = await userService.DeleteUser(request.Id);
         return result.Success ? Ok(result) : BadRequest(result);
     }
+
+    [Authorize]
+    [HttpPost("verify")]
+    public async Task<IActionResult> VerifyAccount([FromBody] VerifyAccountRequest request)
+    {
+        var result = await userService.VerifyAccount(request.Token);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
 }
