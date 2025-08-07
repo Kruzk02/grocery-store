@@ -1,15 +1,19 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using API.Entity;
+using API.Settings;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Services;
 
-public class TokenService(IConfiguration config) : ITokenService
+public class TokenService(IOptions<JwtSettings> config) : ITokenService
 {
+    private readonly JwtSettings _jwtSettings = config.Value;
+    
     public string CreateToken(ApplicationUser user)
     {
-        var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(config["JwtSettings:Key"]!));
+        var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -20,8 +24,8 @@ public class TokenService(IConfiguration config) : ITokenService
         };
 
         var token = new JwtSecurityToken(
-            issuer: config["JwtSettings:Issuer"],
-            audience: config["JwtSettings:Audience"],
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: cred);
