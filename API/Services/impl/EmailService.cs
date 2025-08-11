@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 public class EmailService(IConfiguration configuration)
 {
-    public async void SendVerify(string to, string code)
+    public void SendVerify(string to, string code)
     {
         var smtp = new SmtpClient(configuration["SmtpSettings:Host"]);
         smtp.Port = int.Parse(configuration["SmtpSettings:Port"]!);
@@ -21,6 +21,6 @@ public class EmailService(IConfiguration configuration)
         mail.Body = "Code: " + code;
         mail.IsBodyHtml = true;
         
-        await smtp.SendMailAsync(mail);
+        smtp.SendMailAsync(mail);
     }
 }

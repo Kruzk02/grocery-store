@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
-public class VerificationTokenService(ApplicationDbContext ctx)
+public class VerificationTokenService(ApplicationDbContext ctx) : IVerificationTokenService
 {
     public async Task<VerificationToken> GenerateVerificationToken(ApplicationUser user)
     {

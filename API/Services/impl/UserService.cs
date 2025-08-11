@@ -9,7 +9,7 @@ public class UserService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     ITokenService tokenService, 
-    VerificationTokenService verificationTokenService,
+    IVerificationTokenService verificationTokenService,
     EmailService emailService
     ) : IUserService
 {
