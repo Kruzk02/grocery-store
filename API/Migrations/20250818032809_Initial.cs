@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace API.Migrations
 {
     /// <inheritdoc />
@@ -216,6 +218,26 @@ namespace API.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "Id", "Description", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Fruits, vegetables, herbs", "Fresh Produce" },
+                    { 2, "Milk, cheese, yogurt, eggs", "Dairy & Eggs" },
+                    { 3, "Fresh meat, poultry, seafood", "Meat & Seafood" },
+                    { 4, "Bread and baked products", "Bakery" },
+                    { 5, "Rice, pasta, spices", "Pantry Staples" },
+                    { 6, "Canned goods, sauces, instant", "Canned & Packaged" },
+                    { 7, "Frozen meat, ice cream", "Frozen Foods" },
+                    { 8, "Chips, chocolates, biscuits", "Snacks & Confectionery" },
+                    { 9, "Water, soda, tea, coffee", "Beverages" },
+                    { 10, "Detergents, cleaning items", "Household & Cleaning" },
+                    { 11, "Toiletries, health items", "Personal Care & Health" },
+                    { 12, "Baby food, diapers", "Baby & Kids" },
+                    { 13, "Other / seasonal products", "Miscellaneous" }
                 });
 
             migrationBuilder.CreateIndex(

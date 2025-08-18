@@ -1,5 +1,6 @@
 ﻿using API.Entity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 
@@ -27,7 +28,7 @@ public class DataSeeder
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
         if (adminUser == null)
         {
-            adminUser = new ApplicationUser()
+            adminUser = new ApplicationUser
             {
                 UserName = adminUsername,
                 Email = adminEmail,

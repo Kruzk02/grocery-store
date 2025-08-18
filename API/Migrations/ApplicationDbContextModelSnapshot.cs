@@ -101,6 +101,86 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Fruits, vegetables, herbs",
+                            Name = "Fresh Produce"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Milk, cheese, yogurt, eggs",
+                            Name = "Dairy & Eggs"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Fresh meat, poultry, seafood",
+                            Name = "Meat & Seafood"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Bread and baked products",
+                            Name = "Bakery"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Rice, pasta, spices",
+                            Name = "Pantry Staples"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Canned goods, sauces, instant",
+                            Name = "Canned & Packaged"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Frozen meat, ice cream",
+                            Name = "Frozen Foods"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Chips, chocolates, biscuits",
+                            Name = "Snacks & Confectionery"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Water, soda, tea, coffee",
+                            Name = "Beverages"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "Detergents, cleaning items",
+                            Name = "Household & Cleaning"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Description = "Toiletries, health items",
+                            Name = "Personal Care & Health"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Description = "Baby food, diapers",
+                            Name = "Baby & Kids"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Description = "Other / seasonal products",
+                            Name = "Miscellaneous"
+                        });
                 });
 
             modelBuilder.Entity("API.Entity.Product", b =>
