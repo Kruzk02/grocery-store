@@ -44,6 +44,17 @@ public class ProductServiceTest
     }
 
     [Test]
+    public async Task CreateProduct_ShouldFailed_WhenCategoryNotFound()
+    {
+        var ctx = GetInMemoryDbContext();
+        var service = new ProductService(ctx);
+        
+        var serviceResult = await service.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: 1, Quantity: 1));
+        
+        Assert.That(serviceResult.Message, Is.EqualTo("Category not found"));
+    }
+
+    [Test]
     public async Task UpdateProduct_ShouldUpdateProduct()
     {
         var ctx = GetInMemoryDbContext();
@@ -62,6 +73,17 @@ public class ProductServiceTest
             Assert.That(serviceResult.Message, Is.EqualTo("Product updated successfully"));
             Assert.That(serviceResult.Success, Is.True);
         });
+    }
+
+    [Test]
+    public async Task UpdateProduct_ShouldFailed_WhenProductNotFound()
+    {
+        var ctx = GetInMemoryDbContext();
+        var service = new ProductService(ctx);
+        
+        var serviceResult = await service.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
+
+        Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
     }
 
     [Test]
@@ -86,7 +108,7 @@ public class ProductServiceTest
     }
 
     [Test]
-    public async Task FindById()
+    public async Task FindById_ShouldReturnProduct()
     {
         var ctx = GetInMemoryDbContext();
         var service = new ProductService(ctx);
@@ -109,6 +131,17 @@ public class ProductServiceTest
             Assert.That(result.CategoryId, Is.EqualTo(1));
         });
     }
+
+    [Test]
+    public async Task FindById_ShouldFailed_WhenProductNotFound()
+    {
+        var ctx = GetInMemoryDbContext();
+        var service = new ProductService(ctx);
+        
+        var serviceResult = await service.FindById(1);
+
+        Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
+    }
     
     [Test]
     public async Task DeleteById()
@@ -124,6 +157,17 @@ public class ProductServiceTest
         
         var serviceResult = await service.DeleteById(1);
         
-        Assert.That(serviceResult, Is.True);
+        Assert.That(serviceResult.Success, Is.True);
+    }
+    
+    [Test]
+    public async Task DeleteById_ShouldFailed_WhenProductNotFound()
+    {
+        var ctx = GetInMemoryDbContext();
+        var service = new ProductService(ctx);
+        
+        var serviceResult = await service.DeleteById(1);
+
+        Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
     }
 }
