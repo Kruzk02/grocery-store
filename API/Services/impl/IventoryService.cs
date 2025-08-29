@@ -73,7 +73,7 @@ public class InventoryService(ApplicationDbContext ctx) : IInventoryService
         var inventory = await ctx.Inventories.FindAsync(id);
         return inventory != null
             ? ServiceResult<Inventory>.Ok(inventory, "Inventory retrieve successfully")
-            : ServiceResult<Inventory>.Failed("Failed to retrieve inventory");
+            : ServiceResult<Inventory>.Failed("Inventory not found");
     }
 
     public async Task<ServiceResult> Delete(int id)

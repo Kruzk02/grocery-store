@@ -26,5 +26,13 @@
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.VerificationTokenServiceTest&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.CategoryServiceTest&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.ProductServiceTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.InventoryServiceTest.CreateInventory_shouldCreateProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.InventoryServiceTest.CreateInventory_shouldFailed_whenProductNotFound&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.InventoryServiceTest.UpdateInventory_shouldUpdateProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.InventoryServiceTest.UpdateInventory_shouldFailed_whenProductNotFound&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.InventoryServiceTest.FindAll_shouldReturnListOfInventory&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.InventoryServiceTest.FindById_shouldReturnProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.InventoryServiceTest.FindById_shouldFailed_whenProductNotFound&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net9.0::Tests.Services.InventoryServiceTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
