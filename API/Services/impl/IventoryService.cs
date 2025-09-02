@@ -5,8 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.impl;
 
+/// <summary>
+/// Provides operations for create, retrieve, update and delete inventory.
+/// </summary>
+/// <remarks>
+/// This class interacts with database to performs CRUD operations relate to inventory.
+/// </remarks>
+/// <param name="ctx">The <see cref="ApplicationDbContext"/> used to access the database</param>
 public class InventoryService(ApplicationDbContext ctx) : IInventoryService
 {
+    /// <inheritdoc />
     public async Task<ServiceResult<List<Inventory>>> FindAll()
     {
         var inventories = await ctx.Inventories.ToListAsync();
@@ -15,6 +23,7 @@ public class InventoryService(ApplicationDbContext ctx) : IInventoryService
             ServiceResult<List<Inventory>>.Failed("Failed to retrieve inventory");;
     }
 
+    /// <inheritdoc />
     public async Task<ServiceResult<Inventory>> Create(InventoryDto inventoryDto)
     {
         var product = await ctx.Products.FindAsync(inventoryDto.ProductId);
@@ -37,6 +46,7 @@ public class InventoryService(ApplicationDbContext ctx) : IInventoryService
         return ServiceResult<Inventory>.Ok(result.Entity, "Inventory added successfully");
     }
 
+    /// <inheritdoc />
     public async Task<ServiceResult<Inventory>> Update(int id, InventoryDto inventoryDto)
     {
         var inventory = await ctx.Inventories.FindAsync(id);
@@ -68,6 +78,7 @@ public class InventoryService(ApplicationDbContext ctx) : IInventoryService
         return ServiceResult<Inventory>.Ok(inventory, "Inventory updated successfully");
     }
 
+    /// <inheritdoc />
     public async Task<ServiceResult<Inventory>> FindById(int id)
     {
         var inventory = await ctx.Inventories.FindAsync(id);
@@ -76,6 +87,7 @@ public class InventoryService(ApplicationDbContext ctx) : IInventoryService
             : ServiceResult<Inventory>.Failed("Inventory not found");
     }
 
+    /// <inheritdoc />
     public async Task<ServiceResult> Delete(int id)
     {
         var inventory = await ctx.Inventories.FindAsync(id);
