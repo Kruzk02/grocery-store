@@ -57,7 +57,7 @@ public class NotificationService(ApplicationDbContext ctx) : INotificationServic
         
         notification.IsRead = true;
         await ctx.SaveChangesAsync();
-        return  ServiceResult.Ok("Notification Marked Successfully");
+        return ServiceResult.Ok("Notification Marked Successfully");
     }
 
     /// <inheritdoc />
