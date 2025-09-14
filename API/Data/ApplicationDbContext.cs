@@ -11,6 +11,7 @@ public class ApplicationDbContext(DbContextOptions options) : IdentityDbContext<
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Inventory> Inventories { get; set; }
+    public DbSet<Notification>  Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
