@@ -1,4 +1,5 @@
-﻿using API.Dtos;
+﻿using System.Security.Claims;
+using API.Dtos;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,8 @@ namespace API.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class UserController(
-        IUserService userService
+        IUserService userService,
+        INotificationService notificationService
     ) : ControllerBase
 {
     
@@ -62,5 +64,18 @@ public class UserController(
     {
         var result = await userService.VerifyAccount(request.Token);
         return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [Authorize]
+    [HttpGet("/notifications")]
+    public async Task<IActionResult> FindNotificationByUserId()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+        {
+            return BadRequest();
+        }
+        var serviceResult = await notificationService.FindByUserId(userId);
+        return serviceResult.Success ? Ok(serviceResult) : BadRequest(serviceResult);
     }
 }
