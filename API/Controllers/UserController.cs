@@ -67,7 +67,7 @@ public class UserController(
     }
 
     [Authorize]
-    [HttpGet("/notifications")]
+    [HttpGet("notifications")]
     public async Task<IActionResult> FindNotificationByUserId()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
