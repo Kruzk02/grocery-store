@@ -10,6 +10,7 @@ namespace API.Controllers;
 public class NotificationController(INotificationService notificationService) : ControllerBase
 {
     
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(typeof(Notification), 204)]
     [ProducesResponseType(404)]
     [ProducesResponseType(500)]
