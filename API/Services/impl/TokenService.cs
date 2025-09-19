@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using API.Entity;
 using API.Settings;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,18 +11,22 @@ namespace API.Services;
 public class TokenService(IOptions<JwtSettings> config) : ITokenService
 {
     private readonly JwtSettings _jwtSettings = config.Value;
-    
-    public string CreateToken(ApplicationUser user)
+    private ITokenService _tokenServiceImplementation;
+
+    public async Task<string> CreateToken(ApplicationUser user, UserManager<ApplicationUser> userManager)
     {
         var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName!),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(JwtRegisteredClaimNames.UniqueName, user.UserName!),
+            new(JwtRegisteredClaimNames.Email, user.Email!),
         };
+
+        var roles = await userManager.GetRolesAsync(user);
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
