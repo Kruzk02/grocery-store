@@ -11,7 +11,9 @@ public class Order
     public int CustomerId { get; set; }
     [ForeignKey(nameof(CustomerId))]
     public Customer customer { get; set; }
-    [Required, Range(0.01, double.MaxValue, ErrorMessage = "Total must be greater than 0")]
-    public double Total { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    public List<OrderItem> Items { get; set; } = [];
+
+    public decimal Total => Items.Sum(i => i.Quantity * i.Product.Price);
 }
