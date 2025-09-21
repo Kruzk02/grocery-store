@@ -60,20 +60,43 @@ public class OrderServiceTest
     public async Task FindById()
     {
         var ctx = GetInMemoryDbContext();
-        var service = new OrderService(ctx);
+        var orderService = new OrderService(ctx);
+        var orderItemService = new OrderItemService(ctx);
 
+        var order = new Order
+        {
+            Id = 1,
+            CustomerId = 1,
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        var product = new Product
+        {
+            Id = 1,
+            Name = "name",
+            Description = "description",
+            Price = 19.99m,
+            CategoryId = 1,
+            Quantity = 20,
+            CreatedAt = DateTime.UtcNow,
+        };
         var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
+                
+        ctx.Orders.Add(order);
+        ctx.Products.Add(product);
         ctx.Customers.Add(customer);
         await ctx.SaveChangesAsync();
-        await service.Create(new OrderDto(customer.Id));
+        await orderItemService.Create(new OrderItemDto(order.Id, product.Id, 20));
+        await orderService.Create(new OrderDto(customer.Id));
         
-        var serviceResult = await service.FindById(1);
+        var serviceResult = await orderService.FindById(1);
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
         {
             Assert.That(result!.Id, Is.GreaterThan(0));
             Assert.That(result.CustomerId, Is.GreaterThan(0));
+            Assert.That(result.Total, Is.EqualTo(399.8m));
         });
     }
 

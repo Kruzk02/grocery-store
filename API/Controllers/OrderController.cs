@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController, Route("[controller]"), Authorize]
-public class OrderController(IOrderService orderService) : ControllerBase
+public class OrderController(IOrderService orderService, IOrderItemService itemService) : ControllerBase
 {
 
     [HttpPost, 
@@ -45,6 +45,18 @@ public class OrderController(IOrderService orderService) : ControllerBase
     public async Task<IActionResult> FindById(int id)
     {
         var serviceResult = await orderService.FindById(id);
+        return serviceResult.Success ? 
+            Ok(serviceResult.Data) : 
+            BadRequest(serviceResult);
+    }
+
+    [HttpGet("{id:int}/ordersItem"),
+     ProducesResponseType(typeof(Order), 200),
+     ProducesResponseType(404),
+     ProducesResponseType(500)]
+    public async Task<IActionResult> FindOrderItemById(int id)
+    {
+        var serviceResult = await itemService.FindByOrderId(id);
         return serviceResult.Success ? 
             Ok(serviceResult.Data) : 
             BadRequest(serviceResult);

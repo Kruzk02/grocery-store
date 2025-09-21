@@ -14,7 +14,7 @@ namespace API.Controllers;
 /// </remarks>
 /// <param name="productService"></param>
 [ApiController, Route("[controller]"), Authorize]
-public class ProductController(IProductService productService) : ControllerBase
+public class ProductController(IProductService productService, IOrderItemService itemService) : ControllerBase
 {
 
     /// <summary>
@@ -100,6 +100,16 @@ public class ProductController(IProductService productService) : ControllerBase
     public async Task<IActionResult> FindById(int id)
     {
         var serviceResult = await productService.FindById(id);
+        return serviceResult.Success ? Ok(serviceResult) : NotFound(serviceResult);
+    }
+    
+    [HttpGet("{id:int}/ordersItem")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> FindOrderItemById(int id)
+    {
+        var serviceResult = await itemService.FindByProductId(id);
         return serviceResult.Success ? Ok(serviceResult) : NotFound(serviceResult);
     }
 

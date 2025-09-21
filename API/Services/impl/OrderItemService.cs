@@ -85,18 +85,26 @@ public class OrderItemService(ApplicationDbContext ctx) : IOrderItemService
 
     public async Task<ServiceResult<List<OrderItem>>> FindByOrderId(int orderId)
     {
-        var orderItems = await ctx.OrderItems.Where(oi => oi.OrderId == orderId).ToListAsync();
+        var orderItems = await ctx.OrderItems
+            .Where(oi => oi.OrderId == orderId)
+            .Include(oi => oi.Order)
+                .ThenInclude(o => o.Items)
+            .Include(oi => oi.Product)   
+            .ToListAsync();
         return orderItems.Count > 0 ? 
-            ServiceResult<List<OrderItem>>.Ok(orderItems, "Order items found") :
-            ServiceResult<List<OrderItem>>.Failed("Order item not found");
+            ServiceResult<List<OrderItem>>.Ok(orderItems, "Order items of the selected order found") :
+            ServiceResult<List<OrderItem>>.Failed("Order item of the selected order not found");
     }
 
     public async Task<ServiceResult<List<OrderItem>>> FindByProductId(int productId)
     {
-        var orderItems = await ctx.OrderItems.Where(oi => oi.ProductId == productId).ToListAsync();
+        var orderItems = await ctx.OrderItems
+            .Where(oi => oi.ProductId == productId)
+            .Include(oi => oi.Product)
+            .ToListAsync();
         return orderItems.Count > 0 ? 
-            ServiceResult<List<OrderItem>>.Ok(orderItems, "Order items found") :
-            ServiceResult<List<OrderItem>>.Failed("Order item not found");
+            ServiceResult<List<OrderItem>>.Ok(orderItems, "Order items of the selected product found") :
+            ServiceResult<List<OrderItem>>.Failed("Order item of the selected product not found");
     }
 
     public async Task<ServiceResult> Delete(int id)
