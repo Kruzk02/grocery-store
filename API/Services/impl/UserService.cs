@@ -36,14 +36,14 @@ public class UserService(
 
     public async Task<ServiceResult> Login(LoginDto dto)
     {
-        var user = await userManager.FindByNameAsync(dto.UserNameOrEmail) ?? await  userManager.FindByEmailAsync(dto.UserNameOrEmail);
+        var user = await userManager.FindByNameAsync(dto.UserNameOrEmail) ?? await userManager.FindByEmailAsync(dto.UserNameOrEmail);
         if (user == null) return ServiceResult.Failed("User not found");
         
         var result = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
         if (!result.Succeeded)
             return ServiceResult.Failed("Invalid password");
 
-        var token = tokenService.CreateToken(user);
+        var token = await tokenService.CreateToken(user, userManager);
         return ServiceResult.Ok(token);
     }
 

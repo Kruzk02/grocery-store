@@ -1,17 +1,42 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using API.Entity;
 using API.Services;
 using API.Settings;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class TokenServiceTest
 {
-    [Test]
-    public void CreateToken_ShouldReturn_ValidJwtToken()
+    Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
     {
+        var store = new Mock<IUserStore<TUser>>();
+        return new Mock<UserManager<TUser>>(
+            store.Object, null, null, null, null, null, null, null, null);
+    }
+    
+    [Test]
+    public async Task CreateToken_ShouldReturn_ValidJwtToken()
+    {
+        var mockUserManager = MockUserManager<ApplicationUser>();
+        
+        mockUserManager
+            .Setup(m => m.GetClaimsAsync(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync(new List<Claim>());
+
+        mockUserManager
+            .Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync(new List<string>());
+        
+        var userManager = mockUserManager.Object;
+
         var jwtSettings = new JwtSettings
         {
             Key = "supersecretkey12345678901234567890",
@@ -29,8 +54,9 @@ public class TokenServiceTest
             UserName = "testuser",
             Email = "test@example.com"
         };
-        
-        var token = tokenService.CreateToken(user);
+
+        Debug.Assert(mockUserManager != null, nameof(mockUserManager) + " != null");
+        var token = await tokenService.CreateToken(user, userManager);
 
         Assert.That(string.IsNullOrWhiteSpace(token), Is.False);
 
