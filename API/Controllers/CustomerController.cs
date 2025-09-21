@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController, Route("[controller]"), Authorize]
-public class CustomerController(ICustomerService customerService) : ControllerBase
+public class CustomerController(ICustomerService customerService, IOrderService orderService) : ControllerBase
 {
 
     [HttpGet]
@@ -30,6 +30,14 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
         }
         
         return CreatedAtAction(nameof(FindById), new { id = serviceResult.Data!.Id }, serviceResult.Data);
+    }
+
+    [HttpGet("{id:int}/orders")]
+    [ProducesResponseType(typeof(Customer), 200), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> GetOrders(int id)
+    {
+        var serviceResult = await orderService.FindByCustomerId(id);
+        return serviceResult.Success ? Ok(serviceResult.Data) : BadRequest(serviceResult);
     }
 
     [HttpPut("{id:int}")]

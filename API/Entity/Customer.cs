@@ -15,8 +15,6 @@ public class Customer
     [Required, MinLength(3), MaxLength(255)]
     public required string Address { get; set; }
     
-    public ICollection<Order> Orders { get; set; }
-    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
