@@ -26,7 +26,10 @@ public class NotificationService(ApplicationDbContext ctx) : INotificationServic
     /// <inheritdoc />
     public async Task<ServiceResult<List<Notification>>> FindByUserId(string userId)
     {
-        var notifications = await ctx.Notifications.Where(n => n.UserId == userId).ToListAsync();
+        var notifications = await ctx.Notifications
+            .Where(n => n.UserId == userId)
+            .OrderByDescending(n => n.CreatedAt)
+            .ToListAsync();
         return notifications.Count > 0 ?  ServiceResult<List<Notification>>.Ok(notifications, "Notification retrieve successfully") : 
             ServiceResult<List<Notification>>.Failed("Failed to retrieve notifications");
     }

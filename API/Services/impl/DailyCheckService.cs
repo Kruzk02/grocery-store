@@ -21,7 +21,7 @@ public class DailyCheckService(ILogger<DailyCheckService> logger, IServiceScopeF
             if (now > scheduledTime) {
                 scheduledTime = scheduledTime.AddDays(1);
             }
-
+            
             var delay = scheduledTime - now;
             logger.LogInformation("Next check at {time}", scheduledTime);
             
@@ -39,7 +39,7 @@ public class DailyCheckService(ILogger<DailyCheckService> logger, IServiceScopeF
             dbContext.Notifications.Add(new Notification
             {
                 UserId = adminUsers.Id,
-                Message = "The product quality currently less than 10" + inventory?.Product,
+                Message = "The product quality currently less than 10: " + inventory?.Product,
                 Type = NotificationType.Info, IsRead = false, CreatedAt = DateTime.UtcNow
             });
             await dbContext.SaveChangesAsync(stoppingToken);

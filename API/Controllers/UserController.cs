@@ -68,14 +68,23 @@ public class UserController(
 
     [Authorize]
     [HttpGet("notifications")]
-    public async Task<IActionResult> FindNotificationByUserId()
+    public async Task FindNotificationByUserId()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null)
+        Response.Headers.ContentType = "text/event-stream";
+        Response.Headers.CacheControl = "no-cache";
+        Response.Headers.Connection = "keep-alive";
+
+        while (!HttpContext.RequestAborted.IsCancellationRequested)
         {
-            return BadRequest();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var serviceResult = await notificationService.FindByUserId(userId!);
+            var json = System.Text.Json.JsonSerializer.Serialize(serviceResult);
+            await Response.WriteAsync(json);
+            await Response.Body.FlushAsync();
+
+            await Task.Delay(3600000); // 1 Hour
         }
-        var serviceResult = await notificationService.FindByUserId(userId);
-        return serviceResult.Success ? Ok(serviceResult) : BadRequest(serviceResult);
+
     }
 }
