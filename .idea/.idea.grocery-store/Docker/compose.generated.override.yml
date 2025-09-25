@@ -1,0 +1,21 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  api:
+    build:
+      context: "C:\\Users\\Admin\\RiderProjects\\grocery-store"
+      dockerfile: "API/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/API.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "api:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\Admin\\RiderProjects\\grocery-store\\API:/app:rw"
+    - "C:\\Users\\Admin\\RiderProjects\\grocery-store:/src:rw"
+    - "C:\\Users\\Admin\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"
