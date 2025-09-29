@@ -3,33 +3,37 @@ using API.Dtos;
 using API.Entity;
 using API.Services.impl;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class ProductServiceTest
 {
-
-    private static ApplicationDbContext GetInMemoryDbContext()
+    private ProductService _productService;
+    private ApplicationDbContext _context;
+    
+    [SetUp]
+    public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        _context = GetInMemoryDbContext();
+        _productService = new ProductService(_context, new MemoryCache(new MemoryCacheOptions()));
+    }
 
-        return new ApplicationDbContext(options);
+    [TearDown]
+    public void Destroy()
+    {
+        _context.Dispose();
     }
     
     [Test]
     public async Task CreateProduct_ShouldCreateProduct()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        ctx.Categories.Add(category);
-        await ctx.SaveChangesAsync();
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
 
-        var serviceResult = await service.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        var serviceResult = await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
         var result = serviceResult.Data;
         
@@ -46,10 +50,7 @@ public class ProductServiceTest
     [Test]
     public async Task CreateProduct_ShouldFailed_WhenCategoryNotFound()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
-        var serviceResult = await service.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: 1, Quantity: 1));
+        var serviceResult = await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: 1, Quantity: 1));
         
         Assert.That(serviceResult.Message, Is.EqualTo("Category not found"));
     }
@@ -57,16 +58,13 @@ public class ProductServiceTest
     [Test]
     public async Task UpdateProduct_ShouldUpdateProduct()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        ctx.Categories.Add(category);
-        await ctx.SaveChangesAsync();
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
 
-        await service.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
-        var serviceResult = await service.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
+        var serviceResult = await _productService.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
         
         Assert.Multiple(() =>
         {
@@ -78,10 +76,7 @@ public class ProductServiceTest
     [Test]
     public async Task UpdateProduct_ShouldFailed_WhenProductNotFound()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
-        var serviceResult = await service.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
+        var serviceResult = await _productService.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
 
         Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
     }
@@ -89,16 +84,13 @@ public class ProductServiceTest
     [Test]
     public async Task FindAll_shouldReturnListOfProduct()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        ctx.Categories.Add(category);
-        await ctx.SaveChangesAsync();
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
 
-        await service.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
-        var serviceResult = await service.FindAll();
+        var serviceResult = await _productService.FindAll();
         var result = serviceResult.Data;
         Assert.Multiple(() =>
         {
@@ -110,16 +102,13 @@ public class ProductServiceTest
     [Test]
     public async Task FindById_ShouldReturnProduct()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        ctx.Categories.Add(category);
-        await ctx.SaveChangesAsync();
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
 
-        await service.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
-        var serviceResult = await service.FindById(1);
+        var serviceResult = await _productService.FindById(1);
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -135,10 +124,7 @@ public class ProductServiceTest
     [Test]
     public async Task FindById_ShouldFailed_WhenProductNotFound()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
-        var serviceResult = await service.FindById(1);
+        var serviceResult = await _productService.FindById(1);
 
         Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
     }
@@ -146,16 +132,13 @@ public class ProductServiceTest
     [Test]
     public async Task DeleteById()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        ctx.Categories.Add(category);
-        await ctx.SaveChangesAsync();
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
 
-        await service.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
         
-        var serviceResult = await service.DeleteById(1);
+        var serviceResult = await _productService.DeleteById(1);
         
         Assert.That(serviceResult.Success, Is.True);
     }
@@ -163,11 +146,17 @@ public class ProductServiceTest
     [Test]
     public async Task DeleteById_ShouldFailed_WhenProductNotFound()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new ProductService(ctx);
-        
-        var serviceResult = await service.DeleteById(1);
+        var serviceResult = await _productService.DeleteById(1);
 
         Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
+    }
+    
+    private static ApplicationDbContext GetInMemoryDbContext()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new ApplicationDbContext(options);
     }
 }
