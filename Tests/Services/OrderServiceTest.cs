@@ -3,32 +3,38 @@ using API.Dtos;
 using API.Entity;
 using API.Services.impl;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class OrderServiceTest
 {
-    private static ApplicationDbContext GetInMemoryDbContext()
-    {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+    
+    private OrderService _orderService;
+    private ApplicationDbContext _dbContext;
 
-        return new ApplicationDbContext(options);
+    [SetUp]
+    public void SetUp()
+    {
+        _dbContext = GetInMemoryDbContext();
+        _orderService = new OrderService(_dbContext, new MemoryCache(new MemoryCacheOptions()));
     }
 
+    [TearDown]
+    public void Destroy()
+    {
+        _dbContext.Dispose();
+    }
+    
     [Test]
     public async Task Create()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderService(ctx);
-
         var customer = new Customer() { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
-        ctx.Customers.Add(customer);
-        await ctx.SaveChangesAsync();
+        _dbContext.Customers.Add(customer);
+        await _dbContext.SaveChangesAsync();
 
-        var serviceResult = await service.Create(new OrderDto(customer.Id));
+        var serviceResult = await _orderService.Create(new OrderDto(customer.Id));
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -41,17 +47,14 @@ public class OrderServiceTest
     [Test]
     public async Task Update()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderService(ctx);
-
         var customer1 = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
-        ctx.Customers.Add(customer1);
+        _dbContext.Customers.Add(customer1);
         var customer2 = new Customer { Name = "Name123", Email = "Email123@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
-        ctx.Customers.Add(customer1);
-        await ctx.SaveChangesAsync();
+        _dbContext.Customers.Add(customer1);
+        await _dbContext.SaveChangesAsync();
 
-        await service.Create(new OrderDto(customer1.Id));
-        var serviceResult = await service.Update(1, new OrderDto(customer2.Id));
+        await _orderService.Create(new OrderDto(customer1.Id));
+        var serviceResult = await _orderService.Update(1, new OrderDto(customer2.Id));
         
         Assert.That(serviceResult.Success, Is.True);
     }
@@ -59,9 +62,7 @@ public class OrderServiceTest
     [Test]
     public async Task FindById()
     {
-        var ctx = GetInMemoryDbContext();
-        var orderService = new OrderService(ctx);
-        var orderItemService = new OrderItemService(ctx);
+        var orderItemService = new OrderItemService(_dbContext);
 
         var order = new Order
         {
@@ -82,14 +83,14 @@ public class OrderServiceTest
         };
         var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
                 
-        ctx.Orders.Add(order);
-        ctx.Products.Add(product);
-        ctx.Customers.Add(customer);
-        await ctx.SaveChangesAsync();
+        _dbContext.Orders.Add(order);
+        _dbContext.Products.Add(product);
+        _dbContext.Customers.Add(customer);
+        await _dbContext.SaveChangesAsync();
         await orderItemService.Create(new OrderItemDto(order.Id, product.Id, 20));
-        await orderService.Create(new OrderDto(customer.Id));
+        await _orderService.Create(new OrderDto(customer.Id));
         
-        var serviceResult = await orderService.FindById(1);
+        var serviceResult = await _orderService.FindById(1);
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -103,15 +104,12 @@ public class OrderServiceTest
     [Test]
     public async Task FindByCustomerId()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderService(ctx);
-
         var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
-        ctx.Customers.Add(customer);
-        await ctx.SaveChangesAsync();
-        await service.Create(new OrderDto(customer.Id));
+        _dbContext.Customers.Add(customer);
+        await _dbContext.SaveChangesAsync();
+        await _orderService.Create(new OrderDto(customer.Id));
         
-        var serviceResult = await service.FindByCustomerId(customer.Id);
+        var serviceResult = await _orderService.FindByCustomerId(customer.Id);
         var result = serviceResult.Data;
 
         Assert.Multiple(() =>
@@ -125,15 +123,21 @@ public class OrderServiceTest
     [Test]
     public async Task Delete()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderService(ctx);
-
         var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
-        ctx.Customers.Add(customer);
-        await ctx.SaveChangesAsync();
-        await service.Create(new OrderDto(customer.Id));
+        _dbContext.Customers.Add(customer);
+        await _dbContext.SaveChangesAsync();
+        await _orderService.Create(new OrderDto(customer.Id));
 
-        var serviceResult = await service.Delete(1);
+        var serviceResult = await _orderService.Delete(1);
         Assert.That(serviceResult.Success, Is.True);
+    }
+    
+    private static ApplicationDbContext GetInMemoryDbContext()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new ApplicationDbContext(options);
     }
 }

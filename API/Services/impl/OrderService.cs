@@ -2,10 +2,11 @@
 using API.Dtos;
 using API.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace API.Services.impl;
 
-public class OrderService(ApplicationDbContext ctx) : IOrderService
+public class OrderService(ApplicationDbContext ctx, IMemoryCache cache) : IOrderService
 {
     public async Task<ServiceResult<Order>> Create(OrderDto orderDto)
     {
@@ -54,15 +55,36 @@ public class OrderService(ApplicationDbContext ctx) : IOrderService
 
     public async Task<ServiceResult<Order>> FindById(int id)
     {
-        var order = await ctx.Orders.FindAsync(id);
-        return order != null ? 
-            ServiceResult<Order>.Ok(order, "Order found") :
-            ServiceResult<Order>.Failed("Order not found");
+        var cacheKey = $"order:{id}";
+        if (cache.TryGetValue(cacheKey, out Order? order))
+            if (order != null)
+                return ServiceResult<Order>.Ok(order, "Order found");
+        order = await ctx.Orders.FindAsync(id);
+        var cacheOptions = new MemoryCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+
+        cache.Set(cacheKey, order, cacheOptions);
+
+        return order != null
+            ? ServiceResult<Order>.Ok(order, "Order found")
+            : ServiceResult<Order>.Failed("Order not found");
     }
 
     public async Task<ServiceResult<List<Order>>> FindByCustomerId(int customerId)
     {
-        var orders = await ctx.Orders.Where(o => o.CustomerId == customerId).ToListAsync();
+        var cacheKey = $"customer:{customerId}:orders";
+        if (cache.TryGetValue(cacheKey, out List<Order>? orders)) 
+            if (orders != null)
+                return ServiceResult<List<Order>>.Ok(orders, "Orders found");
+        
+        orders = await ctx.Orders.Where(o => o.CustomerId == customerId).ToListAsync();
+        
+        var cacheOptions = new MemoryCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+        cache.Set(cacheKey, orders, cacheOptions);
+        
         return orders.Count > 0 ? 
             ServiceResult<List<Order>>.Ok(orders, "Orders found") :
             ServiceResult<List<Order>>.Failed("Order not found");
@@ -75,7 +97,8 @@ public class OrderService(ApplicationDbContext ctx) : IOrderService
         {
             return ServiceResult.Failed("Order not found");
         }
-
+        
+        cache.Remove($"order:{id}");
         ctx.Orders.Remove(order);
         await ctx.SaveChangesAsync();
         return ServiceResult.Ok("Order deleted successfully");
