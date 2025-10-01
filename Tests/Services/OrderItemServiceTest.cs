@@ -3,21 +3,30 @@ using API.Dtos;
 using API.Entity;
 using API.Services.impl;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class OrderItemServiceTest
 {
-    private static ApplicationDbContext GetInMemoryDbContext()
-    {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+    
+    private OrderItemService _orderItemService;
+    private ApplicationDbContext _dbContext;
 
-        return new ApplicationDbContext(options);
+    [SetUp]
+    public void Setup()
+    {
+        _dbContext = GetInMemoryDbContext();
+        _orderItemService = new OrderItemService(_dbContext, new MemoryCache(new MemoryCacheOptions()));
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _dbContext.Dispose();    
+    }
+    
     private void CreateProductAndOrder(ApplicationDbContext ctx)
     {
         var order = new Order
@@ -45,13 +54,10 @@ public class OrderItemServiceTest
     [Test]
     public async Task CreateOrderItem()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderItemService(ctx);
+        CreateProductAndOrder(_dbContext);
+        await _dbContext.SaveChangesAsync();
 
-        CreateProductAndOrder(ctx);
-        await ctx.SaveChangesAsync();
-
-        var serviceResult = await service.Create(new OrderItemDto(1, 1, 24));
+        var serviceResult = await _orderItemService.Create(new OrderItemDto(1, 1, 24));
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -67,27 +73,21 @@ public class OrderItemServiceTest
     [Test]
     public async Task Update()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderItemService(ctx);
-
-        CreateProductAndOrder(ctx);
+        CreateProductAndOrder(_dbContext);
         
-        await ctx.SaveChangesAsync();
-        await service.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await service.Update(1, new OrderItemDto(1, 1, 13));
+        await _dbContext.SaveChangesAsync();
+        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
+        var serviceResult = await _orderItemService.Update(1, new OrderItemDto(1, 1, 13));
         Assert.That(serviceResult.Success, Is.True);        
     }
 
     [Test]
     public async Task FindById()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderItemService(ctx);
-        
-        CreateProductAndOrder(ctx);
-        await ctx.SaveChangesAsync();
-        await service.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await service.FindById(1);
+        CreateProductAndOrder(_dbContext);
+        await _dbContext.SaveChangesAsync();
+        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
+        var serviceResult = await _orderItemService.FindById(1);
         var result = serviceResult.Data;
         Assert.Multiple(() =>
         {
@@ -102,13 +102,10 @@ public class OrderItemServiceTest
     [Test]
     public async Task FindByOrderId()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderItemService(ctx);
-        
-        CreateProductAndOrder(ctx);
-        await ctx.SaveChangesAsync();
-        await service.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await service.FindByOrderId(1);
+        CreateProductAndOrder(_dbContext);
+        await _dbContext.SaveChangesAsync();
+        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
+        var serviceResult = await _orderItemService.FindByOrderId(1);
         var result = serviceResult.Data;
         Assert.Multiple(() =>
         {
@@ -124,13 +121,10 @@ public class OrderItemServiceTest
     [Test]
     public async Task FindByProductId()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderItemService(ctx);
-        
-        CreateProductAndOrder(ctx);
-        await ctx.SaveChangesAsync();
-        await service.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await service.FindByProductId(1);
+        CreateProductAndOrder(_dbContext);
+        await _dbContext.SaveChangesAsync();
+        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
+        var serviceResult = await _orderItemService.FindByProductId(1);
         var result = serviceResult.Data;
         Assert.Multiple(() =>
         {
@@ -146,13 +140,20 @@ public class OrderItemServiceTest
     [Test]
     public async Task Delete()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new OrderItemService(ctx);
-        
-        CreateProductAndOrder(ctx);
-        await ctx.SaveChangesAsync();
-        await service.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await service.Delete(1);
+        CreateProductAndOrder(_dbContext);
+        await _dbContext.SaveChangesAsync();
+        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
+        var serviceResult = await _orderItemService.Delete(1);
         Assert.That(serviceResult.Success, Is.True);
+    }
+    
+        
+    private static ApplicationDbContext GetInMemoryDbContext()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new ApplicationDbContext(options);
     }
 }

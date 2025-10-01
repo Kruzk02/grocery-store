@@ -62,7 +62,7 @@ public class OrderServiceTest
     [Test]
     public async Task FindById()
     {
-        var orderItemService = new OrderItemService(_dbContext);
+        var orderItemService = new OrderItemService(_dbContext, new MemoryCache(new MemoryCacheOptions()));
 
         var order = new Order
         {

@@ -2,10 +2,11 @@
 using API.Dtos;
 using API.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace API.Services.impl;
 
-public class OrderItemService(ApplicationDbContext ctx) : IOrderItemService
+public class OrderItemService(ApplicationDbContext ctx, IMemoryCache cache) : IOrderItemService
 {
     public async Task<ServiceResult<OrderItem>> Create(OrderItemDto orderItemDto)
     {
@@ -77,7 +78,19 @@ public class OrderItemService(ApplicationDbContext ctx) : IOrderItemService
 
     public async Task<ServiceResult<OrderItem>> FindById(int id)
     {
-        var orderItem = await ctx.OrderItems.FindAsync(id);
+        var cacheKey = $"orderItem:{id}";
+        if (cache.TryGetValue(cacheKey, out OrderItem? orderItem))
+            if (orderItem != null)
+                return ServiceResult<OrderItem>.Ok(orderItem, "Order item found");
+
+        orderItem = await ctx.OrderItems.FindAsync(id);
+
+        var cacheOption = new MemoryCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+        
+        cache.Set(cacheKey, orderItem, cacheOption);
+        
         return orderItem == null ? 
             ServiceResult<OrderItem>.Failed("Order item not found") : 
             ServiceResult<OrderItem>.Ok(orderItem, "Order item found");
@@ -85,12 +98,23 @@ public class OrderItemService(ApplicationDbContext ctx) : IOrderItemService
 
     public async Task<ServiceResult<List<OrderItem>>> FindByOrderId(int orderId)
     {
-        var orderItems = await ctx.OrderItems
+        var cacheKey = $"order:{orderId}:orderItem";
+        if (cache.TryGetValue(cacheKey, out List<OrderItem>? orderItems))
+            if (orderItems != null) 
+                return ServiceResult<List<OrderItem>>.Ok(orderItems, "Order item of the selected order found");
+        
+        orderItems = await ctx.OrderItems
             .Where(oi => oi.OrderId == orderId)
             .Include(oi => oi.Order)
                 .ThenInclude(o => o.Items)
             .Include(oi => oi.Product)   
             .ToListAsync();
+        
+        var cacheOption = new MemoryCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+        
+        cache.Set(cacheKey, orderItems, cacheOption);
         return orderItems.Count > 0 ? 
             ServiceResult<List<OrderItem>>.Ok(orderItems, "Order items of the selected order found") :
             ServiceResult<List<OrderItem>>.Failed("Order item of the selected order not found");
@@ -98,10 +122,21 @@ public class OrderItemService(ApplicationDbContext ctx) : IOrderItemService
 
     public async Task<ServiceResult<List<OrderItem>>> FindByProductId(int productId)
     {
-        var orderItems = await ctx.OrderItems
+        var cacheKey = $"product:{productId}:orderItem";
+        if (cache.TryGetValue(cacheKey, out List<OrderItem>? orderItems)) 
+            if (orderItems != null)
+                return ServiceResult<List<OrderItem>>.Ok(orderItems, "Order items of the selected product found");
+        
+        orderItems = await ctx.OrderItems
             .Where(oi => oi.ProductId == productId)
             .Include(oi => oi.Product)
             .ToListAsync();
+
+        var cacheOption = new MemoryCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+        
+        cache.Set(cacheKey, orderItems, cacheOption);
         return orderItems.Count > 0 ? 
             ServiceResult<List<OrderItem>>.Ok(orderItems, "Order items of the selected product found") :
             ServiceResult<List<OrderItem>>.Failed("Order item of the selected product not found");
@@ -114,7 +149,9 @@ public class OrderItemService(ApplicationDbContext ctx) : IOrderItemService
         {
             return ServiceResult.Failed("Order item not found");
         }
-
+        
+        cache.Remove($"orderItem:{id}");
+        
         ctx.OrderItems.Remove(orderItem);
         await ctx.SaveChangesAsync();
         return ServiceResult.Ok("Order item deleted successfully");
