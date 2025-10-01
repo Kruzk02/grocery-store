@@ -3,32 +3,37 @@ using API.Dtos;
 using API.Entity;
 using API.Services.impl;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class InventoryServiceTest
 {
-    private static ApplicationDbContext GetInMemoryDbContext()
-    {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+    private InventoryService _inventoryService;
+    private ApplicationDbContext _dbContext;
 
-        return new ApplicationDbContext(options);
+    [SetUp]
+    public void Setup()
+    {
+        _dbContext = GetInMemoryDbContext();
+        _inventoryService = new InventoryService(_dbContext, new MemoryCache(new MemoryCacheOptions()));
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _dbContext.Dispose();
+    }
+    
     [Test]
     public async Task CreateInventory_shouldCreateProduct()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-
         var product = new Product{ Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
-        ctx.Products.Add(product);
-        await ctx.SaveChangesAsync();
+        _dbContext.Products.Add(product);
+        await _dbContext.SaveChangesAsync();
 
-        var serviceResult = await service.Create(new InventoryDto(product.Id, 20));
+        var serviceResult = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
         var result = serviceResult.Data;
         
@@ -44,10 +49,7 @@ public class InventoryServiceTest
     [Test]
     public async Task CreateInventory_shouldFailed_whenProductNotFound()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-        
-        var serviceResult = await service.Create(new InventoryDto(ProductId: 1, Quantity: 20));
+        var serviceResult = await _inventoryService.Create(new InventoryDto(ProductId: 1, Quantity: 20));
         
         Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
     }
@@ -55,16 +57,13 @@ public class InventoryServiceTest
     [Test]
     public async Task UpdateInventory_shouldUpdateInventory()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-        
         var product = new  Product{ Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
-        ctx.Products.Add(product);
-        await ctx.SaveChangesAsync();
+        _dbContext.Products.Add(product);
+        await _dbContext.SaveChangesAsync();
         
-        await service.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
+        await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
         
-        var serviceResult = await service.Update(1, new InventoryDto(ProductId: product.Id, Quantity: 10));
+        var serviceResult = await _inventoryService.Update(1, new InventoryDto(ProductId: product.Id, Quantity: 10));
         
         Assert.Multiple(() =>
         {
@@ -76,10 +75,7 @@ public class InventoryServiceTest
     [Test]
     public async Task UpdateInventory_shouldFailed_whenInventoryNotFound()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-        
-        var serviceResult = await service.Update(1, new InventoryDto(ProductId: 1, Quantity: 20));
+        var serviceResult = await _inventoryService.Update(1, new InventoryDto(ProductId: 1, Quantity: 20));
         
         Assert.That(serviceResult.Message, Is.EqualTo("Inventory not found"));
     }
@@ -87,16 +83,13 @@ public class InventoryServiceTest
     [Test]
     public async Task FindAll_shouldReturnListOfInventory()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-        
         var product = new Product{ Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
-        ctx.Products.Add(product);
-        await ctx.SaveChangesAsync();
+        _dbContext.Products.Add(product);
+        await _dbContext.SaveChangesAsync();
 
-        await service.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
+        await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
         
-        var serviceResult = await service.FindAll();
+        var serviceResult = await _inventoryService.FindAll();
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -109,16 +102,13 @@ public class InventoryServiceTest
     [Test]
     public async Task FindById_shouldReturnInventory()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-
         var product = new Product { Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
-        ctx.Products.Add(product);
-        await ctx.SaveChangesAsync();
+        _dbContext.Products.Add(product);
+        await _dbContext.SaveChangesAsync();
         
-        await service.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
+        await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
 
-        var serviceResult = await service.FindById(1);
+        var serviceResult = await _inventoryService.FindById(1);
         var result = serviceResult.Data;
         
         Assert.Multiple(() => {
@@ -132,10 +122,7 @@ public class InventoryServiceTest
     [Test]
     public async Task FindById_shouldFailed_whenInventoryNotFound()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-        
-        var serviceResult = await service.FindById(1);
+        var serviceResult = await _inventoryService.FindById(1);
         
         Assert.That(serviceResult.Message, Is.EqualTo("Inventory not found"));
     }
@@ -143,27 +130,30 @@ public class InventoryServiceTest
     [Test]
     public async Task DeleteById_shouldDeleteInventory()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-        
         var product = new Product { Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
-        ctx.Products.Add(product);
-        await ctx.SaveChangesAsync();
+        _dbContext.Products.Add(product);
+        await _dbContext.SaveChangesAsync();
         
-        await service.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
+        await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
 
-        var serviceResult = await service.Delete(1);
+        var serviceResult = await _inventoryService.Delete(1);
         Assert.That(serviceResult.Success, Is.True);
     }
 
     [Test]
     public async Task DeleteById_shouldFailed_whenInventoryNotFound()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new InventoryService(ctx);
-        
-        var serviceResult = await service.Delete(1);
+        var serviceResult = await _inventoryService.Delete(1);
         
         Assert.That(serviceResult.Message, Is.EqualTo("Inventory not found"));
+    }
+        
+    private static ApplicationDbContext GetInMemoryDbContext()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new ApplicationDbContext(options);
     }
 }
