@@ -2,30 +2,36 @@
 using API.Dtos;
 using API.Services.impl;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class CustomerServiceTest
 {
-    private static ApplicationDbContext GetInMemoryDbContext()
+    
+    private CustomerService _customerService;
+    private ApplicationDbContext _dbContext;
+    
+    [SetUp]
+    public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        _dbContext = GetInMemoryDbContext();
+        _customerService = new CustomerService(_dbContext, new MemoryCache(new MemoryCacheOptions()));
+    }
 
-        return new ApplicationDbContext(options);
+    [TearDown]
+    public void TearDown()
+    {
+        _dbContext.Dispose();    
     }
 
     [Test]
     public async Task GetAllCustomers()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new CustomerService(ctx);
+        await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        await service.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
-
-        var serviceResult = await service.FindAll();
+        var serviceResult = await _customerService.FindAll();
         var result = serviceResult.Data;
         
         Assert.That(result, !Is.Empty);
@@ -34,10 +40,7 @@ public class CustomerServiceTest
     [Test]
     public async Task Create()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new CustomerService(ctx);
-
-        var serviceResult = await service.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
+        var serviceResult = await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
         
         var result = serviceResult.Data;
         
@@ -54,11 +57,9 @@ public class CustomerServiceTest
     [Test]
     public async Task Update()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new CustomerService(ctx);
-        await service.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
+        await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await service.Update(1, new CustomerDto("Name13", "Emai44l@gmail.com", "843806784", "1b22"));
+        var serviceResult = await _customerService.Update(1, new CustomerDto("Name13", "Emai44l@gmail.com", "843806784", "1b22"));
         
         Assert.That(serviceResult.Success, Is.True);
     }
@@ -66,11 +67,9 @@ public class CustomerServiceTest
     [Test]
     public async Task FindById()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new CustomerService(ctx);
-        await service.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
+        await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await service.FindById(1);
+        var serviceResult = await _customerService.FindById(1);
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -87,11 +86,9 @@ public class CustomerServiceTest
     [Test]
     public async Task FindByName()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new CustomerService(ctx);
-        await service.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
+        await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await service.FindByName("Name");
+        var serviceResult = await _customerService.FindByName("Name");
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -108,11 +105,9 @@ public class CustomerServiceTest
     [Test]
     public async Task FindByEmail()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new CustomerService(ctx);
-        await service.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
+        await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await service.FindByEmail("Email@gmail.com");
+        var serviceResult = await _customerService.FindByEmail("Email@gmail.com");
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -129,11 +124,9 @@ public class CustomerServiceTest
     [Test]
     public async Task FindByPhoneNumber()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new CustomerService(ctx);
-        await service.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
+        await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await service.FindByPhoneNumber("843806784");
+        var serviceResult = await _customerService.FindByPhoneNumber("843806784");
         var result = serviceResult.Data;
         
         Assert.Multiple(() =>
@@ -150,12 +143,19 @@ public class CustomerServiceTest
     [Test]
     public async Task DeleteById()
     {
-        var ctx = GetInMemoryDbContext();
-        var service = new CustomerService(ctx);
-        await service.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
+        await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await service.DeleteById(1);
+        var serviceResult = await _customerService.DeleteById(1);
         
         Assert.That(serviceResult.Success, Is.True);
+    }
+    
+    private static ApplicationDbContext GetInMemoryDbContext()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new ApplicationDbContext(options);
     }
 }
