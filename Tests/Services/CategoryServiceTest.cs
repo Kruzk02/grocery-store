@@ -2,12 +2,14 @@
 using API.Entity;
 using API.Services.impl;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class CategoryServiceTest
 {
+    
     private static ApplicationDbContext GetInMemoryDbContext()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -25,7 +27,7 @@ public class CategoryServiceTest
         ctx.Categories.Add(category);
         await ctx.SaveChangesAsync();
         
-        var service = new CategoryService(ctx);
+        var service = new CategoryService(ctx, new MemoryCache(new MemoryCacheOptions()));
 
         var result = service.FindAll();
         Assert.Multiple(() =>
