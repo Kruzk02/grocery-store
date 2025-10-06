@@ -25,6 +25,18 @@ public class OrderService(ApplicationDbContext ctx, IMemoryCache cache) : IOrder
         var result = await ctx.Orders.AddAsync(order);
         await ctx.SaveChangesAsync();
         
+        var invoice = new Invoice
+        {
+            OrderId = result.Entity.Id,
+            Order = result.Entity,
+            IssueDate = DateTime.UtcNow,
+            DueDate = DateTime.UtcNow.AddDays(30),
+            InvoiceNumber = $"INV-{DateTime.UtcNow.Year}:{result.Entity.Id:D4}"
+        };
+        
+        await ctx.Invoices.AddAsync(invoice);
+        await ctx.SaveChangesAsync();
+        
         return ServiceResult<Order>.Ok(result.Entity, "Order created successfully");
     }
 
@@ -88,6 +100,14 @@ public class OrderService(ApplicationDbContext ctx, IMemoryCache cache) : IOrder
         return orders.Count > 0 ? 
             ServiceResult<List<Order>>.Ok(orders, "Orders found") :
             ServiceResult<List<Order>>.Failed("Order not found");
+    }
+
+    public async Task<ServiceResult<Invoice>> FindInvoiceByOrderId(int orderId)
+    {
+        var invoice = await ctx.Invoices.Where(i => i.OrderId == orderId).FirstOrDefaultAsync();
+        return invoice != null ? 
+            ServiceResult<Invoice>.Ok(invoice, "Invoice found") :
+            ServiceResult<Invoice>.Failed("Invoice not found");
     }
 
     public async Task<ServiceResult> Delete(int id)
