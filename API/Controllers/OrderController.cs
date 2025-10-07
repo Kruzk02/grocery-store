@@ -62,6 +62,18 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
             BadRequest(serviceResult);
     }
 
+    [HttpGet("{id:int}/invoice"),
+     ProducesResponseType(typeof(Invoice), 200),
+     ProducesResponseType(404),
+     ProducesResponseType(500)]
+    public async Task<IActionResult> FindInvoiceById(int id)
+    {
+        var serviceResult = await orderService.FindInvoiceByOrderId(id);
+        return serviceResult.Success ?
+            Ok(serviceResult.Data) : 
+            BadRequest(serviceResult);
+    }
+
     [HttpDelete("{id:int}"),
      ProducesResponseType(typeof(Order), 204),
      ProducesResponseType(404),
