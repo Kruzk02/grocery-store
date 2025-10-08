@@ -18,7 +18,7 @@ public class UserController(
     public async Task<IActionResult> Me()
     {
         var result = await userService.GetUser(User);
-        return result.Success ? Ok(result) : BadRequest(result);
+        return Ok(result);
     }
 
     [AllowAnonymous]
@@ -26,7 +26,7 @@ public class UserController(
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         var result = await userService.CreateUser(dto);
-        return result.Success ? Ok(result) : BadRequest(result);
+        return Ok(result);
     }
 
     [AllowAnonymous]
@@ -34,7 +34,7 @@ public class UserController(
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         var result = await userService.Login(dto);
-        return result.Success ? Ok(result) : Unauthorized(result);
+        return Ok(result);
     }
 
     [Authorize]
@@ -42,12 +42,7 @@ public class UserController(
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
     {
         var result = await userService.UpdateUser(User, dto);
-        if (result.Success) return Ok(result);
-
-        if (result.Errors.Any(e => e.Contains("not found")))
-            return NotFound(result);
-
-        return BadRequest(result);
+        return Ok(result);
     }
 
     [Authorize]
@@ -55,7 +50,7 @@ public class UserController(
     public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest request)
     {
         var result = await userService.DeleteUser(request.Id);
-        return result.Success ? Ok(result) : BadRequest(result);
+        return result ? Ok(result) : BadRequest();
     }
 
     [Authorize]
@@ -63,7 +58,7 @@ public class UserController(
     public async Task<IActionResult> VerifyAccount([FromBody] VerifyAccountRequest request)
     {
         var result = await userService.VerifyAccount(request.Token);
-        return result.Success ? Ok(result) : BadRequest(result);
+        return Ok(result);
     }
 
     [Authorize]

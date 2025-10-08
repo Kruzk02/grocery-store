@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using API.Dtos;
 using API.Entity;
+using API.Exception;
 using Microsoft.AspNetCore.Identity;
 
 namespace API.Services.impl;
@@ -13,7 +14,7 @@ public class UserService(
     EmailService emailService
     ) : IUserService
 {
-    public async Task<ServiceResult> CreateUser(RegisterDto dto)
+    public async Task<string> CreateUser(RegisterDto dto)
     {
         var user = new ApplicationUser
         {
@@ -23,81 +24,81 @@ public class UserService(
         
         var result = await userManager.CreateAsync(user, dto.Password);
 
-        if (!result.Succeeded) return ServiceResult.Failed("User creation failed", result.Errors.Select(e => e.Description));
+        if (!result.Succeeded) throw new ValidationException(new Dictionary<string, string[]>{{"User creation failed", [result.Errors.Select(e => e.Description).FirstOrDefault()!]}});
         var roleResult = await userManager.AddToRoleAsync(user, "User");
         
         var verificationToken = await verificationTokenService.GenerateVerificationToken(user);
         emailService.SendVerify(user.Email, verificationToken.Token);
         
         return roleResult.Succeeded ? 
-            ServiceResult.Ok("User created successfully") : 
-            ServiceResult.Failed("User created, but role assignment failed", result.Errors.Select(e => e.Description)); 
+            "User created successfully" :
+            throw new ValidationException(new Dictionary<string, string[]>{{"User created, but role assignment failed", [result.Errors.Select(e => e.Description).FirstOrDefault()!]}});
     }
 
-    public async Task<ServiceResult> Login(LoginDto dto)
+    public async Task<string> Login(LoginDto dto)
     {
         var user = await userManager.FindByNameAsync(dto.UserNameOrEmail) ?? await userManager.FindByEmailAsync(dto.UserNameOrEmail);
-        if (user == null) return ServiceResult.Failed("User not found");
+        if (user == null) throw new NotFoundException($"User with Username or Email: {dto.UserNameOrEmail} not found");
         
         var result = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
         if (!result.Succeeded)
-            return ServiceResult.Failed("Invalid password");
+            throw new ValidationException(new Dictionary<string, string[]>{{"Password", ["Invalid password"]}});
 
         var token = await tokenService.CreateToken(user, userManager);
-        return ServiceResult.Ok(token);
+        return token;
     }
 
-    public async Task<ServiceResult> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto)
+    public async Task<string> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto)
     {
         var existingUser = await userManager.GetUserAsync(user);
-        if (existingUser == null) return ServiceResult.Failed("User not found");
+        if (existingUser == null) throw new NotFoundException($"User not found");
 
         if (!string.IsNullOrEmpty(dto.Email))
         {
             var emailResult = await userManager.SetEmailAsync(existingUser, dto.Email);
-            if (!emailResult.Succeeded)  return ServiceResult.Failed("Failed to update email", emailResult.Errors.Select(e => e.Description));
+            if (!emailResult.Succeeded) throw new ValidationException(new Dictionary<string, string[]>{{"Failed to update email", [emailResult.Errors.Select(e => e.Description).FirstOrDefault()!]}});
         }
 
         if (!string.IsNullOrEmpty(dto.Username))
         {
             var usernameResult = await userManager.SetUserNameAsync(existingUser, dto.Username);
-            if (!usernameResult.Succeeded) return ServiceResult.Failed("Failed to update username", usernameResult.Errors.Select(e => e.Description));
+            if (!usernameResult.Succeeded) throw new ValidationException(new Dictionary<string, string[]>{{"Failed to update username", [usernameResult.Errors.Select(e => e.Description).FirstOrDefault()!]}});
         }
 
         if (!string.IsNullOrEmpty(dto.Password))
         {
             var removePassword = await userManager.RemovePasswordAsync(existingUser);
-            if (!removePassword.Succeeded) return ServiceResult.Failed("Failed to remove password", removePassword.Errors.Select(e => e.Description));
+            if (!removePassword.Succeeded) throw new ValidationException(new Dictionary<string, string[]>{{"Failed to remove password", [removePassword.Errors.Select(e => e.Description).FirstOrDefault()!]}});
             
             var addPassword = await userManager.AddPasswordAsync(existingUser, dto.Password);
-            if (!addPassword.Succeeded) return ServiceResult.Failed("Failed to add password", addPassword.Errors.Select(e => e.Description));
+            if (!addPassword.Succeeded) throw new ValidationException(new Dictionary<string, string[]>{{"Failed to add password", [addPassword.Errors.Select(e => e.Description).FirstOrDefault()!]}});
         }
         
-        return ServiceResult.Ok("User updated successfully");
+        return "User updated successfully";
     }
 
-    public async Task<ServiceResult<ApplicationUser>> GetUser(ClaimsPrincipal user)
+    public async Task<ApplicationUser> GetUser(ClaimsPrincipal user)
     {
         var existingUser = await userManager.GetUserAsync(user);
-        if (existingUser == null) return ServiceResult<ApplicationUser>.Failed("User not found");
-        
-        return ServiceResult<ApplicationUser>.Ok(existingUser, "User retrieved successfully");
+        return existingUser ?? throw new NotFoundException("User not found");
     }
 
-    public async Task<ServiceResult> DeleteUser(string id)
+    public async Task<bool> DeleteUser(string id)
     {
         var existingUser = await userManager.FindByIdAsync(id);
-        if (existingUser == null) return ServiceResult.Failed("User not found");
+        if (existingUser == null) throw new NotFoundException($"User with id: {id} not found");
         
         var result = await userManager.DeleteAsync(existingUser);
-        return result.Succeeded ? ServiceResult.Ok("User deleted successfully") : ServiceResult.Failed("Failed to delete user", result.Errors.Select(e => e.Description));
+        return result.Succeeded ? 
+            true : 
+            throw new ValidationException(new Dictionary<string, string?[]> {{"Failed to delete user", [result.Errors.Select(e => e.Description).FirstOrDefault()]}});
     }
 
-    public async Task<ServiceResult> VerifyAccount(string code)
+    public async Task<string> VerifyAccount(string code)
     {
         var result = await verificationTokenService.VerifyToken(code);
         return result
-            ? ServiceResult.Ok("User verify successfully")
-            : ServiceResult.Failed("User verify failed");
+            ? "User verify successfully"
+            : "User verify failed";
     }
 }

@@ -7,10 +7,10 @@ namespace API.Services;
 
 public interface IUserService
 {
-    Task<ServiceResult> CreateUser(RegisterDto dto);
-    Task<ServiceResult> Login(LoginDto dto);
-    Task<ServiceResult> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto);
-    Task<ServiceResult<ApplicationUser>> GetUser(ClaimsPrincipal user);
-    Task<ServiceResult> DeleteUser(string id);
-    Task<ServiceResult> VerifyAccount(string code);
+    Task<string> CreateUser(RegisterDto dto);
+    Task<string> Login(LoginDto dto);
+    Task<string> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto);
+    Task<ApplicationUser> GetUser(ClaimsPrincipal user);
+    Task<bool> DeleteUser(string id);
+    Task<string> VerifyAccount(string code);
 }

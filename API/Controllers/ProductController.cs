@@ -21,8 +21,7 @@ public class ProductController(IProductService productService, IOrderItemService
     /// Retrieves all products.
     /// </summary>
     /// <returns>
-    /// A list of <see cref="Product"/> object wrapped in a
-    /// <see cref="ServiceResult"/>.
+    /// A list of <see cref="Product"/> object
     /// </returns>
     /// <response code="200">Returns the list of categories.</response>
     /// <response code="500">If an unexpected error occurs.</response>
