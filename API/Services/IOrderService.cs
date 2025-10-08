@@ -5,10 +5,10 @@ namespace API.Services;
 
 public interface IOrderService
 {
-    Task<ServiceResult<Order>> Create(OrderDto orderDto);
-    Task<ServiceResult> Update(int id, OrderDto orderDto);
-    Task<ServiceResult<Order>> FindById(int id);
-    Task<ServiceResult<List<Order>>> FindByCustomerId(int customerId);
-    Task<ServiceResult<Invoice>> FindInvoiceByOrderId(int orderId);
-    Task<ServiceResult> Delete(int id);
+    Task<Order> Create(OrderDto orderDto);
+    Task<Order> Update(int id, OrderDto orderDto);
+    Task<Order> FindById(int id);
+    Task<List<Order>> FindByCustomerId(int customerId);
+    Task<Invoice> FindInvoiceByOrderId(int orderId);
+    Task<bool> Delete(int id);
 }

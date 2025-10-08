@@ -17,25 +17,21 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] OrderDto orderDto)
     {
-        var serviceResult = await orderService.Create(orderDto);
-        if (!serviceResult.Success)
-        {
-            return BadRequest(serviceResult);
-        }
+        var result = await orderService.Create(orderDto);
         
-        return CreatedAtAction(nameof(FindById), new { id = serviceResult.Data!.Id }, serviceResult.Data);
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:int}"), 
-     ProducesResponseType(204), 
+     ProducesResponseType(200), 
      ProducesResponseType(400),
      ProducesResponseType(404), 
      ProducesResponseType(500),
      Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] OrderDto orderDto)
     {
-        var serviceResult = await orderService.Update(id, orderDto);
-        return serviceResult.Success ? NoContent() : BadRequest(serviceResult);
+        var result = await orderService.Update(id, orderDto);
+        return Ok(result);
     }
 
     [HttpGet("{id:int}"),
@@ -44,10 +40,8 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      ProducesResponseType(500)]
     public async Task<IActionResult> FindById(int id)
     {
-        var serviceResult = await orderService.FindById(id);
-        return serviceResult.Success ? 
-            Ok(serviceResult.Data) : 
-            BadRequest(serviceResult);
+        var result = await orderService.FindById(id);
+        return Ok(result);
     }
 
     [HttpGet("{id:int}/ordersItem"),
@@ -66,10 +60,8 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      ProducesResponseType(500)]
     public async Task<IActionResult> FindInvoiceById(int id)
     {
-        var serviceResult = await orderService.FindInvoiceByOrderId(id);
-        return serviceResult.Success ?
-            Ok(serviceResult.Data) : 
-            BadRequest(serviceResult);
+        var result = await orderService.FindInvoiceByOrderId(id);
+        return Ok(result);
     }
 
     [HttpDelete("{id:int}"),
@@ -79,7 +71,7 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var serviceResult = await orderService.Delete(id);
-        return serviceResult.Success ?  NoContent() : BadRequest(serviceResult);
+        var result = await orderService.Delete(id);
+        return result ?  NoContent() : BadRequest();
     }
 }

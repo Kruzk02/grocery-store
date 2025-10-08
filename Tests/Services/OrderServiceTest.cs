@@ -34,12 +34,11 @@ public class OrderServiceTest
         _dbContext.Customers.Add(customer);
         await _dbContext.SaveChangesAsync();
 
-        var serviceResult = await _orderService.Create(new OrderDto(customer.Id));
-        var result = serviceResult.Data;
+        var result = await _orderService.Create(new OrderDto(customer.Id));
         
         Assert.Multiple(() =>
         {
-            Assert.That(result!.Id, Is.GreaterThan(0));
+            Assert.That(result.Id, Is.GreaterThan(0));
             Assert.That(result.CustomerId, Is.GreaterThan(0));
         });
     }
@@ -54,9 +53,9 @@ public class OrderServiceTest
         await _dbContext.SaveChangesAsync();
 
         await _orderService.Create(new OrderDto(customer1.Id));
-        var serviceResult = await _orderService.Update(1, new OrderDto(customer2.Id));
+        var result = await _orderService.Update(1, new OrderDto(customer2.Id));
         
-        Assert.That(serviceResult.Success, Is.True);
+        Assert.That(result, !Is.Null);
     }
 
     [Test]
@@ -90,8 +89,7 @@ public class OrderServiceTest
         await orderItemService.Create(new OrderItemDto(order.Id, product.Id, 20));
         await _orderService.Create(new OrderDto(customer.Id));
         
-        var serviceResult = await _orderService.FindById(1);
-        var result = serviceResult.Data;
+        var result = await _orderService.FindById(1);
         
         Assert.Multiple(() =>
         {
@@ -109,8 +107,7 @@ public class OrderServiceTest
         await _dbContext.SaveChangesAsync();
         await _orderService.Create(new OrderDto(customer.Id));
         
-        var serviceResult = await _orderService.FindByCustomerId(customer.Id);
-        var result = serviceResult.Data;
+        var result = await _orderService.FindByCustomerId(customer.Id);
 
         Assert.Multiple(() =>
         {
@@ -146,8 +143,7 @@ public class OrderServiceTest
 
         await orderItemService.Create(new OrderItemDto(order.Id, product.Id, 20));
 
-        var serviceResult = await _orderService.FindInvoiceByOrderId(order.Id);
-        var result = serviceResult.Data;
+        var result = await _orderService.FindInvoiceByOrderId(order.Id);
 
         Assert.Multiple(() =>
         {
@@ -168,8 +164,8 @@ public class OrderServiceTest
         await _dbContext.SaveChangesAsync();
         await _orderService.Create(new OrderDto(customer.Id));
 
-        var serviceResult = await _orderService.Delete(1);
-        Assert.That(serviceResult.Success, Is.True);
+        var result = await _orderService.Delete(1);
+        Assert.That(result, Is.True);
     }
     
     private static ApplicationDbContext GetInMemoryDbContext()
