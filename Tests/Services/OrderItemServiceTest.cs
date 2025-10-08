@@ -57,12 +57,11 @@ public class OrderItemServiceTest
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
 
-        var serviceResult = await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var result = serviceResult.Data;
+        var result = await _orderItemService.Create(new OrderItemDto(1, 1, 24));
         
         Assert.Multiple(() =>
         {
-            Assert.That(result!.Id, Is.EqualTo(1));
+            Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.ProductId, Is.EqualTo(1));
             Assert.That(result.OrderId, Is.EqualTo(1));
             Assert.That(result.SubTotal, Is.EqualTo(479.76m));
@@ -77,8 +76,8 @@ public class OrderItemServiceTest
         
         await _dbContext.SaveChangesAsync();
         await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await _orderItemService.Update(1, new OrderItemDto(1, 1, 13));
-        Assert.That(serviceResult.Success, Is.True);        
+        var result = await _orderItemService.Update(1, new OrderItemDto(1, 1, 13));
+        Assert.That(result, !Is.Null);        
     }
 
     [Test]
@@ -87,11 +86,11 @@ public class OrderItemServiceTest
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
         await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await _orderItemService.FindById(1);
-        var result = serviceResult.Data;
+        var result = await _orderItemService.FindById(1);
+        
         Assert.Multiple(() =>
         {
-            Assert.That(result!.Id, Is.EqualTo(1));
+            Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.ProductId, Is.EqualTo(1));
             Assert.That(result.OrderId, Is.EqualTo(1));
             Assert.That(result.SubTotal, Is.EqualTo(479.76m));
@@ -105,12 +104,12 @@ public class OrderItemServiceTest
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
         await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await _orderItemService.FindByOrderId(1);
-        var result = serviceResult.Data;
+        var result = await _orderItemService.FindByOrderId(1);
+
         Assert.Multiple(() =>
         {
             Assert.That(result, !Is.Empty);
-            Assert.That(result![0].Id, Is.EqualTo(1));
+            Assert.That(result[0].Id, Is.EqualTo(1));
             Assert.That(result[0].ProductId, Is.EqualTo(1));
             Assert.That(result[0].OrderId, Is.EqualTo(1));
             Assert.That(result[0].SubTotal, Is.EqualTo(479.76m));
@@ -124,12 +123,12 @@ public class OrderItemServiceTest
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
         await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await _orderItemService.FindByProductId(1);
-        var result = serviceResult.Data;
+        var result = await _orderItemService.FindByProductId(1);
+        
         Assert.Multiple(() =>
         {
             Assert.That(result, !Is.Empty);
-            Assert.That(result![0].Id, Is.EqualTo(1));
+            Assert.That(result[0].Id, Is.EqualTo(1));
             Assert.That(result[0].ProductId, Is.EqualTo(1));
             Assert.That(result[0].OrderId, Is.EqualTo(1));
             Assert.That(result[0].SubTotal, Is.EqualTo(479.76m));
@@ -143,8 +142,8 @@ public class OrderItemServiceTest
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
         await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var serviceResult = await _orderItemService.Delete(1);
-        Assert.That(serviceResult.Success, Is.True);
+        var result = await _orderItemService.Delete(1);
+        Assert.That(result, Is.True);
     }
     
         

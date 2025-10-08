@@ -16,12 +16,8 @@ public class OrderItemController(IOrderItemService orderItemService) : Controlle
     Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] OrderItemDto orderItemDto)
     {
-        var serviceResult = await orderItemService.Create(orderItemDto);
-        if (!serviceResult.Success)
-        {
-            return BadRequest(serviceResult);
-        }
-        return CreatedAtAction(nameof(FindById), new { id = serviceResult.Data!.Id }, serviceResult.Data);
+        var result = await orderItemService.Create(orderItemDto);
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:int}"), 
@@ -32,8 +28,8 @@ public class OrderItemController(IOrderItemService orderItemService) : Controlle
     Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] OrderItemDto orderItemDto)
     {
-        var serviceResult = await orderItemService.Update(id, orderItemDto);
-        return serviceResult.Success ? NoContent() : BadRequest(serviceResult);
+        var result = await orderItemService.Update(id, orderItemDto);
+        return Ok(result);
     }
 
     [HttpGet("{id:int}"),
@@ -43,10 +39,8 @@ public class OrderItemController(IOrderItemService orderItemService) : Controlle
      ProducesResponseType(500)]
     public async Task<IActionResult> FindById(int id)
     {
-        var serviceResult = await orderItemService.FindById(id);
-        return serviceResult.Success ? 
-            Ok(serviceResult.Data) : 
-            BadRequest(serviceResult);
+        var result = await orderItemService.FindById(id);
+        return Ok(result);
     }
 
     [HttpDelete("{id:int}"),
@@ -55,7 +49,7 @@ public class OrderItemController(IOrderItemService orderItemService) : Controlle
      ProducesResponseType(500)]
     public async Task<IActionResult> Delete(int id)
     {
-        var serviceResult = await  orderItemService.Delete(id);
-        return serviceResult.Success ? NoContent() : BadRequest(serviceResult);
+        var result = await orderItemService.Delete(id);
+        return result ? NoContent() : BadRequest();
     }
 }

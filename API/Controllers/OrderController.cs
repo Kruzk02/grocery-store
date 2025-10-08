@@ -56,10 +56,8 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      ProducesResponseType(500)]
     public async Task<IActionResult> FindOrderItemById(int id)
     {
-        var serviceResult = await itemService.FindByOrderId(id);
-        return serviceResult.Success ? 
-            Ok(serviceResult.Data) : 
-            BadRequest(serviceResult);
+        var result = await itemService.FindByOrderId(id);
+        return Ok(result);
     }
 
     [HttpGet("{id:int}/invoice"),

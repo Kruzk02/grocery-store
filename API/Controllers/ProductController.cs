@@ -109,8 +109,8 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(500)]
     public async Task<IActionResult> FindOrderItemById(int id)
     {
-        var serviceResult = await itemService.FindByProductId(id);
-        return serviceResult.Success ? Ok(serviceResult) : NotFound(serviceResult);
+        var result = await itemService.FindByProductId(id);
+        return Ok(result);
     }
 
     /// <summary>
