@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using API.Dtos;
 using API.Entity;
+using API.Exception;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -8,12 +9,12 @@ namespace API.Services.impl;
 
 public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICustomerService
 {
-    public async Task<ServiceResult<List<Customer>>> FindAll()
+    public async Task<List<Customer>> FindAll()
     {
         const string cacheKey = $"customers";
         if (cache.TryGetValue(cacheKey, out List<Customer>? customers))
             if (customers != null)
-                return ServiceResult<List<Customer>>.Ok(customers, "Customers retrieve successfully");
+                return customers;
         
         customers = await ctx.Customers.ToListAsync();
         var cacheOption = new MemoryCacheEntryOptions()
@@ -22,13 +23,20 @@ public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICu
 
         cache.Set(cacheKey, customers, cacheOption);
         
-        return customers.Count > 0 ?
-            ServiceResult<List<Customer>>.Ok(customers, "Customers retrieve successfully") :
-            ServiceResult<List<Customer>>.Failed("Failed to retrieve customers");
+        return customers;
     }
 
-    public async Task<ServiceResult<Customer>> Create(CustomerDto customerDto)
+    public async Task<Customer> Create(CustomerDto customerDto)
     {
+        if (string.IsNullOrEmpty(customerDto.Name))
+            throw new ValidationException(new Dictionary<string, string[]> {{"Name" , ["Name is required"] }});
+        if (string.IsNullOrEmpty(customerDto.Email))
+            throw new ValidationException(new Dictionary<string, string[]> {{"Email" , ["Email is required"] }});
+        if (string.IsNullOrEmpty(customerDto.Phone))
+            throw new ValidationException(new Dictionary<string, string[]> {{"Phone" , ["Phone is required"] }});
+        if (string.IsNullOrEmpty(customerDto.Address))
+            throw new ValidationException(new Dictionary<string, string[]> {{"Address" , ["Address is required"] }});
+        
         var customer = new Customer
         {
             Name = customerDto.Name,
@@ -40,16 +48,14 @@ public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICu
         var result = await ctx.AddAsync(customer);
         await ctx.SaveChangesAsync();
         
-        return ServiceResult<Customer>.Ok(result.Entity, "Customer created successfully");
+        return result.Entity;
     }
 
-    public async Task<ServiceResult> Update(int id, CustomerDto customerDto)
+    public async Task<string> Update(int id, CustomerDto customerDto)
     {
         var existingCustomer = await ctx.Customers.FindAsync(id);
-        if (existingCustomer == null)
-        {
-            return ServiceResult.Failed("Customer not found");
-        }
+        if (existingCustomer == null) 
+            throw new NotFoundException($"Customer with id: {id} not found");
         
         if (!string.IsNullOrEmpty(customerDto.Name) && customerDto.Name != existingCustomer.Name) 
             existingCustomer.Name = customerDto.Name;
@@ -63,16 +69,16 @@ public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICu
         existingCustomer.UpdatedAt = DateTime.UtcNow;
         await ctx.SaveChangesAsync();
         
-        return ServiceResult.Ok("Customer updated successfully");
+        return "Customer updated successfully";
     }
 
-    public async Task<ServiceResult<Customer>> FindById(int id)
+    public async Task<Customer> FindById(int id)
     {
         var cacheKey = $"customer:{id}";
         
         if (cache.TryGetValue(cacheKey, out Customer? customer))
             if (customer != null)
-                return ServiceResult<Customer>.Ok(customer, "Customer found");
+                return customer;
         
         customer = await ctx.Customers.FindAsync(id);
         var cacheOption = new MemoryCacheEntryOptions()
@@ -80,17 +86,15 @@ public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICu
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
         
         cache.Set(cacheKey, customer, cacheOption);
-        return customer != null ? 
-            ServiceResult<Customer>.Ok(customer, "Customer found") :
-            ServiceResult<Customer>.Failed("Customer not found");
+        return customer ?? throw new NotFoundException($"Customer with id: {id} not found");
     }
 
-    public async Task<ServiceResult<Customer>> FindByEmail(string email)
+    public async Task<Customer> FindByEmail(string email)
     {
         var cacheKey = $"customer:email:{email}";
         if (cache.TryGetValue(cacheKey, out Customer? customer))
             if (customer != null)
-                return ServiceResult<Customer>.Ok(customer, "Customer found");
+                return customer;
         
         customer = await ctx.Customers.Where(c => c.Email == email).FirstOrDefaultAsync();
         var cacheOption = new MemoryCacheEntryOptions()
@@ -99,17 +103,15 @@ public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICu
         
         cache.Set(cacheKey, customer, cacheOption);
         
-        return customer != null ? 
-            ServiceResult<Customer>.Ok(customer, "Customer found") :
-            ServiceResult<Customer>.Failed("Customer not found");
+        return customer ?? throw new NotFoundException($"Customer with email: {email} not found");
     }
 
-    public async Task<ServiceResult<Customer>> FindByName(string name)
+    public async Task<Customer> FindByName(string name)
     {
         var cacheKey = $"customer:name:{name}";
         if (cache.TryGetValue(cacheKey, out Customer? customer))
             if (customer != null)
-                return ServiceResult<Customer>.Ok(customer, "Customer found");
+                return customer;
         
         customer = await ctx.Customers.Where(c => c.Name == name).FirstOrDefaultAsync();
         var cacheOption = new MemoryCacheEntryOptions()
@@ -117,17 +119,15 @@ public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICu
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
         
         cache.Set(cacheKey, customer, cacheOption);
-        return customer != null ? 
-            ServiceResult<Customer>.Ok(customer, "Customer found") :
-            ServiceResult<Customer>.Failed("Customer not found");
+        return customer ?? throw new NotFoundException($"Customer with name: {name} not found");
     }
 
-    public async Task<ServiceResult<Customer>> FindByPhoneNumber(string phoneNumber)
+    public async Task<Customer> FindByPhoneNumber(string phoneNumber)
     {
         var cacheKey = $"customer:phone:{phoneNumber}";
         if (cache.TryGetValue(cacheKey, out Customer? customer)) 
             if (customer != null)
-                return ServiceResult<Customer>.Ok(customer, "Customer found");
+                return customer;
         
         customer = await ctx.Customers.Where(c => c.Phone == phoneNumber).FirstOrDefaultAsync();
         var cacheOption = new MemoryCacheEntryOptions()
@@ -135,23 +135,21 @@ public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICu
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
         
         cache.Set(cacheKey, customer, cacheOption);
-        return customer != null ? 
-            ServiceResult<Customer>.Ok(customer, "Customer found") :
-            ServiceResult<Customer>.Failed("Customer not found");
+        return customer ?? throw new NotFoundException($"Customer with number: {phoneNumber} not found");
     }
 
-    public async Task<ServiceResult> DeleteById(int id)
+    public async Task<string> DeleteById(int id)
     {
        var customer = await ctx.Customers.FindAsync(id);
        if (customer == null)
        {
-           return ServiceResult.Failed("Customer not found");
+           throw new NotFoundException($"Customer with id: {id} not found");
        }
 
        cache.Remove($"customer:{id}");
        ctx.Customers.Remove(customer);
        await ctx.SaveChangesAsync();
        
-       return ServiceResult.Ok("Customer deleted successfully");
+       return "Customer deleted successfully";
     }
 }

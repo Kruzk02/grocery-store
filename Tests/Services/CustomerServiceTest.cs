@@ -31,8 +31,7 @@ public class CustomerServiceTest
     {
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await _customerService.FindAll();
-        var result = serviceResult.Data;
+        var result = await _customerService.FindAll();
         
         Assert.That(result, !Is.Empty);
     }
@@ -40,9 +39,7 @@ public class CustomerServiceTest
     [Test]
     public async Task Create()
     {
-        var serviceResult = await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
-        
-        var result = serviceResult.Data;
+        var result = await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
         
         Assert.Multiple(() =>
         {
@@ -59,9 +56,9 @@ public class CustomerServiceTest
     {
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await _customerService.Update(1, new CustomerDto("Name13", "Emai44l@gmail.com", "843806784", "1b22"));
+        var result = await _customerService.Update(1, new CustomerDto("Name13", "Emai44l@gmail.com", "843806784", "1b22"));
         
-        Assert.That(serviceResult.Success, Is.True);
+        Assert.That(result, Is.EqualTo("Customer updated successfully"));
     }
 
     [Test]
@@ -69,12 +66,10 @@ public class CustomerServiceTest
     {
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await _customerService.FindById(1);
-        var result = serviceResult.Data;
+        var result = await _customerService.FindById(1);
         
         Assert.Multiple(() =>
         {
-            Assert.That(serviceResult.Success, Is.True);
             Assert.That(result!.Id, Is.Not.EqualTo(0));
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
@@ -88,12 +83,10 @@ public class CustomerServiceTest
     {
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await _customerService.FindByName("Name");
-        var result = serviceResult.Data;
+        var result = await _customerService.FindByName("Name");
         
         Assert.Multiple(() =>
         {
-            Assert.That(serviceResult.Success, Is.True);
             Assert.That(result!.Id, Is.Not.EqualTo(0));
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
@@ -107,12 +100,10 @@ public class CustomerServiceTest
     {
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await _customerService.FindByEmail("Email@gmail.com");
-        var result = serviceResult.Data;
+        var result = await _customerService.FindByEmail("Email@gmail.com");
         
         Assert.Multiple(() =>
         {
-            Assert.That(serviceResult.Success, Is.True);
             Assert.That(result!.Id, Is.Not.EqualTo(0));
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
@@ -126,12 +117,10 @@ public class CustomerServiceTest
     {
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await _customerService.FindByPhoneNumber("843806784");
-        var result = serviceResult.Data;
+        var result = await _customerService.FindByPhoneNumber("843806784");
         
         Assert.Multiple(() =>
         {
-            Assert.That(serviceResult.Success, Is.True);
             Assert.That(result!.Id, Is.Not.EqualTo(0));
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
@@ -145,9 +134,9 @@ public class CustomerServiceTest
     {
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var serviceResult = await _customerService.DeleteById(1);
+        var result = await _customerService.DeleteById(1);
         
-        Assert.That(serviceResult.Success, Is.True);
+        Assert.That(result, Is.EqualTo("Customer deleted successfully"));
     }
     
     private static ApplicationDbContext GetInMemoryDbContext()

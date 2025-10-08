@@ -5,12 +5,12 @@ namespace API.Services;
 
 public interface ICustomerService
 {
-    Task<ServiceResult<List<Customer>>> FindAll();
-    Task<ServiceResult<Customer>> Create(CustomerDto customerDto);
-    Task<ServiceResult> Update(int id, CustomerDto customerDto);
-    Task<ServiceResult<Customer>> FindById(int id);
-    Task<ServiceResult<Customer>> FindByEmail(string email);
-    Task<ServiceResult<Customer>> FindByName(string name);
-    Task<ServiceResult<Customer>> FindByPhoneNumber(string phoneNumber);
-    Task<ServiceResult> DeleteById(int id);
+    Task<List<Customer>> FindAll();
+    Task<Customer> Create(CustomerDto customerDto);
+    Task<string> Update(int id, CustomerDto customerDto);
+    Task<Customer> FindById(int id);
+    Task<Customer> FindByEmail(string email);
+    Task<Customer> FindByName(string name);
+    Task<Customer> FindByPhoneNumber(string phoneNumber);
+    Task<string> DeleteById(int id);
 }
