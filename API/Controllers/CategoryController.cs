@@ -20,13 +20,12 @@ public class CategoryController(ICategoryService service) : ControllerBase
     /// Retrieves all categories
     /// </summary>
     /// <returns>
-    /// A list of <see cref="Category"/> object wrapped in a
-    /// <see cref="ServiceResult{T}"/>.
+    /// A list of <see cref="Category"/> object
     /// </returns>
     /// <response code="200">Returns the list of categories.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpGet]
-    [ProducesResponseType(typeof(ServiceResult<List<Category>>), 200)]
+    [ProducesResponseType(typeof(List<Category>), 200)]
     [ProducesResponseType(500)]
     public async Task<IActionResult> GetAll() => Ok(await service.FindAll());
 }
