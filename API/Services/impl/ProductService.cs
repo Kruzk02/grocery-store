@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using API.Dtos;
 using API.Entity;
+using API.Exception;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -16,12 +17,12 @@ namespace API.Services.impl;
 public class ProductService(ApplicationDbContext ctx, IMemoryCache cache) : IProductService
 {
     /// <inheritdoc />
-    public async Task<ServiceResult<List<Product>>> FindAll()
+    public async Task<List<Product>> FindAll()
     {
         const string cacheKey = "products";
         if (cache.TryGetValue(cacheKey, out List<Product>? products))
             if (products is { Count: > 0 })
-                return ServiceResult<List<Product>>.Ok(products, "Product retrieve successfully");
+                return products;
         
         products = await ctx.Products.ToListAsync();
         var cacheOption = new MemoryCacheEntryOptions()
@@ -30,18 +31,16 @@ public class ProductService(ApplicationDbContext ctx, IMemoryCache cache) : IPro
         
         cache.Set(cacheKey, products, cacheOption);
         
-        return products.Count > 0 ? 
-            ServiceResult<List<Product>>.Ok(products, "Products retrieve successfully") : 
-            ServiceResult<List<Product>>.Failed("Failed to retrieve products"); 
+        return products; 
     }
 
     ///  <inheritdoc/>
-    public async Task<ServiceResult<Product>> Create(ProductDto productDto)
+    public async Task<Product> Create(ProductDto productDto)
     {
         var category = await ctx.Categories.FindAsync(productDto.CategoryId);
         if (category == null)
         {
-            return ServiceResult<Product>.Failed("Category not found");
+            throw new NotFoundException($"Category with id {productDto.CategoryId} not found");
         }
         
         var product = new Product
@@ -59,16 +58,16 @@ public class ProductService(ApplicationDbContext ctx, IMemoryCache cache) : IPro
         var result = await ctx.Products.AddAsync(product);
         await ctx.SaveChangesAsync();
         
-        return ServiceResult<Product>.Ok(result.Entity, "Product created successfully");
+        return result.Entity;
     }
 
     /// <inheritdoc/>
-    public async Task<ServiceResult> Update(int id, ProductDto productDto)
+    public async Task<Product> Update(int id, ProductDto productDto)
     {
         var product = await ctx.Products.FindAsync(id);
         if (product == null)
         {
-            return ServiceResult.Failed("Product not found");
+            throw new NotFoundException($"Product with id {id} not found");
         }
 
         if (!string.IsNullOrEmpty(productDto.Name) && productDto.Name != product.Name)
@@ -88,7 +87,7 @@ public class ProductService(ApplicationDbContext ctx, IMemoryCache cache) : IPro
             var category = await ctx.Categories.FindAsync(productDto.CategoryId);
             if (category == null)
             {
-                return ServiceResult.Failed("Category not found");
+                throw new NotFoundException($"Category with id {productDto.CategoryId} not found");
             }
             
             product.CategoryId = category.Id;
@@ -99,18 +98,18 @@ public class ProductService(ApplicationDbContext ctx, IMemoryCache cache) : IPro
 
         await ctx.SaveChangesAsync();
         
-        return ServiceResult.Ok("Product updated successfully");
+        return product;
     }
 
     /// <inheritdoc/>
-    public async Task<ServiceResult<Product>> FindById(int id)
+    public async Task<Product> FindById(int id)
     {
         var cacheKey = $"product:{id}";
         if (cache.TryGetValue(cacheKey, out Product? product))
         {
             Console.WriteLine("Hit");
             if (product != null)
-                return ServiceResult<Product>.Ok(product, "Product found");
+                return product;
         }
 
         product = await ctx.Products.FindAsync(id);
@@ -119,24 +118,22 @@ public class ProductService(ApplicationDbContext ctx, IMemoryCache cache) : IPro
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
 
         cache.Set(cacheKey, product, cacheOption);
-        return product != null ?
-            ServiceResult<Product>.Ok(product, "Product found") :
-            ServiceResult<Product>.Failed("Product not found");
+        return product ?? throw new NotFoundException($"Product with id {id} not found");
     }
 
     /// <inheritdoc/>
-    public async Task<ServiceResult> DeleteById(int id)
+    public async Task<bool> DeleteById(int id)
     {
         var product = await ctx.Products.FindAsync(id);
         if (product == null)
         {
-            return ServiceResult.Failed("Product not found");
+            throw new NotFoundException($"Product with id {id} not found");
         }
         
         cache.Remove($"product:{id}");
         ctx.Products.Remove(product);
         await ctx.SaveChangesAsync();
         
-        return ServiceResult.Ok("Product deleted successfully");
+        return true;
     }
 }

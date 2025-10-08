@@ -31,8 +31,8 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(500)]
     public async Task<IActionResult> FindAll()
     {
-        var serviceResult = await productService.FindAll();
-        return serviceResult.Success ? Ok(serviceResult.Data) : BadRequest(serviceResult);
+        var result = await productService.FindAll();
+        return Ok(result);
     }
 
     /// <summary>
@@ -51,13 +51,8 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(500)]
     public async Task<IActionResult> Create([FromBody] ProductDto productDto)
     {
-        var serviceResult = await productService.Create(productDto);
-        if (!serviceResult.Success)
-        {
-            return BadRequest(serviceResult);
-        }
-        
-        return CreatedAtAction(nameof(FindById), new { id = serviceResult.Data!.Id }, serviceResult.Data );
+        var result = await productService.Create(productDto);
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, result );
     }
 
     /// <summary>
@@ -73,14 +68,14 @@ public class ProductController(IProductService productService, IOrderItemService
     /// <response code="404">If the product does not exist.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpPut("{id:int}")]
-    [ProducesResponseType(204)]
+    [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     [ProducesResponseType(500)]
     public async Task<IActionResult> Update(int id, [FromBody] ProductDto productDto)
     {
-        var serviceResult = await productService.Update(id, productDto);
-        return serviceResult.Success ? Ok(serviceResult) : NotFound(serviceResult);
+        var result = await productService.Update(id, productDto);
+        return Ok(result);
     }
 
     /// <summary>
@@ -99,8 +94,8 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(500)]
     public async Task<IActionResult> FindById(int id)
     {
-        var serviceResult = await productService.FindById(id);
-        return serviceResult.Success ? Ok(serviceResult) : NotFound(serviceResult);
+        var result = await productService.FindById(id);
+        return Ok(result);
     }
     
     [HttpGet("{id:int}/ordersItem")]
@@ -129,7 +124,7 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(500)]
     public async Task<IActionResult> DeleteById(int id)
     {
-        var serviceResult = await productService.DeleteById(id);
-        return serviceResult.Success ? NoContent() : NotFound(serviceResult);
+        var result = await productService.DeleteById(id);
+        return result ? NoContent() : BadRequest();
     }
 }

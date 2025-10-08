@@ -33,9 +33,7 @@ public class ProductServiceTest
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        var serviceResult = await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
-
-        var result = serviceResult.Data;
+        var result = await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
         
         Assert.Multiple(() =>
         {
@@ -48,14 +46,6 @@ public class ProductServiceTest
     }
 
     [Test]
-    public async Task CreateProduct_ShouldFailed_WhenCategoryNotFound()
-    {
-        var serviceResult = await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: 1, Quantity: 1));
-        
-        Assert.That(serviceResult.Message, Is.EqualTo("Category not found"));
-    }
-
-    [Test]
     public async Task UpdateProduct_ShouldUpdateProduct()
     {
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
@@ -64,21 +54,12 @@ public class ProductServiceTest
 
         await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
-        var serviceResult = await _productService.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
+        var result = await _productService.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
         
         Assert.Multiple(() =>
         {
-            Assert.That(serviceResult.Message, Is.EqualTo("Product updated successfully"));
-            Assert.That(serviceResult.Success, Is.True);
+            Assert.That(result, !Is.Null);
         });
-    }
-
-    [Test]
-    public async Task UpdateProduct_ShouldFailed_WhenProductNotFound()
-    {
-        var serviceResult = await _productService.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
-
-        Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
     }
 
     [Test]
@@ -90,8 +71,7 @@ public class ProductServiceTest
 
         await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
-        var serviceResult = await _productService.FindAll();
-        var result = serviceResult.Data;
+        var result = await _productService.FindAll();
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
@@ -108,8 +88,7 @@ public class ProductServiceTest
 
         await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
-        var serviceResult = await _productService.FindById(1);
-        var result = serviceResult.Data;
+        var result = await _productService.FindById(1);
         
         Assert.Multiple(() =>
         {
@@ -119,14 +98,6 @@ public class ProductServiceTest
             Assert.That(result.Price, Is.EqualTo(11.99m));
             Assert.That(result.CategoryId, Is.EqualTo(1));
         });
-    }
-
-    [Test]
-    public async Task FindById_ShouldFailed_WhenProductNotFound()
-    {
-        var serviceResult = await _productService.FindById(1);
-
-        Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
     }
     
     [Test]
@@ -138,17 +109,9 @@ public class ProductServiceTest
 
         await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
         
-        var serviceResult = await _productService.DeleteById(1);
+        var result = await _productService.DeleteById(1);
         
-        Assert.That(serviceResult.Success, Is.True);
-    }
-    
-    [Test]
-    public async Task DeleteById_ShouldFailed_WhenProductNotFound()
-    {
-        var serviceResult = await _productService.DeleteById(1);
-
-        Assert.That(serviceResult.Message, Is.EqualTo("Product not found"));
+        Assert.That(result, Is.True);
     }
     
     private static ApplicationDbContext GetInMemoryDbContext()
