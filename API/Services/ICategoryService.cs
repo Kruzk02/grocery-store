@@ -20,5 +20,5 @@ public interface ICategoryService
     /// A task containing a <see cref="ServiceResult{T}"/> with
     /// a list of categories if successful; otherwise error details.
     /// </returns>
-    Task<ServiceResult<List<Category>>> FindAll();
+    Task<List<Category>> FindAll();
 }

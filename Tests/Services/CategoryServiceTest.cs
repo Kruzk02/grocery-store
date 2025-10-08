@@ -32,9 +32,8 @@ public class CategoryServiceTest
         var result = service.FindAll();
         Assert.Multiple(() =>
         {
-            Assert.That(result.Result.Success, Is.True);
-            Assert.That(result.Result.Data, Is.Not.Null);
-            Assert.That(result.Result.Data.Count, Is.EqualTo(1));
+            Assert.That(result.Result, Is.Not.Null);
+            Assert.That(result.Result.Count, Is.EqualTo(1));
         });
     }
 }

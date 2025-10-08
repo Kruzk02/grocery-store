@@ -16,12 +16,12 @@ namespace API.Services.impl;
 public class CategoryService(ApplicationDbContext ctx, IMemoryCache cache) : ICategoryService 
 {
     /// <inheritdoc />
-    public async Task<ServiceResult<List<Category>>> FindAll()
+    public async Task<List<Category>> FindAll()
     {
         const string cacheKey = $"categories";
         if (cache.TryGetValue(cacheKey, out List<Category>? categories))
             if (categories != null)
-                return ServiceResult<List<Category>>.Ok(categories, "Categories retrieved successfully");
+                return categories;
                     
         categories = await ctx.Categories.ToListAsync();
         var cacheOption = new MemoryCacheEntryOptions()
@@ -29,8 +29,6 @@ public class CategoryService(ApplicationDbContext ctx, IMemoryCache cache) : ICa
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
         
         cache.Set(cacheKey, categories, cacheOption);
-        return categories.Count > 0 ? 
-            ServiceResult<List<Category>>.Ok(categories, "Categories retrieved successfully") : 
-            ServiceResult<List<Category>>.Failed("Failed to find all categories");
+        return categories;
     }
 }
