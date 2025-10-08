@@ -16,8 +16,8 @@ public class NotificationController(INotificationService notificationService) : 
     [ProducesResponseType(500)]
     public async Task<IActionResult> DeleteNotification(int id)
     {
-        var serviceResult = await notificationService.DeleteById(id);
-        return serviceResult.Success ? NoContent() : NotFound();
+        await notificationService.DeleteById(id);
+        return NoContent();
     }
     
     [HttpPut("{id:int}")]
@@ -26,8 +26,8 @@ public class NotificationController(INotificationService notificationService) : 
     [ProducesResponseType(500)]
     public async Task<IActionResult> MarkAsRead(int id)
     {
-        var serviceResult = await notificationService.MarkAsRead(id);
-        return serviceResult.Success ? Ok() : NotFound();
+        var result = await notificationService.MarkAsRead(id);
+        return Ok(result);
     }
     
     [HttpPut("all-as-read")]
@@ -41,7 +41,7 @@ public class NotificationController(INotificationService notificationService) : 
         {
             return BadRequest();
         }
-        var serviceResult = await notificationService.MarkAllAsRead(userId);
-        return serviceResult.Success ? Ok() : NotFound();
+        var result = await notificationService.MarkAllAsRead(userId);
+        return Ok(result);
     }
 }

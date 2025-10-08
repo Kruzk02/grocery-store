@@ -25,12 +25,11 @@ public class NotificationServiceTest
 
         var notification = new Notification{Id = 1, Message = "adawd", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info, UserId = "1a"};
         
-        var serviceResult = await service.Create(notification);
-        var result = serviceResult.Data;
+        var result = await service.Create(notification);
         
         Assert.Multiple(() =>
         {
-            Assert.That(result!.Id, Is.EqualTo(1));
+            Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.Message, Is.EqualTo("adawd"));
             Assert.That(result.IsRead, Is.EqualTo(false));
             Assert.That(result.Type, Is.EqualTo(NotificationType.Info));
@@ -51,12 +50,11 @@ public class NotificationServiceTest
         
         await ctx.SaveChangesAsync();
         
-        var serviceResult = await service.FindByUserId("1a");
-        var result = serviceResult.Data;
+        var result = await service.FindByUserId("1a");
         
         Assert.Multiple(() =>
         {
-            Assert.That(result!.Count, Is.EqualTo(1));
+            Assert.That(result.Count, Is.EqualTo(1));
         });
     }
 
@@ -74,7 +72,7 @@ public class NotificationServiceTest
 
         var serviceResult = await service.DeleteById(1);
         
-        Assert.That(serviceResult.Success, Is.True);
+        Assert.That(serviceResult, Is.EqualTo("Notification Deleted Successfully"));
     }
     
     [Test]
@@ -89,8 +87,8 @@ public class NotificationServiceTest
             UserId = "1a"
         });
         
-        var serviceResult = await service.MarkAsRead(1);
-        Assert.That(serviceResult.Success, Is.True);
+        var result = await service.MarkAsRead(1);
+        Assert.That(result.IsRead, Is.True);
     }
     
     [Test]
@@ -105,7 +103,7 @@ public class NotificationServiceTest
             UserId = "1a"
         });
         
-        var serviceResult = await service.MarkAllAsRead("1a");
-        Assert.That(serviceResult.Success, Is.True);
+        var result = await service.MarkAllAsRead("1a");
+        Assert.That(result, !Is.Empty);
     }
 }

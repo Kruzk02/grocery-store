@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using API.Dtos;
 using API.Entity;
+using API.Exception;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services.impl;
@@ -15,56 +16,54 @@ namespace API.Services.impl;
 public class NotificationService(ApplicationDbContext ctx) : INotificationService
 {
     /// <inheritdoc />
-    public async Task<ServiceResult<Notification>> Create(Notification notification)
+    public async Task<Notification> Create(Notification notification)
     {
         var result = await ctx.Notifications.AddAsync(notification);
         await ctx.SaveChangesAsync();
         
-        return ServiceResult<Notification>.Ok(result.Entity, "Notification Created Successfully");
+        return result.Entity;
     }
 
     /// <inheritdoc />
-    public async Task<ServiceResult<List<Notification>>> FindByUserId(string userId)
+    public async Task<List<Notification>> FindByUserId(string userId)
     {
-        var notifications = await ctx.Notifications
+        return await ctx.Notifications
             .Where(n => n.UserId == userId)
             .OrderByDescending(n => n.CreatedAt)
             .ToListAsync();
-        return notifications.Count > 0 ?  ServiceResult<List<Notification>>.Ok(notifications, "Notification retrieve successfully") : 
-            ServiceResult<List<Notification>>.Failed("Failed to retrieve notifications");
     }
 
     /// <inheritdoc />
-    public async Task<ServiceResult> DeleteById(int id)
+    public async Task<string> DeleteById(int id)
     {
         var notification = await ctx.Notifications.FindAsync(id);
         if (notification == null)
         {
-            return ServiceResult.Failed("Notification not found");
+            throw new NotFoundException($"Notification with id {id} not found");
         }
         
         ctx.Notifications.Remove(notification);
         await ctx.SaveChangesAsync();
         
-        return ServiceResult.Ok("Notification Deleted Successfully");
+        return "Notification Deleted Successfully";
     }
 
     /// <inheritdoc />
-    public async Task<ServiceResult> MarkAsRead(int id)
+    public async Task<Notification> MarkAsRead(int id)
     {
         var notification = await ctx.Notifications.FindAsync(id);
         if (notification == null)
         {
-            return ServiceResult.Failed("Notification not found");
+            throw new NotFoundException($"Notification with id {id} not found");
         }
         
         notification.IsRead = true;
         await ctx.SaveChangesAsync();
-        return ServiceResult.Ok("Notification Marked Successfully");
+        return notification;
     }
 
     /// <inheritdoc />
-    public async Task<ServiceResult> MarkAllAsRead(string userId)
+    public async Task<List<Notification>> MarkAllAsRead(string userId)
     {
         var notifications = await ctx.Notifications.Where(n => n.UserId == userId && !n.IsRead).ToListAsync();
         foreach (var n in notifications)
@@ -73,6 +72,6 @@ public class NotificationService(ApplicationDbContext ctx) : INotificationServic
         }
 
         await ctx.SaveChangesAsync();
-        return ServiceResult.Ok("All notification Marked Successfully");
+        return notifications;
     }
 }
