@@ -10,7 +10,7 @@ public class Invoice
     [Required]
     public int OrderId { get; set; }
     [ForeignKey(nameof(OrderId))]
-    public Order? Order { get; set; }
+    public Order Order { get; set; }
     
     [Required]
     [MaxLength(50)]
