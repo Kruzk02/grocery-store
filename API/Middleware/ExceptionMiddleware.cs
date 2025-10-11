@@ -4,13 +4,12 @@ namespace API.Middleware;
 
 public class ExceptionMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next = next;
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
         try
         {
-            await _next(httpContext);
+            await next(httpContext);
         }
         catch (System.Exception ex)
         {

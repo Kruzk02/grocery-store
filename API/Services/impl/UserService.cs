@@ -27,9 +27,6 @@ public class UserService(
         if (!result.Succeeded) throw new ValidationException(new Dictionary<string, string[]>{{"User creation failed", [result.Errors.Select(e => e.Description).FirstOrDefault()!]}});
         var roleResult = await userManager.AddToRoleAsync(user, "User");
         
-        var verificationToken = await verificationTokenService.GenerateVerificationToken(user);
-        emailService.SendVerify(user.Email, verificationToken.Token);
-        
         return roleResult.Succeeded ? 
             "User created successfully" :
             throw new ValidationException(new Dictionary<string, string[]>{{"User created, but role assignment failed", [result.Errors.Select(e => e.Description).FirstOrDefault()!]}});
