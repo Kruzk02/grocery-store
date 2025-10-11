@@ -12,5 +12,4 @@ public interface IUserService
     Task<string> UpdateUser(ClaimsPrincipal user, UpdateUserDto dto);
     Task<ApplicationUser> GetUser(ClaimsPrincipal user);
     Task<bool> DeleteUser(string id);
-    Task<string> VerifyAccount(string code);
 }

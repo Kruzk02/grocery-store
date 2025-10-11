@@ -9,9 +9,7 @@ namespace API.Services.impl;
 public class UserService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
-    ITokenService tokenService, 
-    IVerificationTokenService verificationTokenService,
-    EmailService emailService
+    ITokenService tokenService
     ) : IUserService
 {
     public async Task<string> CreateUser(RegisterDto dto)
@@ -88,14 +86,6 @@ public class UserService(
         var result = await userManager.DeleteAsync(existingUser);
         return result.Succeeded ? 
             true : 
-            throw new ValidationException(new Dictionary<string, string?[]> {{"Failed to delete user", [result.Errors.Select(e => e.Description).FirstOrDefault()]}});
-    }
-
-    public async Task<string> VerifyAccount(string code)
-    {
-        var result = await verificationTokenService.VerifyToken(code);
-        return result
-            ? "User verify successfully"
-            : "User verify failed";
+            throw new ValidationException(new Dictionary<string, string[]> {{"Failed to delete user", [result.Errors.Select(e => e.Description).FirstOrDefault()!]}});
     }
 }

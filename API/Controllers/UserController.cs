@@ -26,7 +26,7 @@ public class UserController(
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         var result = await userService.CreateUser(dto);
-        return Ok(result);
+        return Ok(new UserResponse(result));
     }
 
     [AllowAnonymous]
@@ -34,7 +34,7 @@ public class UserController(
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         var result = await userService.Login(dto);
-        return Ok(result);
+        return Ok(new TokenResponse(result));
     }
 
     [Authorize]
@@ -42,7 +42,7 @@ public class UserController(
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
     {
         var result = await userService.UpdateUser(User, dto);
-        return Ok(result);
+        return Ok(new UserResponse(result));
     }
 
     [Authorize]
@@ -50,15 +50,7 @@ public class UserController(
     public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest request)
     {
         var result = await userService.DeleteUser(request.Id);
-        return result ? Ok(result) : BadRequest();
-    }
-
-    [Authorize]
-    [HttpPost("verify")]
-    public async Task<IActionResult> VerifyAccount([FromBody] VerifyAccountRequest request)
-    {
-        var result = await userService.VerifyAccount(request.Token);
-        return Ok(result);
+        return result ? NoContent() : BadRequest();
     }
 
     [Authorize]
