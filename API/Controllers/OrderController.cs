@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController, Route("[controller]"), Authorize]
-public class OrderController(IOrderService orderService, IOrderItemService itemService) : ControllerBase
+public class OrderController(IOrderService orderService, IOrderItemService itemService, IInvoiceService invoiceService) : ControllerBase
 {
 
     [HttpPost, 
@@ -51,6 +51,16 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
     public async Task<IActionResult> FindOrderItemById(int id)
     {
         var result = await itemService.FindByOrderId(id);
+        return Ok(result);
+    }
+    
+    [HttpGet("{id:int}/invoice"),
+     ProducesResponseType(typeof(Invoice), 200),
+     ProducesResponseType(404),
+     ProducesResponseType(500)]
+    public async Task<IActionResult> FindInvoiceById(int id)
+    {
+        var result = await invoiceService.FindByOrderId(id);
         return Ok(result);
     }
 
