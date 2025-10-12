@@ -1,4 +1,5 @@
 ﻿using API.Data;
+using API.Dtos;
 using API.Entity;
 using API.Services.impl;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,7 @@ public class InvoiceServiceTest
         _db.Orders.Add(order);
         await _db.SaveChangesAsync();
 
-        var result = await _invoiceService.Create(order.Id);
+        var result = await _invoiceService.Create(new InvoiceDto(1));
         
         Assert.Multiple(() =>
         {
@@ -52,19 +53,19 @@ public class InvoiceServiceTest
     {
         var order = new Order
         {
-            Id = 1,
             CustomerId = 1,
             CreatedAt = DateTime.UtcNow,
         };
+        _db.Orders.Add(order);
+        await _db.SaveChangesAsync();
+
         var invoice = new Invoice
         {
-            Id = 1,
-            OrderId = 1,
+            OrderId = order.Id,
             Order = order,
             InvoiceNumber = $"INV-{DateTime.UtcNow.Year}:{order.Id:D4}"
         };
-        
-        _db.Orders.Add(order);
+
         _db.Invoices.Add(invoice);
         await _db.SaveChangesAsync();
         
@@ -84,29 +85,30 @@ public class InvoiceServiceTest
     {
         var order = new Order
         {
-            Id = 1,
             CustomerId = 1,
             CreatedAt = DateTime.UtcNow,
         };
+        _db.Orders.Add(order);
+        await _db.SaveChangesAsync();
+
         var invoice = new Invoice
         {
-            Id = 1,
-            OrderId = 1,
+            OrderId = order.Id,
             Order = order,
             InvoiceNumber = $"INV-{DateTime.UtcNow.Year}:{order.Id:D4}"
         };
-        
-        _db.Orders.Add(order);
+
         _db.Invoices.Add(invoice);
         await _db.SaveChangesAsync();
-        
-        var result = await _invoiceService.FindByOrderId(1);
+
+        var result = await _invoiceService.FindByOrderId(order.Id);
+
         Assert.Multiple(() =>
         {
             Assert.That(result.Id, Is.GreaterThan(0));
             Assert.That(result.OrderId, Is.EqualTo(order.Id));
             Assert.That(result.Order, Is.Not.Null);
-            Assert.That(result.InvoiceNumber, Is.EqualTo("INV-2025:0001"));
+            Assert.That(result.InvoiceNumber, Is.EqualTo($"INV-{DateTime.UtcNow.Year}:{order.Id:D4}"));
         });
     }
     

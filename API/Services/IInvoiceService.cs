@@ -1,10 +1,11 @@
-﻿using API.Entity;
+﻿using API.Dtos;
+using API.Entity;
 
 namespace API.Services;
 
 public interface IInvoiceService
 {
-    Task<Invoice> Create(int orderId);
+    Task<Invoice> Create(InvoiceDto invoiceDto);
     Task<Invoice> FindById(int id);
     Task<Invoice> FindByOrderId(int orderId);
 }
