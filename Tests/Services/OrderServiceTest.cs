@@ -118,45 +118,6 @@ public class OrderServiceTest
     }
 
     [Test]
-    public async Task FindInvoiceByOrderId()
-    {
-        var orderItemService = new OrderItemService(_dbContext, new MemoryCache(new MemoryCacheOptions()));
-
-        var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3" };
-        var product = new Product { Name = "name", Description = "description", Price = 19.99m, CategoryId = 1, Quantity = 20, CreatedAt = DateTime.UtcNow };
-        var order = new Order { customer = customer, CreatedAt = DateTime.UtcNow };
-
-        _dbContext.Customers.Add(customer);
-        _dbContext.Products.Add(product);
-        _dbContext.Orders.Add(order);
-        await _dbContext.SaveChangesAsync();
-
-        _dbContext.Invoices.Add(new Invoice
-        {
-            OrderId = order.Id,
-            Order = order,
-            IssueDate = DateTime.UtcNow,
-            DueDate = DateTime.UtcNow.AddDays(30),
-            InvoiceNumber = $"INV-{DateTime.UtcNow.Year}:{order.Id:D4}"
-        });
-        await _dbContext.SaveChangesAsync();
-
-        await orderItemService.Create(new OrderItemDto(order.Id, product.Id, 20));
-
-        var result = await _orderService.FindInvoiceByOrderId(order.Id);
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Order.Id, Is.EqualTo(order.Id));
-            Assert.That(result.IssueDate, Is.Not.EqualTo(default(DateTime)));
-            Assert.That(result.DueDate, Is.Not.EqualTo(default(DateTime)));
-            Assert.That(result.InvoiceNumber, Is.Not.Null.And.Not.Empty);
-        });
-    }
-
-
-    [Test]
     public async Task Delete()
     {
         var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};

@@ -9,6 +9,5 @@ public interface IOrderService
     Task<Order> Update(int id, OrderDto orderDto);
     Task<Order> FindById(int id);
     Task<List<Order>> FindByCustomerId(int customerId);
-    Task<Invoice> FindInvoiceByOrderId(int orderId);
     Task<bool> Delete(int id);
 }
