@@ -20,7 +20,7 @@ public class OrderService(ApplicationDbContext ctx, IMemoryCache cache) : IOrder
         var order = new Order
         {
             CustomerId = orderDto.CustomerId,
-            customer = customer
+            Customer = customer
         };
         
         var result = await ctx.Orders.AddAsync(order);
@@ -46,7 +46,7 @@ public class OrderService(ApplicationDbContext ctx, IMemoryCache cache) : IOrder
             }
             
             order.CustomerId = orderDto.CustomerId;
-            order.customer = customer;
+            order.Customer = customer;
         }
 
         await ctx.SaveChangesAsync();

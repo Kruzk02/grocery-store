@@ -10,7 +10,7 @@ public class Order
     [Required]
     public int CustomerId { get; set; }
     [ForeignKey(nameof(CustomerId))]
-    public Customer customer { get; set; }
+    public Customer Customer { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public List<OrderItem> Items { get; set; } = [];
