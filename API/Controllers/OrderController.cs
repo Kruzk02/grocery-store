@@ -1,8 +1,10 @@
-﻿using API.Dtos;
+﻿using API.Documents;
+using API.Dtos;
 using API.Entity;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuestPDF.Fluent;
 
 namespace API.Controllers;
 
@@ -61,9 +63,11 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
     public async Task<IActionResult> FindInvoiceById(int id)
     {
         var result = await invoiceService.FindByOrderId(id);
-        return Ok(result);
+        var document = new InvoiceDocument(result);
+        var pdf = document.GeneratePdf();
+        return File(pdf, "application/pdf");
     }
-
+    
     [HttpDelete("{id:int}"),
      ProducesResponseType(typeof(Order), 204),
      ProducesResponseType(404),
