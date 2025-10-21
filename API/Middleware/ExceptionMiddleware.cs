@@ -1,4 +1,4 @@
-﻿using API.Exception;
+﻿using Domain.Exception;
 
 namespace API.Middleware;
 

@@ -1,7 +1,7 @@
 ﻿using API.Documents;
 using API.Dtos;
-using API.Entity;
 using API.Services;
+using Domain.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestPDF.Fluent;

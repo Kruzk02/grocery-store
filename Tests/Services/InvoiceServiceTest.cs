@@ -1,7 +1,9 @@
 ﻿using API.Data;
 using API.Dtos;
-using API.Entity;
 using API.Services.impl;
+using Application.Services.impl;
+using Domain.Entity;
+using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Tests.Services;

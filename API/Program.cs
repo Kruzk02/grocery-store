@@ -1,10 +1,13 @@
 using System.Text;
 using API.Data;
-using API.Entity;
 using API.Middleware;
 using API.Services;
 using API.Services.impl;
-using API.Settings;
+using Application.Services;
+using Application.Services.impl;
+using Application.Settings;
+using Domain.Entity;
+using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

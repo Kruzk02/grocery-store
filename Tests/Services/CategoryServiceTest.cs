@@ -1,6 +1,7 @@
-﻿using API.Data;
-using API.Entity;
-using API.Services.impl;
+﻿using API.Services.impl;
+using Application.Services.impl;
+using Domain.Entity;
+using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 

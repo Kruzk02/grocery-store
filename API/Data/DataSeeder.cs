@@ -1,4 +1,4 @@
-﻿using API.Entity;
+﻿using Domain.Entity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

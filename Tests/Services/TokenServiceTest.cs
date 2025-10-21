@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using API.Entity;
 using API.Services;
-using API.Settings;
+using Application.Services.impl;
+using Application.Settings;
+using Domain.Entity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
