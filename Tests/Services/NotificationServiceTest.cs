@@ -1,5 +1,4 @@
-﻿using API.Data;
-using Application.Services.impl;
+﻿using Application.Services.impl;
 using Domain.Entity;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

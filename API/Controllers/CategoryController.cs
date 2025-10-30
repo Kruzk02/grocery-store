@@ -1,5 +1,4 @@
-﻿using API.Services;
-using Application.Services;
+﻿using Application.Services;
 using Domain.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

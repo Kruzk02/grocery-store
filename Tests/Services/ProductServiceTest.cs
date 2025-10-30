@@ -1,5 +1,4 @@
-﻿using API.Data;
-using Application.Dtos;
+﻿using Application.Dtos;
 using Application.Services.impl;
 using Domain.Entity;
 using Infrastructure.Persistence;

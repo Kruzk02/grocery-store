@@ -1,5 +1,4 @@
-﻿using API.Data;
-using Application.Dtos;
+﻿using Application.Dtos;
 using Application.Services.impl;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
