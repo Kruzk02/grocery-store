@@ -1,9 +1,8 @@
 ﻿using System.Net;
 using System.Net.Mail;
-
-namespace API.Services.impl;
-
 using Microsoft.Extensions.Configuration;
+
+namespace Application.Services.impl;
 
 public class EmailService(IConfiguration configuration)
 {

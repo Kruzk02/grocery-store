@@ -1,7 +1,7 @@
-﻿using API.Dtos;
+﻿using Application.Dtos;
 using Domain.Entity;
 
-namespace API.Services;
+namespace Application.Services;
 
 public interface IOrderItemService
 {

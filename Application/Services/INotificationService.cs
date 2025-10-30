@@ -1,7 +1,6 @@
-﻿using API.Dtos;
-using Domain.Entity;
+﻿using Domain.Entity;
 
-namespace API.Services;
+namespace Application.Services;
 
 /// <summary>
 /// Defines operations for managing notifications.

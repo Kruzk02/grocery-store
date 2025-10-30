@@ -1,3 +1,3 @@
-﻿namespace API.Dtos;
+﻿namespace Application.Dtos.Reponse;
 
 public record UserResponse(string Message);

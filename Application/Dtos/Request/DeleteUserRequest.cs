@@ -1,3 +1,3 @@
-﻿namespace API.Dtos;
+﻿namespace Application.Dtos;
 
 public record DeleteUserRequest(string Id);

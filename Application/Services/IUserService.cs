@@ -1,9 +1,8 @@
 ﻿using System.Security.Claims;
-using API.Dtos;
+using Application.Dtos;
 using Domain.Entity;
-using Microsoft.AspNetCore.Identity;
 
-namespace API.Services;
+namespace Application.Services;
 
 public interface IUserService
 {

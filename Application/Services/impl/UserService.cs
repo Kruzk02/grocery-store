@@ -1,10 +1,10 @@
 ﻿using System.Security.Claims;
-using API.Dtos;
+using Application.Dtos;
 using Domain.Entity;
 using Domain.Exception;
 using Microsoft.AspNetCore.Identity;
 
-namespace API.Services.impl;
+namespace Application.Services.impl;
 
 public class UserService(
     UserManager<ApplicationUser> userManager,

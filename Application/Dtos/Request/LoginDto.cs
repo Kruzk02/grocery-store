@@ -1,3 +1,3 @@
-﻿namespace API.Dtos;
+﻿namespace Application.Dtos;
 
 public record LoginDto(string UserNameOrEmail, string Password);
