@@ -16,22 +16,18 @@ namespace Application.Services.impl;
 /// <param name="ctx">the <see cref="ApplicationDbContext"/> used to access the database.</param>
 public class ProductService(ApplicationDbContext ctx, IMemoryCache cache) : IProductService
 {
-    /// <inheritdoc />
-    public async Task<List<Product>> FindAll()
+    public async Task<(int total, List<Product> data)> SearchProducts(string name, int skip, int take)
     {
-        const string cacheKey = "products";
-        if (cache.TryGetValue(cacheKey, out List<Product>? products))
-            if (products is { Count: > 0 })
-                return products;
+        var query = ctx.Products.AsQueryable();
+        if (!string.IsNullOrEmpty(name))
+        {
+            query = query.Where(p => EF.Functions.Like(p.Name.ToLower(), $"%{name.ToLower()}%"));
+        }
         
-        products = await ctx.Products.ToListAsync();
-        var cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
-        
-        cache.Set(cacheKey, products, cacheOption);
-        
-        return products; 
+        var total = await query.CountAsync();
+        var data = await query.Skip(skip).Take(take).ToListAsync();
+
+        return (total, data);
     }
 
     ///  <inheritdoc/>

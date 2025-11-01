@@ -9,10 +9,10 @@ namespace Application.Services;
 public interface IProductService
 {
     /// <summary>
-    /// Asynchronously retrieves all products from the database.
+    /// Asynchronously retrieves products with the name from the database.
     /// </summary>
-    Task<List<Product>> FindAll();
-
+    Task<(int total, List<Product> data)> SearchProducts(string? name, int skip, int take);
+    
     /// <summary>
     /// Asynchronously creates a new product in the database.
     /// </summary>

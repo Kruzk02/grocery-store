@@ -61,9 +61,9 @@ public class ProductServiceTest
             Assert.That(result, !Is.Null);
         });
     }
-
+    
     [Test]
-    public async Task FindAll_shouldReturnListOfProduct()
+    public async Task SearchProducts_shouldReturnListOfProduct()
     {
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
         _context.Categories.Add(category);
@@ -71,11 +71,11 @@ public class ProductServiceTest
 
         await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
-        var result = await _productService.FindAll();
+        var result = await _productService.SearchProducts("", 0, 10);
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result!.Count, Is.EqualTo(1));
+            Assert.That(result.total, Is.GreaterThan(0));
+            Assert.That(result.data, Is.Not.Null);
         });
     }
 
