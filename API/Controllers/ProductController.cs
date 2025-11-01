@@ -16,22 +16,35 @@ namespace API.Controllers;
 [ApiController, Route("[controller]"), Authorize]
 public class ProductController(IProductService productService, IOrderItemService itemService) : ControllerBase
 {
-
     /// <summary>
-    /// Retrieves all products.
+    /// Searches for products by name, or returns all products if no name is provided.
     /// </summary>
+    /// <param name="name">
+    /// Optional. The product name (full or partial) to search for. 
+    /// Case-insensitive. If null or empty, all products are returned.
+    /// </param>
+    /// <param name="skip">
+    /// The number of products to skip (for pagination). 
+    /// Defaults to 0.
+    /// </param>
+    /// <param name="take">
+    /// The maximum number of products to return. 
+    /// Defaults to 10.
+    /// </param>
     /// <returns>
-    /// A list of <see cref="Product"/> object
+    /// A tuple containing:
+    /// <list type="bullet">
+    /// <item><description><c>total</c>: The total number of matching products before pagination.</description></item>
+    /// <item><description><c>data</c>: The list of products after applying skip/take pagination.</description></item>
+    /// </list>
     /// </returns>
-    /// <response code="200">Returns the list of categories.</response>
-    /// <response code="500">If an unexpected error occurs.</response>
     [HttpGet]
     [ProducesResponseType(typeof(List<Product>), 200)]
     [ProducesResponseType(500)]
-    public async Task<IActionResult> FindAll()
+    public async Task<IActionResult> FindProducts([FromQuery] string? name, [FromQuery] int skip = 0, [FromQuery] int take = 10)
     {
-        var result = await productService.FindAll();
-        return Ok(result);
+        var (total, data) = await productService.SearchProducts(name, skip, take);
+        return Ok(new { total, data });
     }
 
     /// <summary>
