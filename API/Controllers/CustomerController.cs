@@ -40,15 +40,15 @@ public class CustomerController(ICustomerService customerService, IOrderService 
     [ProducesResponseType(typeof(Customer), 200), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> FindById(int id) => Ok(await customerService.FindById(id));
     
-    [HttpGet("name/{name}")]
+    [HttpGet("{name}/name")]
     [ProducesResponseType(typeof(Customer), 200), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> FindByName(string name) => Ok(await customerService.FindByName(name));
     
-    [HttpGet("email/{email}")]
+    [HttpGet("{email}/email")]
     [ProducesResponseType(typeof(Customer), 200), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> FindByEmail(string email) => Ok(await customerService.FindByEmail(email));
 
-    [HttpGet("phone/{phone}")]
+    [HttpGet("{phone}/phone")]
     [ProducesResponseType(typeof(Customer), 200), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> FindByPhone(string phone) => Ok(await customerService.FindByPhoneNumber(phone));
 
