@@ -1,0 +1,82 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-container">
+    <EditForm Model="_loginModel" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        
+        <div class="login-card">
+            <h2 class="login-title">Sign in</h2>
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <div class="error-alert">@_errorMessage</div>
+            }
+            
+            <div class="form-group">
+                <label>Email</label>
+                <InputText @bind-Value="_loginModel.Email" class="form-input" placeholder="Enter email"/>
+                <ValidationMessage For="() => _loginModel.Email" />
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <InputText @bind-Value="_loginModel.Password" class="form-input" placeholder="Enter Password"/>
+                <ValidationMessage For="() => _loginModel.Password" />
+            </div>
+            
+            <button type="submit" class="login-button" disabled="@_isLoading">
+                @(_isLoading ? "Processing..." : "Login")
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+
+    private LoginModel _loginModel = new();
+    private string? _errorMessage;
+    private bool _isLoading;
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        public string? Email { get; set; }
+
+        [Required(ErrorMessage = "Password is required")]
+        [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
+        public string? Password { get; set; }
+    }
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            _isLoading = true;
+            _errorMessage = null;
+            
+            await Task.Delay(1200);
+
+            if (_loginModel.Email != "admin@example.com" || _loginModel.Password != "123456")
+            {
+                _errorMessage = "Invalid login credentials";
+                return;
+            }
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception)
+        {
+            _errorMessage = "An unexcepted error occurred during login.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
+}
