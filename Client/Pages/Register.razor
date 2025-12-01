@@ -1,33 +1,37 @@
-﻿@page "/login"
+﻿@page "/register"
 @using System.ComponentModel.DataAnnotations
 
-<PageTitle>Login</PageTitle>
+<PageTitle>Register</PageTitle>
 
-<div class="login-container">
-    <EditForm Model="_loginModel" OnValidSubmit="HandleLogin">
+<div class="register-container">
+    <EditForm Model="_registerModel" OnValidSubmit="HandleRegister">
         <DataAnnotationsValidator/>
-
-        <div class="login-card">
-            <h2 class="login-title">Sign in</h2>
+        
+        <div class="register-card">
+            <h2 class="register-title">Sign up</h2>
             @if (!string.IsNullOrEmpty(_errorMessage))
             {
                 <div class="error-alert">@_errorMessage</div>
             }
             
             <div class="form-group">
-                <label>Email</label>
-                <InputText @bind-Value="_loginModel.Email" class="form-input" placeholder="Enter email"/>
-                <ValidationMessage For="() => _loginModel.Email" />
+                <label>Username</label>
+                <InputText @bind-Value="_registerModel.Username" class="form-input" placeholder="Enter username"/>
+                <ValidationMessage For="() => _registerModel.Username" />
             </div>
-            
+            <div class="form-group">
+                <label>Email</label>
+                <InputText @bind-Value="_registerModel.Email" class="form-input" placeholder="Enter email"/>
+                <ValidationMessage For="() => _registerModel.Email" />
+            </div>
             <div class="form-group">
                 <label>Password</label>
-                <InputText @bind-Value="_loginModel.Password" class="form-input" placeholder="Enter Password"/>
-                <ValidationMessage For="() => _loginModel.Password" />
+                <InputText @bind-Value="_registerModel.Password" class="form-input" placeholder="Enter Password"/>
+                <ValidationMessage For="() => _registerModel.Password" />
             </div>
             
-            <button type="submit" class="login-button" disabled="@_isLoading">
-                @(_isLoading ? "Processing..." : "Login")
+            <button type="submit" class="register-button" disabled="@_isLoading">
+                @(_isLoading ? "Processing..." : "Register")
             </button>
         </div>
     </EditForm>
@@ -35,12 +39,14 @@
 
 @code {
 
-    private LoginModel _loginModel = new();
+    private RegisterModel _registerModel = new();
     private string? _errorMessage;
     private bool _isLoading;
 
-    public class LoginModel
+    public class RegisterModel
     {
+        [Required(ErrorMessage = "Username is required")]
+        public string? Username { get; set; }
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string? Email { get; set; }
@@ -50,7 +56,7 @@
         public string? Password { get; set; }
     }
 
-    private async Task HandleLogin()
+    public async Task HandleRegister()
     {
         try
         {
@@ -59,7 +65,7 @@
             
             await Task.Delay(1200);
 
-            if (_loginModel.Email != "admin@example.com" || _loginModel.Password != "123456")
+            if (_registerModel.Username != "admin" || _registerModel.Email != "admin@example.com" || _registerModel.Password != "123456")
             {
                 _errorMessage = "Invalid login credentials";
                 return;
@@ -77,5 +83,4 @@
     }
 
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
-
 }
