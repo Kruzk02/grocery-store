@@ -6,14 +6,14 @@ namespace Domain.Entity;
 public class Order
 {
     [Key]
-    public int Id { get; set; }
+    public int Id { get; init; }
     [Required]
     public int CustomerId { get; set; }
     [ForeignKey(nameof(CustomerId))]
-    public Customer Customer { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public required Customer Customer { get; set; }
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     
-    public List<OrderItem> Items { get; set; } = [];
+    public List<OrderItem> Items { get; init; } = [];
 
     public decimal Total => Items.Sum(i => i.Quantity * i.Product.Price);
 }

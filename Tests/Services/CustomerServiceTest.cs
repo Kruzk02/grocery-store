@@ -40,15 +40,15 @@ public class CustomerServiceTest
     public async Task Create()
     {
         var result = await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
-            Assert.That(result!.Id, Is.Not.EqualTo(0));
+            Assert.That(result!.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
             Assert.That(result.Phone, Is.EqualTo("843806784"));
             Assert.That(result.Address, Is.EqualTo("1b22"));
-        });
+        }
     }
 
     [Test]
@@ -67,15 +67,15 @@ public class CustomerServiceTest
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
         var result = await _customerService.FindById(1);
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
-            Assert.That(result!.Id, Is.Not.EqualTo(0));
+            Assert.That(result!.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
             Assert.That(result.Phone, Is.EqualTo("843806784"));
             Assert.That(result.Address, Is.EqualTo("1b22"));
-        });
+        }
     }
     
     [Test]
@@ -84,15 +84,15 @@ public class CustomerServiceTest
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
         var result = await _customerService.FindByName("Name");
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
-            Assert.That(result!.Id, Is.Not.EqualTo(0));
+            Assert.That(result!.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
             Assert.That(result.Phone, Is.EqualTo("843806784"));
             Assert.That(result.Address, Is.EqualTo("1b22"));
-        });
+        }
     }
     
     [Test]
@@ -101,15 +101,15 @@ public class CustomerServiceTest
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
         var result = await _customerService.FindByEmail("Email@gmail.com");
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
-            Assert.That(result!.Id, Is.Not.EqualTo(0));
+            Assert.That(result!.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
             Assert.That(result.Phone, Is.EqualTo("843806784"));
             Assert.That(result.Address, Is.EqualTo("1b22"));
-        });
+        }
     }
     
     [Test]
@@ -118,15 +118,15 @@ public class CustomerServiceTest
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
         var result = await _customerService.FindByPhoneNumber("843806784");
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
-            Assert.That(result!.Id, Is.Not.EqualTo(0));
+            Assert.That(result!.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo("Name"));
             Assert.That(result.Email, Is.EqualTo("Email@gmail.com"));
             Assert.That(result.Phone, Is.EqualTo("843806784"));
             Assert.That(result.Address, Is.EqualTo("1b22"));
-        });
+        }
     }
 
     [Test]

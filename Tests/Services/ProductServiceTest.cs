@@ -34,15 +34,15 @@ public class ProductServiceTest
         await _context.SaveChangesAsync();
 
         var result = await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result!.Id, Is.EqualTo(1));
             Assert.That(result.Name, Is.EqualTo("name"));
             Assert.That(result.Description, Is.EqualTo("description"));
             Assert.That(result.Price, Is.EqualTo(11.99m));
             Assert.That(result.CategoryId, Is.EqualTo(1));
-        });
+        }
     }
 
     [Test]
@@ -55,11 +55,11 @@ public class ProductServiceTest
         await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
         var result = await _productService.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, !Is.Null);
-        });
+        }
     }
     
     [Test]
@@ -72,11 +72,11 @@ public class ProductServiceTest
         await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
         var result = await _productService.SearchProducts("", 0, 10);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.total, Is.GreaterThan(0));
             Assert.That(result.data, Is.Not.Null);
-        });
+        }
     }
 
     [Test]
@@ -89,15 +89,15 @@ public class ProductServiceTest
         await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
 
         var result = await _productService.FindById(1);
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result!.Id, Is.EqualTo(1));
             Assert.That(result.Name, Is.EqualTo("name"));
             Assert.That(result.Description, Is.EqualTo("description"));
             Assert.That(result.Price, Is.EqualTo(11.99m));
             Assert.That(result.CategoryId, Is.EqualTo(1));
-        });
+        }
     }
     
     [Test]

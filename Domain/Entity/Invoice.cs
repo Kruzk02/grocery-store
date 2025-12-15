@@ -6,16 +6,16 @@ namespace Domain.Entity;
 public class Invoice
 {
     [Key]
-    public int Id { get; set; }
+    public int Id { get; init; }
     [Required]
-    public int OrderId { get; set; }
+    public int OrderId { get; init; }
     [ForeignKey(nameof(OrderId))]
-    public Order Order { get; set; }
+    public required Order Order { get; init; }
     
     [Required]
     [MaxLength(50)]
-    public string InvoiceNumber { get; set; } = string.Empty;
+    public string InvoiceNumber { get; init; } = string.Empty;
     
-    public DateTime IssueDate { get; set; }
-    public DateTime DueDate { get; set; }
+    public DateTime IssueDate { get; init; }
+    public DateTime DueDate { get; init; }
 }

@@ -26,14 +26,14 @@ public class NotificationServiceTest
         var notification = new Notification{Id = 1, Message = "adawd", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info, UserId = "1a"};
         
         var result = await service.Create(notification);
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.Message, Is.EqualTo("adawd"));
             Assert.That(result.IsRead, Is.EqualTo(false));
             Assert.That(result.Type, Is.EqualTo(NotificationType.Info));
-        });
+        }
     }
 
     [Test]
@@ -45,17 +45,17 @@ public class NotificationServiceTest
         var user = new ApplicationUser { Id = "1a"};
         ctx.Users.Add(user);
         
-        var notification = new Notification{Id = 1, Message = "adawd", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info, UserId = "1a"};
+        var notification = new Notification{Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info, UserId = "1a"};
         ctx.Notifications.Add(notification);
         
         await ctx.SaveChangesAsync();
         
         var result = await service.FindByUserId("1a");
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Count, Is.EqualTo(1));
-        });
+            Assert.That(result, Has.Count.EqualTo(1));
+        }
     }
 
     [Test]
@@ -66,7 +66,7 @@ public class NotificationServiceTest
 
         await service.Create(new Notification
         {
-            Id = 1, Message = "adawd", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
+            Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
             UserId = "1a"
         });
 
@@ -83,7 +83,7 @@ public class NotificationServiceTest
         
         await service.Create(new Notification
         {
-            Id = 1, Message = "adawd", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
+            Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
             UserId = "1a"
         });
         
@@ -99,7 +99,7 @@ public class NotificationServiceTest
         
         await service.Create(new Notification
         {
-            Id = 1, Message = "adawd", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
+            Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
             UserId = "1a"
         });
         

@@ -5,13 +5,14 @@ namespace Domain.Entity;
 public class Notification
 {
     [Key]
-    public int Id { get; set; } [Required]
-    public string UserId { get; set; } 
-    public NotificationType Type { get; set; } = NotificationType.Info;
+    public int Id { get; init; } 
+    [Required, MaxLength(128)]
+    public required string UserId { get; init; } 
+    public NotificationType Type { get; init; } = NotificationType.Info;
     [Required, MaxLength(500)]
-    public required string Message { get; set; }
+    public required string Message { get; init; }
     public bool IsRead { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; init; }
 
 }
 

@@ -29,82 +29,123 @@ public class InventoryServiceTest
     [Test]
     public async Task CreateInventory_shouldCreateProduct()
     {
-        var product = new Product{ Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
+        var product = new Product
+        {
+            Id = 1,
+            Name = "name",
+            Description = "description",
+            Price = 11.99m,
+            CategoryId = 1,
+            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
+        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
 
         var result = await _inventoryService.Create(new InventoryDto(product.Id, 20));
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(1));   
             Assert.That(result.ProductId, Is.EqualTo(product.Id));
             Assert.That(result.Product, Is.EqualTo(product));
             Assert.That(result.Quantity, Is.EqualTo(20));
-        });
+        }
     }
     
     [Test]
     public async Task UpdateInventory_shouldUpdateInventory()
     {
-        var product = new  Product{ Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
+        var product = new  Product
+        {
+            Id = 1,
+            Name = "name",
+            Description = "description",
+            Price = 11.99m,
+            CategoryId = 1,
+            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
+        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
         
         await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
         
         var result = await _inventoryService.Update(1, new InventoryDto(ProductId: product.Id, Quantity: 10));
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(1));   
             Assert.That(result.ProductId, Is.EqualTo(product.Id));
             Assert.That(result.Product, Is.EqualTo(product));
             Assert.That(result.Quantity, Is.EqualTo(10));
-        });
+        }
     }
 
     [Test]
     public async Task FindAll_shouldReturnListOfInventory()
     {
-        var product = new Product{ Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
+        var product = new Product
+        {
+            Id = 1,
+            Name = "name",
+            Description = "description",
+            Price = 11.99m,
+            CategoryId = 1,
+            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
+        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
 
         await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
         
         var result = await _inventoryService.FindAll();
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Count, Is.EqualTo(1));
-        });
+            Assert.That(result, Has.Count.EqualTo(1));
+        }
     }
 
     [Test]
     public async Task FindById_shouldReturnInventory()
     {
-        var product = new Product { Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
+        var product = new Product
+        {
+            Id = 1,
+            Name = "name",
+            Description = "description",
+            Price = 11.99m,
+            CategoryId = 1,
+            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
+        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
         
         await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
 
         var result = await _inventoryService.FindById(1);
-        
-        Assert.Multiple(() => {
-            Assert.That(result!.Id, Is.EqualTo(1));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.ProductId, Is.EqualTo(product.Id));
             Assert.That(result.Product, Is.EqualTo(product));
             Assert.That(result.Quantity, Is.EqualTo(20));
-        });
+        }
     }
     
     [Test]
     public async Task DeleteById_shouldDeleteInventory()
     {
-        var product = new Product { Id = 1, Name = "name", Description = "description", Price = 11.99m, CategoryId = 1 };
+        var product = new Product
+        {
+            Id = 1,
+            Name = "name",
+            Description = "description",
+            Price = 11.99m,
+            CategoryId = 1,
+            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
+        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
         

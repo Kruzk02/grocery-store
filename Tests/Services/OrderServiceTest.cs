@@ -35,12 +35,12 @@ public class OrderServiceTest
         await _dbContext.SaveChangesAsync();
 
         var result = await _orderService.Create(new OrderDto(customer.Id));
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.GreaterThan(0));
             Assert.That(result.CustomerId, Is.GreaterThan(0));
-        });
+        }
     }
     
     [Test]
@@ -62,12 +62,15 @@ public class OrderServiceTest
     public async Task FindById()
     {
         var orderItemService = new OrderItemService(_dbContext, new MemoryCache(new MemoryCacheOptions()));
+        
+        var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
 
         var order = new Order
         {
             Id = 1,
             CustomerId = 1,
             CreatedAt = DateTime.UtcNow,
+            Customer = customer,
         };
 
         var product = new Product
@@ -79,8 +82,8 @@ public class OrderServiceTest
             CategoryId = 1,
             Quantity = 20,
             CreatedAt = DateTime.UtcNow,
+            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
         };
-        var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
                 
         _dbContext.Orders.Add(order);
         _dbContext.Products.Add(product);
@@ -90,13 +93,13 @@ public class OrderServiceTest
         await _orderService.Create(new OrderDto(customer.Id));
         
         var result = await _orderService.FindById(1);
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result!.Id, Is.GreaterThan(0));
             Assert.That(result.CustomerId, Is.GreaterThan(0));
             Assert.That(result.Total, Is.EqualTo(399.8m));
-        });
+        }
     }
 
     [Test]
@@ -109,12 +112,12 @@ public class OrderServiceTest
         
         var result = await _orderService.FindByCustomerId(customer.Id);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.Not.Empty);
             Assert.That(result![0].Id, Is.GreaterThan(0));
             Assert.That(result[0].CustomerId, Is.GreaterThan(0));
-        });
+        }
     }
 
     [Test]

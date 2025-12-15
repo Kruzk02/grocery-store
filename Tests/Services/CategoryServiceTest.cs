@@ -30,10 +30,10 @@ public class CategoryServiceTest
         var service = new CategoryService(ctx, new MemoryCache(new MemoryCacheOptions()));
 
         var result = service.FindAll();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Result, Is.Not.Null);
-            Assert.That(result.Result.Count, Is.EqualTo(1));
-        });
+            Assert.That(result.Result, Has.Count.EqualTo(1));
+        }
     }
 }

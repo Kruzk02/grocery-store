@@ -7,16 +7,16 @@ namespace Domain.Entity;
 public class OrderItem
 {
     [Key]
-    public int Id { get; set; }
+    public int Id { get; init; }
     [Required]
-    public int OrderId { get; set; }
+    public int OrderId { get; init; }
     [ForeignKey(nameof(OrderId)), JsonIgnore]
-    public Order Order { get; set; }
+    public required Order Order { get; init; }
     
     [Required]
     public int ProductId { get; set; }
     [ForeignKey(nameof(ProductId))]
-    public Product Product { get; set; }
+    public required Product Product { get; init; }
     
     [Required]
     [Range(1, int.MaxValue)]

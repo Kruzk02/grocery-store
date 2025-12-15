@@ -34,6 +34,13 @@ public class OrderItemServiceTest
             Id = 1,
             CustomerId = 1,
             CreatedAt = DateTime.UtcNow,
+            Customer = new Customer
+            {
+                Name = "Name",
+                Email = "Email@gmail.com",
+                Phone = "841231245",
+                Address = "asap"
+            }
         };
 
         var product = new Product
@@ -45,6 +52,7 @@ public class OrderItemServiceTest
             CategoryId = 1,
             Quantity = 20,
             CreatedAt = DateTime.UtcNow,
+            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
         };
         
         ctx.Orders.Add(order);
@@ -58,15 +66,15 @@ public class OrderItemServiceTest
         await _dbContext.SaveChangesAsync();
 
         var result = await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.ProductId, Is.EqualTo(1));
             Assert.That(result.OrderId, Is.EqualTo(1));
             Assert.That(result.SubTotal, Is.EqualTo(479.76m));
             Assert.That(result.Quantity, Is.EqualTo(24));
-        });
+        }
     }
 
     [Test]
@@ -87,15 +95,15 @@ public class OrderItemServiceTest
         await _dbContext.SaveChangesAsync();
         await _orderItemService.Create(new OrderItemDto(1, 1, 24));
         var result = await _orderItemService.FindById(1);
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.ProductId, Is.EqualTo(1));
             Assert.That(result.OrderId, Is.EqualTo(1));
             Assert.That(result.SubTotal, Is.EqualTo(479.76m));
             Assert.That(result.Quantity, Is.EqualTo(24));
-        });
+        }
     }
 
     [Test]
@@ -106,7 +114,7 @@ public class OrderItemServiceTest
         await _orderItemService.Create(new OrderItemDto(1, 1, 24));
         var result = await _orderItemService.FindByOrderId(1);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, !Is.Empty);
             Assert.That(result[0].Id, Is.EqualTo(1));
@@ -114,7 +122,7 @@ public class OrderItemServiceTest
             Assert.That(result[0].OrderId, Is.EqualTo(1));
             Assert.That(result[0].SubTotal, Is.EqualTo(479.76m));
             Assert.That(result[0].Quantity, Is.EqualTo(24));
-        });
+        }
     }
     
     [Test]
@@ -124,8 +132,8 @@ public class OrderItemServiceTest
         await _dbContext.SaveChangesAsync();
         await _orderItemService.Create(new OrderItemDto(1, 1, 24));
         var result = await _orderItemService.FindByProductId(1);
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, !Is.Empty);
             Assert.That(result[0].Id, Is.EqualTo(1));
@@ -133,7 +141,7 @@ public class OrderItemServiceTest
             Assert.That(result[0].OrderId, Is.EqualTo(1));
             Assert.That(result[0].SubTotal, Is.EqualTo(479.76m));
             Assert.That(result[0].Quantity, Is.EqualTo(24));
-        });
+        }
     }
 
     [Test]
