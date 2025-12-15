@@ -17,7 +17,7 @@ public class TokenServiceTest
     {
         var store = new Mock<IUserStore<TUser>>();
         return new Mock<UserManager<TUser>>(
-            store.Object, null, null, null, null, null, null, null, null);
+            store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
     }
     
     [Test]
