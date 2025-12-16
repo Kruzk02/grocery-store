@@ -18,26 +18,26 @@ public class NotificationServiceTest
     }
 
     [Test]
-    public async Task CreateNotification_shouldCreate()
+    [TestCaseSource(nameof(CreateNotification))]
+    public async Task CreateNotification_shouldCreate(Notification notification)
     {
         var ctx = GetInMemoryDbContext();
         var service = new NotificationService(ctx);
-
-        var notification = new Notification{Id = 1, Message = "adawd", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info, UserId = "1a"};
         
         var result = await service.Create(notification);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(1));
-            Assert.That(result.Message, Is.EqualTo("adawd"));
-            Assert.That(result.IsRead, Is.EqualTo(false));
+            Assert.That(result.Id, Is.EqualTo(notification.Id));
+            Assert.That(result.Message, Is.EqualTo(notification.Message));
+            Assert.That(result.IsRead, Is.False);
             Assert.That(result.Type, Is.EqualTo(NotificationType.Info));
         }
     }
 
     [Test]
-    public async Task FindByUserId_shouldReturnNotification()
+    [TestCaseSource(nameof(CreateNotification))]
+    public async Task FindByUserId_shouldReturnNotification(Notification notification)
     {
         var ctx = GetInMemoryDbContext();
         var service = new NotificationService(ctx);
@@ -45,65 +45,73 @@ public class NotificationServiceTest
         var user = new ApplicationUser { Id = "1a"};
         ctx.Users.Add(user);
         
-        var notification = new Notification{Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info, UserId = "1a"};
         ctx.Notifications.Add(notification);
         
         await ctx.SaveChangesAsync();
         
-        var result = await service.FindByUserId("1a");
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result, Has.Count.EqualTo(1));
-        }
+        var result = await service.FindByUserId(notification.UserId);
+        
+        Assert.That(result, Has.Count.EqualTo(1));
     }
 
     [Test]
-    public async Task DeleteById_shouldDelete()
+    [TestCaseSource(nameof(CreateNotification))]
+    public async Task DeleteById_shouldDelete(Notification notification)
     {
         var ctx = GetInMemoryDbContext();
         var service = new NotificationService(ctx);
 
-        await service.Create(new Notification
-        {
-            Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
-            UserId = "1a"
-        });
+        await service.Create(notification);
 
-        var serviceResult = await service.DeleteById(1);
+        var serviceResult = await service.DeleteById(notification.Id);
         
         Assert.That(serviceResult, Is.EqualTo("Notification Deleted Successfully"));
     }
     
     [Test]
-    public async Task MarkAsRead_shouldMarkAsRead()
+    [TestCaseSource(nameof(CreateNotification))]
+    public async Task MarkAsRead_shouldMarkAsRead(Notification notification)
     {
         var ctx = GetInMemoryDbContext();
         var service = new NotificationService(ctx);
         
-        await service.Create(new Notification
-        {
-            Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
-            UserId = "1a"
-        });
+        await service.Create(notification);
         
-        var result = await service.MarkAsRead(1);
+        var result = await service.MarkAsRead(notification.Id);
         Assert.That(result.IsRead, Is.True);
     }
     
     [Test]
-    public async Task MarkAllAsRead_shouldMarkAllAsRead()
+    [TestCaseSource(nameof(CreateNotification))]
+    public async Task MarkAllAsRead_shouldMarkAllAsRead(Notification notification)
     {
         var ctx = GetInMemoryDbContext();
         var service = new NotificationService(ctx);
         
-        await service.Create(new Notification
-        {
-            Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
-            UserId = "1a"
-        });
+        await service.Create(notification);
         
         var result = await service.MarkAllAsRead("1a");
         Assert.That(result, !Is.Empty);
+    }
+
+    private static IEnumerable<Notification> CreateNotification()
+    {
+        yield return new Notification
+        {
+            Id = 1, Message = "asap", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
+            UserId = "1a"
+        };  
+        
+        yield return new Notification
+        {
+            Id = 2, Message = "asap444", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
+            UserId = "1a"
+        };  
+        
+        yield return new Notification
+        {
+            Id = 3, Message = "asap555", CreatedAt = DateTime.UtcNow, IsRead = false, Type = NotificationType.Info,
+            UserId = "1a"
+        };
     }
 }
