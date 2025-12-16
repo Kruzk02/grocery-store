@@ -27,34 +27,36 @@ public class ProductServiceTest
     }
     
     [Test]
-    public async Task CreateProduct_ShouldCreateProduct()
+    [TestCaseSource(nameof(CreateProductDto))]
+    public async Task CreateProduct_ShouldCreateProduct(ProductDto productDto)
     {
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        var result = await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        var result = await _productService.Create(productDto);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result!.Id, Is.EqualTo(1));
-            Assert.That(result.Name, Is.EqualTo("name"));
-            Assert.That(result.Description, Is.EqualTo("description"));
-            Assert.That(result.Price, Is.EqualTo(11.99m));
-            Assert.That(result.CategoryId, Is.EqualTo(1));
+            Assert.That(result.Id, Is.GreaterThan(0));
+            Assert.That(result.Name, Is.EqualTo(productDto.Name));
+            Assert.That(result.Description, Is.EqualTo(productDto.Description));
+            Assert.That(result.Price, Is.EqualTo(productDto.Price));
+            Assert.That(result.CategoryId, Is.EqualTo(productDto.CategoryId));
         }
     }
 
     [Test]
-    public async Task UpdateProduct_ShouldUpdateProduct()
+    [TestCaseSource(nameof(CreateProductDto))]
+    public async Task UpdateProduct_ShouldUpdateProduct(ProductDto productDto)
     {
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        var product = await _productService.Create(productDto);
 
-        var result = await _productService.Update(1, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
+        var result = await _productService.Update(product.Id, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44));
 
         using (Assert.EnterMultipleScope())
         {
@@ -63,15 +65,16 @@ public class ProductServiceTest
     }
     
     [Test]
-    public async Task SearchProducts_shouldReturnListOfProduct()
+    [TestCaseSource(nameof(CreateProductDto))]
+    public async Task SearchProducts_shouldReturnListOfProduct(ProductDto productDto)
     {
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        var product = await _productService.Create(productDto);
 
-        var result = await _productService.SearchProducts("", 0, 10);
+        var result = await _productService.SearchProducts(product.Name, 0, 10);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.total, Is.GreaterThan(0));
@@ -80,38 +83,47 @@ public class ProductServiceTest
     }
 
     [Test]
-    public async Task FindById_ShouldReturnProduct()
+    [TestCaseSource(nameof(CreateProductDto))]    
+    public async Task FindById_ShouldReturnProduct(ProductDto productDto)
     {
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
+        var product = await _productService.Create(productDto);
 
-        var result = await _productService.FindById(1);
+        var result = await _productService.FindById(product.Id);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result!.Id, Is.EqualTo(1));
-            Assert.That(result.Name, Is.EqualTo("name"));
-            Assert.That(result.Description, Is.EqualTo("description"));
-            Assert.That(result.Price, Is.EqualTo(11.99m));
-            Assert.That(result.CategoryId, Is.EqualTo(1));
+            Assert.That(result.Id, Is.EqualTo(product.Id));
+            Assert.That(result.Name, Is.EqualTo(product.Name));
+            Assert.That(result.Description, Is.EqualTo(product.Description));
+            Assert.That(result.Price, Is.EqualTo(product.Price));
+            Assert.That(result.CategoryId, Is.EqualTo(product.CategoryId));
         }
     }
     
     [Test]
-    public async Task DeleteById()
-    {
+    [TestCaseSource(nameof(CreateProductDto))]
+    public async Task DeleteById(ProductDto productDto)
+    {        
         var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
-
-        await _productService.Create(new ProductDto(Name: "name", Description: "description", Price: 11.99m, CategoryId: category.Id, Quantity: 1));
         
-        var result = await _productService.DeleteById(1);
+        var product = await _productService.Create(productDto);
+        
+        var result = await _productService.DeleteById(product.Id);
         
         Assert.That(result, Is.True);
+    }
+
+    private static IEnumerable<ProductDto> CreateProductDto()
+    { 
+        yield return new ProductDto(Name: "name123", Description: "description3", Price: 2.99m, CategoryId: 1, Quantity: 1);
+        yield return new ProductDto(Name: "name4", Description: "description", Price: 5.99m, CategoryId: 1, Quantity: 1);
+        yield return new ProductDto(Name: "name56", Description: "description", Price: 6.99m, CategoryId: 1, Quantity: 1);
     }
     
     private static ApplicationDbContext GetInMemoryDbContext()
