@@ -28,9 +28,9 @@ public class OrderServiceTest
     }
     
     [Test]
-    public async Task Create()
+    [TestCaseSource(nameof(CreateCustomer))]
+    public async Task Create(Customer customer)
     {
-        var customer = new Customer() { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
         _dbContext.Customers.Add(customer);
         await _dbContext.SaveChangesAsync();
 
@@ -59,12 +59,11 @@ public class OrderServiceTest
     }
 
     [Test]
-    public async Task FindById()
+    [TestCaseSource(nameof(CreateCustomer))]
+    public async Task FindById(Customer customer)
     {
         var orderItemService = new OrderItemService(_dbContext, new MemoryCache(new MemoryCacheOptions()));
         
-        var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
-
         var order = new Order
         {
             Id = 1,
@@ -96,16 +95,16 @@ public class OrderServiceTest
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result!.Id, Is.GreaterThan(0));
+            Assert.That(result.Id, Is.GreaterThan(0));
             Assert.That(result.CustomerId, Is.GreaterThan(0));
             Assert.That(result.Total, Is.EqualTo(399.8m));
         }
     }
 
     [Test]
-    public async Task FindByCustomerId()
+    [TestCaseSource(nameof(CreateCustomer))]
+    public async Task FindByCustomerId(Customer customer)
     {
-        var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
         _dbContext.Customers.Add(customer);
         await _dbContext.SaveChangesAsync();
         await _orderService.Create(new OrderDto(customer.Id));
@@ -115,21 +114,26 @@ public class OrderServiceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.Not.Empty);
-            Assert.That(result![0].Id, Is.GreaterThan(0));
+            Assert.That(result[0].Id, Is.GreaterThan(0));
             Assert.That(result[0].CustomerId, Is.GreaterThan(0));
         }
     }
 
     [Test]
-    public async Task Delete()
+    [TestCaseSource(nameof(CreateCustomer))]
+    public async Task Delete(Customer customer)
     {
-        var customer = new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
         _dbContext.Customers.Add(customer);
         await _dbContext.SaveChangesAsync();
         await _orderService.Create(new OrderDto(customer.Id));
 
         var result = await _orderService.Delete(1);
         Assert.That(result, Is.True);
+    }
+
+    private static IEnumerable<Customer> CreateCustomer()
+    {
+        yield return new Customer { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3"};
     }
     
     private static ApplicationDbContext GetInMemoryDbContext()
