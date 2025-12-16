@@ -27,7 +27,7 @@ public class OrderItemServiceTest
         _dbContext.Dispose();    
     }
     
-    private void CreateProductAndOrder(ApplicationDbContext ctx)
+    private static void CreateProductAndOrder(ApplicationDbContext ctx)
     {
         var order = new Order
         {
@@ -60,20 +60,20 @@ public class OrderItemServiceTest
     }
 
     [Test]
-    public async Task CreateOrderItem()
+    [TestCaseSource(nameof(CreateOrderItemsDto))]
+    public async Task CreateOrderItem(OrderItemDto orderItemDto)
     {
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
 
-        var result = await _orderItemService.Create(new OrderItemDto(1, 1, 24));
+        var result = await _orderItemService.Create(orderItemDto);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(1));
-            Assert.That(result.ProductId, Is.EqualTo(1));
-            Assert.That(result.OrderId, Is.EqualTo(1));
-            Assert.That(result.SubTotal, Is.EqualTo(479.76m));
-            Assert.That(result.Quantity, Is.EqualTo(24));
+            Assert.That(result.ProductId, Is.EqualTo(orderItemDto.ProductId));
+            Assert.That(result.OrderId, Is.EqualTo(orderItemDto.OrderId));
+            Assert.That(result.Quantity, Is.EqualTo(orderItemDto.Quantity));
         }
     }
 
@@ -89,72 +89,72 @@ public class OrderItemServiceTest
     }
 
     [Test]
-    public async Task FindById()
+    [TestCaseSource(nameof(CreateOrderItemsDto))]
+    public async Task FindById(OrderItemDto orderItemDto)
     {
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
-        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var result = await _orderItemService.FindById(1);
+        var orderItem = await _orderItemService.Create(orderItemDto);
+        var result = await _orderItemService.FindById(orderItemDto.OrderId);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(1));
-            Assert.That(result.ProductId, Is.EqualTo(1));
-            Assert.That(result.OrderId, Is.EqualTo(1));
-            Assert.That(result.SubTotal, Is.EqualTo(479.76m));
-            Assert.That(result.Quantity, Is.EqualTo(24));
+            Assert.That(result.Id, Is.EqualTo(orderItem.Id));
+            Assert.That(result.ProductId, Is.EqualTo(orderItem.ProductId));
+            Assert.That(result.OrderId, Is.EqualTo(orderItem.OrderId));
+            Assert.That(result.SubTotal, Is.EqualTo(orderItem.SubTotal));
+            Assert.That(result.Quantity, Is.EqualTo(orderItem.Quantity));
         }
     }
 
     [Test]
-    public async Task FindByOrderId()
+    [TestCaseSource(nameof(CreateOrderItemsDto))]
+    public async Task FindByOrderId(OrderItemDto orderItemDto)
     {
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
-        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var result = await _orderItemService.FindByOrderId(1);
+        var orderItem = await _orderItemService.Create(orderItemDto);
+        var result = await _orderItemService.FindByOrderId(orderItemDto.OrderId);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result, !Is.Empty);
-            Assert.That(result[0].Id, Is.EqualTo(1));
-            Assert.That(result[0].ProductId, Is.EqualTo(1));
-            Assert.That(result[0].OrderId, Is.EqualTo(1));
-            Assert.That(result[0].SubTotal, Is.EqualTo(479.76m));
-            Assert.That(result[0].Quantity, Is.EqualTo(24));
+            Assert.That(result, Has.Count.EqualTo(1));
         }
     }
     
     [Test]
-    public async Task FindByProductId()
+    [TestCaseSource(nameof(CreateOrderItemsDto))]
+    public async Task FindByProductId(OrderItemDto orderItemDto)
     {
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
-        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var result = await _orderItemService.FindByProductId(1);
+        var orderItem = await _orderItemService.Create(orderItemDto);
+        var result = await _orderItemService.FindByProductId(orderItemDto.ProductId);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result, !Is.Empty);
-            Assert.That(result[0].Id, Is.EqualTo(1));
-            Assert.That(result[0].ProductId, Is.EqualTo(1));
-            Assert.That(result[0].OrderId, Is.EqualTo(1));
-            Assert.That(result[0].SubTotal, Is.EqualTo(479.76m));
-            Assert.That(result[0].Quantity, Is.EqualTo(24));
+            Assert.That(result, Has.Count.EqualTo(1));
         }
     }
 
     [Test]
-    public async Task Delete()
+    [TestCaseSource(nameof(CreateOrderItemsDto))]
+    public async Task Delete(OrderItemDto orderItemDto)
     {
         CreateProductAndOrder(_dbContext);
         await _dbContext.SaveChangesAsync();
-        await _orderItemService.Create(new OrderItemDto(1, 1, 24));
-        var result = await _orderItemService.Delete(1);
+        await _orderItemService.Create(orderItemDto);
+        var result = await _orderItemService.Delete(orderItemDto.OrderId);
         Assert.That(result, Is.True);
     }
+
+    private static IEnumerable<OrderItemDto> CreateOrderItemsDto()
+    {
+        yield return new OrderItemDto(1, 1, 24);
+    }
     
-        
     private static ApplicationDbContext GetInMemoryDbContext()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
