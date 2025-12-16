@@ -13,7 +13,7 @@ namespace Tests.Services;
 [TestFixture]
 public class TokenServiceTest
 {
-    Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
+    private static Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
     {
         var store = new Mock<IUserStore<TUser>>();
         return new Mock<UserManager<TUser>>(
@@ -21,7 +21,8 @@ public class TokenServiceTest
     }
     
     [Test]
-    public async Task CreateToken_ShouldReturn_ValidJwtToken()
+    [TestCaseSource(nameof(CreateApplicationUser))]
+    public async Task CreateToken_ShouldReturn_ValidJwtToken(ApplicationUser user)
     {
         var mockUserManager = MockUserManager<ApplicationUser>();
         
@@ -46,13 +47,6 @@ public class TokenServiceTest
 
         var tokenService = new TokenService(options);
 
-        var user = new ApplicationUser
-        {
-            Id = "123",
-            UserName = "testuser",
-            Email = "test@example.com"
-        };
-
         Debug.Assert(mockUserManager != null, nameof(mockUserManager) + " != null");
         var token = await tokenService.CreateToken(user, userManager);
 
@@ -60,12 +54,36 @@ public class TokenServiceTest
 
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.ReadJwtToken(token);
-        
-        Assert.Multiple(() =>
+
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(user.Id, Is.EqualTo(jwt.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value));
             Assert.That(user.UserName, Is.EqualTo(jwt.Claims.First(c => c.Type == JwtRegisteredClaimNames.UniqueName).Value));
             Assert.That(user.Email, Is.EqualTo(jwt.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value)); 
-        });
+        }
+    }
+
+    private static IEnumerable<ApplicationUser> CreateApplicationUser()
+    {
+        yield return new ApplicationUser
+        {
+            Id = "123",
+            UserName = "testuser",
+            Email = "test@example.com"
+        };
+        
+        yield return new ApplicationUser
+        {
+            Id = "456",
+            UserName = "testuser123",
+            Email = "test@example.com"
+        };
+        
+        yield return new ApplicationUser
+        {
+            Id = "789",
+            UserName = "testuser456",
+            Email = "test@example.com"
+        };
     }
 }
