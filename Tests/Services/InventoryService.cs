@@ -27,17 +27,9 @@ public class InventoryServiceTest
     }
     
     [Test]
-    public async Task CreateInventory_shouldCreateProduct()
+    [TestCaseSource(nameof(CreateProduct))]
+    public async Task CreateInventory_shouldCreateProduct(Product product)
     {
-        var product = new Product
-        {
-            Id = 1,
-            Name = "name",
-            Description = "description",
-            Price = 11.99m,
-            CategoryId = 1,
-            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
-        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
 
@@ -53,45 +45,29 @@ public class InventoryServiceTest
     }
     
     [Test]
-    public async Task UpdateInventory_shouldUpdateInventory()
+    [TestCaseSource(nameof(CreateProduct))]
+    public async Task UpdateInventory_shouldUpdateInventory(Product product)
     {
-        var product = new  Product
-        {
-            Id = 1,
-            Name = "name",
-            Description = "description",
-            Price = 11.99m,
-            CategoryId = 1,
-            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
-        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
         
-        await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
+        var inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
         
         var result = await _inventoryService.Update(1, new InventoryDto(ProductId: product.Id, Quantity: 10));
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(1));   
-            Assert.That(result.ProductId, Is.EqualTo(product.Id));
-            Assert.That(result.Product, Is.EqualTo(product));
+            Assert.That(result.Id, Is.EqualTo(inventory.Id));   
+            Assert.That(result.ProductId, Is.EqualTo(inventory.ProductId));
+            Assert.That(result.Product, Is.EqualTo(inventory.Product));
             Assert.That(result.Quantity, Is.EqualTo(10));
         }
     }
 
     [Test]
-    public async Task FindAll_shouldReturnListOfInventory()
+    [TestCaseSource(nameof(CreateProduct))]
+    public async Task FindAll_shouldReturnListOfInventory(Product product)
     {
-        var product = new Product
-        {
-            Id = 1,
-            Name = "name",
-            Description = "description",
-            Price = 11.99m,
-            CategoryId = 1,
-            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
-        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
 
@@ -107,52 +83,69 @@ public class InventoryServiceTest
     }
 
     [Test]
-    public async Task FindById_shouldReturnInventory()
+    [TestCaseSource(nameof(CreateProduct))]
+    public async Task FindById_shouldReturnInventory(Product product)
     {
-        var product = new Product
-        {
-            Id = 1,
-            Name = "name",
-            Description = "description",
-            Price = 11.99m,
-            CategoryId = 1,
-            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
-        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
         
-        await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
+        var inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
 
-        var result = await _inventoryService.FindById(1);
+        var result = await _inventoryService.FindById(inventory.Id);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(1));
-            Assert.That(result.ProductId, Is.EqualTo(product.Id));
-            Assert.That(result.Product, Is.EqualTo(product));
-            Assert.That(result.Quantity, Is.EqualTo(20));
+            Assert.That(result.Id, Is.EqualTo(inventory.Id));
+            Assert.That(result.ProductId, Is.EqualTo(inventory.ProductId));
+            Assert.That(result.Product, Is.EqualTo(inventory.Product));
+            Assert.That(result.Quantity, Is.EqualTo(inventory.Quantity));
         }
     }
     
     [Test]
-    public async Task DeleteById_shouldDeleteInventory()
+    [TestCaseSource(nameof(CreateProduct))]
+    public async Task DeleteById_shouldDeleteInventory(Product product)
     {
-        var product = new Product
-        {
-            Id = 1,
-            Name = "name",
-            Description = "description",
-            Price = 11.99m,
-            CategoryId = 1,
-            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
-        };
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
         
-        await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
+        var inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Quantity: 20));
 
-        var result = await _inventoryService.Delete(1);
+        var result = await _inventoryService.Delete(inventory.Id);
         Assert.That(result, Is.EqualTo("Inventory deleted successfully"));
+    }
+
+    private static IEnumerable<Product> CreateProduct()
+    {
+        yield return new Product
+        {
+            Id = 1,
+            Name = "name1",
+            Description = "description",
+            Price = 49.99m,
+            CategoryId = 1,
+            Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
+        };
+        yield return new Product
+        {
+            Id = 2,
+            Name = "name2",
+            Description = "description",
+            Price = 99.99m,
+            CategoryId = 10,
+            Category = new Category
+                { Id = 10, Name = "Household & Cleaning", Description = "Detergents, cleaning items" }
+        };
+        yield return new Product
+        {
+            Id = 3,
+            Name = "name2",
+            Description = "description",
+            Price = 599.99m,
+            CategoryId = 13,
+            Category = new Category { Id = 13, Name = "Miscellaneous", Description = "Other / seasonal products" }
+        };
+
     }
         
     private static ApplicationDbContext GetInMemoryDbContext()
