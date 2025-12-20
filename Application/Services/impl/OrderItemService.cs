@@ -28,8 +28,15 @@ public class OrderItemService(ApplicationDbContext ctx, IMemoryCache cache) : IO
         {
             throw new ValidationException(new Dictionary<string, string[]> {{"Quantity", ["Quantity is negative or zero"]}});
         }
+
+        if (product.Quantity < quantity)
+        {
+            throw new ValidationException(new Dictionary<string, string[]> {{ "Quantity", ["Insufficient stock"] }});
+        }
+
+        product.Quantity -= quantity;
         
-        var orderItem = new OrderItem()
+        var orderItem = new OrderItem
         {
             OrderId = orderItemDto.OrderId,
             Order = order,
@@ -69,7 +76,23 @@ public class OrderItemService(ApplicationDbContext ctx, IMemoryCache cache) : IO
 
         if (orderItem.Quantity != orderItemDto.Quantity && orderItemDto.Quantity >= 0)
         {
+            var product = await ctx.Products.FindAsync(orderItem.ProductId);
+            if (product == null)
+            {
+                throw new NotFoundException($"Product with id {orderItem.ProductId} not found");
+            }
+            
+            var availableStock = product.Quantity + orderItem.Quantity;
+            
+            if (availableStock < orderItemDto.Quantity)
+            {
+                throw new ValidationException(new Dictionary<string, string[]>
+                    { { "Quantity", ["Insufficient stock"] } });
+            }
+
+            product.Quantity += orderItem.Quantity;
             orderItem.Quantity = orderItemDto.Quantity;
+            product.Quantity -= orderItem.Quantity;
         }
 
         await ctx.SaveChangesAsync();
