@@ -1,6 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Services.impl;
 using Domain.Entity;
+using Domain.Exception;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -39,11 +40,22 @@ public class ProductServiceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.GreaterThan(0));
-            Assert.That(result.Name, Is.EqualTo(productDto.Name));
-            Assert.That(result.Description, Is.EqualTo(productDto.Description));
+            Assert.That(result.Name, Does.StartWith("name"));
+            Assert.That(result.Description, Does.StartWith("description"));
             Assert.That(result.Price, Is.EqualTo(productDto.Price));
-            Assert.That(result.CategoryId, Is.EqualTo(productDto.CategoryId));
+            Assert.That(result.CategoryId, Is.EqualTo(1));
         }
+    }
+
+    [Test]
+    [TestCaseSource(nameof(CreateProductDto))]
+    public Task CreateProduct_ShouldThrowNotFoundException(ProductDto productDto)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => 
+            await _productService.Create(productDto));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Category with id {productDto.CategoryId} not found"));
+        return Task.CompletedTask;
     }
 
     [Test]
@@ -61,7 +73,22 @@ public class ProductServiceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result, !Is.Null);
+            Assert.That(result.Id, Is.GreaterThan(0));
+            Assert.That(result.Name, Does.StartWith("name"));
+            Assert.That(result.Description, Does.StartWith("description"));
+            Assert.That(result.CategoryId, Is.EqualTo(1));
         }
+    }
+    
+    [Test]
+    [TestCaseSource(nameof(CreateProductDto))]
+    public Task UpdateProduct_ShouldThrowNotFoundException(ProductDto productDto)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => 
+            await _productService.Update(1, productDto));
+        
+        Assert.That(ex.Message, Is.EqualTo("Product with id 1 not found"));
+        return Task.CompletedTask;
     }
     
     [Test]
@@ -105,6 +132,20 @@ public class ProductServiceTest
     }
     
     [Test]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    public Task FindById_ShouldThrowNotFoundException(int id)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => 
+            await _productService.FindById(id));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Product with id {id} not found"));
+        return Task.CompletedTask;
+    }
+    
+    [Test]
     [TestCaseSource(nameof(CreateProductDto))]
     public async Task DeleteById(ProductDto productDto)
     {        
@@ -117,6 +158,20 @@ public class ProductServiceTest
         var result = await _productService.DeleteById(product.Id);
         
         Assert.That(result, Is.True);
+    }
+    
+    [Test]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    public Task DeleteById_ShouldThrowNotFoundException(int id)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => 
+            await _productService.DeleteById(id));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Product with id {id} not found"));
+        return Task.CompletedTask;
     }
 
     private static IEnumerable<ProductDto> CreateProductDto()

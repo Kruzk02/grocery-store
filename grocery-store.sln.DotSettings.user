@@ -48,6 +48,13 @@
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.FindById_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.Delete_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.CreateProduct_ShouldCreateProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.CreateProduct_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.UpdateProduct_ShouldUpdateProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.UpdateProduct_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.FindId_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.DeleteById_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a1733cad_002D3b0d_002D4f35_002D98a8_002D516663dfae13/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="FindByOrderId" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
