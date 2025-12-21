@@ -1,9 +1,11 @@
 ﻿using Application.Dtos;
 using Application.Services.impl;
 using Domain.Entity;
+using Domain.Exception;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using NUnit.Framework.Internal;
 
 namespace Tests.Services;
 
@@ -80,6 +82,17 @@ public class OrderItemServiceTest
 
     [Test]
     [TestCaseSource(nameof(CreateOrderItemsDto))]
+    public Task CreateOrderItem_ShouldThrowNotFoundException(OrderItemDto orderItemDto)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
+            await _orderItemService.Create(orderItemDto));
+        
+        Assert.That(ex.Message, Does.Not.Empty);
+        return Task.CompletedTask;
+    }
+
+    [Test]
+    [TestCaseSource(nameof(CreateOrderItemsDto))]
     public async Task Update(OrderItemDto orderItemDto)
     {
         CreateProductAndOrder(_dbContext);
@@ -97,6 +110,17 @@ public class OrderItemServiceTest
             Assert.That(result.Product.Quantity, Is.EqualTo(23));
         }   
         
+    }
+    
+    [Test]
+    [TestCaseSource(nameof(CreateOrderItemsDto))]
+    public Task Update_ShouldThrowNotFoundException(OrderItemDto orderItemDto)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
+            await _orderItemService.Update(1, orderItemDto));
+        
+        Assert.That(ex.Message, Does.Not.Empty);
+        return Task.CompletedTask;
     }
 
     [Test]
@@ -116,6 +140,20 @@ public class OrderItemServiceTest
             Assert.That(result.SubTotal, Is.EqualTo(479.76m));
             Assert.That(result.Quantity, Is.EqualTo(24));
         }
+    }
+    
+    [Test]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    public Task FindById_ShouldThrowNotFoundException(int id)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
+            await _orderItemService.FindById(id));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Order item with id {id} not found"));
+        return Task.CompletedTask;
     }
 
     [Test]
@@ -159,6 +197,20 @@ public class OrderItemServiceTest
         await _orderItemService.Create(orderItemDto);
         var result = await _orderItemService.Delete(orderItemDto.OrderId);
         Assert.That(result, Is.True);
+    }
+    
+    [Test]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    public Task Delete_ShouldThrowNotFoundException(int id)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
+            await _orderItemService.Delete(id));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Order item with id: {id} not found"));
+        return Task.CompletedTask;
     }
 
     private static IEnumerable<OrderItemDto> CreateOrderItemsDto()
