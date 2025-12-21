@@ -1,6 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Services.impl;
 using Domain.Entity;
+using Domain.Exception;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -42,6 +43,17 @@ public class OrderServiceTest
             Assert.That(result.CustomerId, Is.GreaterThan(0));
         }
     }
+
+    [Test]
+    [TestCaseSource(nameof(CreateCustomer))]
+    public Task Create_ShouldThrowNotFoundException(Customer customer)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => 
+            await _orderService.Create(new OrderDto(customer.Id)));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Customer with id {customer.Id} not found"));
+        return Task.CompletedTask;
+    }
     
     [Test]
     public async Task Update()
@@ -55,7 +67,23 @@ public class OrderServiceTest
         await _orderService.Create(new OrderDto(customer1.Id));
         var result = await _orderService.Update(1, new OrderDto(customer2.Id));
         
-        Assert.That(result, !Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, !Is.Null);
+            Assert.That(result.Id, Is.EqualTo(1));
+            Assert.That(result.CustomerId, Is.EqualTo(1));
+        }
+    }
+    
+    [Test]
+    [TestCaseSource(nameof(CreateCustomer))]
+    public Task Update_ShouldThrowNotFoundException(Customer customer)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => 
+            await _orderService.Update(1, new OrderDto(customer.Id)));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Order with id 1 not found"));
+        return Task.CompletedTask;
     }
 
     [Test]
@@ -100,6 +128,20 @@ public class OrderServiceTest
             Assert.That(result.Total, Is.EqualTo(399.8m));
         }
     }
+    
+    [Test]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    public Task FindById_ShouldThrowNotFoundException(int id)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => 
+            await _orderService.FindById(id));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Order with id {id} not found"));
+        return Task.CompletedTask;
+    }
 
     [Test]
     [TestCaseSource(nameof(CreateCustomer))]
@@ -129,6 +171,20 @@ public class OrderServiceTest
 
         var result = await _orderService.Delete(1);
         Assert.That(result, Is.True);
+    }
+    
+    [Test]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    public Task Delete_ShouldThrowNotFoundException(int id)
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => 
+            await _orderService.Delete(id));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Order with id {id} not found"));
+        return Task.CompletedTask;
     }
 
     private static IEnumerable<Customer> CreateCustomer()
