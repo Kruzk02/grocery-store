@@ -1,6 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Services.impl;
 using Domain.Entity;
+using Domain.Exception;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,16 @@ public class InvoiceServiceTest
             Assert.That(result.Order, Is.Not.Null);
             Assert.That(result.InvoiceNumber, Is.EqualTo("INV-2025:0001"));
         }
+    }
+
+    [Test]
+    public Task Create_ShouldThrowNotFoundException()
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () 
+            => await _invoiceService.Create(new InvoiceDto(1)));
+        
+        Assert.That(ex.Message, Is.EqualTo($"Order with id: 1 not found"));
+        return Task.CompletedTask;
     }
 
     [Test]
@@ -116,6 +127,16 @@ public class InvoiceServiceTest
             Assert.That(result.Order.Items, Is.Not.Empty);
         }
     }
+    
+    [Test]
+    public Task FindById_ShouldThrowNotFoundException()
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () 
+            => await _invoiceService.FindById(1));
+        
+        Assert.That(ex.Message, Does.Not.Empty);
+        return Task.CompletedTask;
+    }
 
     [Test]
     public async Task FindByOrderId()
@@ -183,6 +204,16 @@ public class InvoiceServiceTest
             Assert.That(result.InvoiceNumber, Is.EqualTo($"INV-{DateTime.UtcNow.Year}:{order.Id:D4}"));
             Assert.That(result.Order.Items, Is.Not.Empty);
         }
+    }
+    
+    [Test]
+    public Task FindByOrderId_ShouldThrowNotFoundException()
+    {
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () 
+            => await _invoiceService.FindByOrderId(1));
+        
+        Assert.That(ex.Message, Does.Not.Empty);
+        return Task.CompletedTask;
     }
 
     
