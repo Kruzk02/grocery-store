@@ -9,6 +9,20 @@ namespace Application.Services.impl;
 
 public class CustomerService(ApplicationDbContext ctx, IMemoryCache cache) : ICustomerService
 {
+    public async Task<(int total, List<Customer> data)> SearchCustomers(string? name, int skip, int take)
+    {
+        var query = ctx.Customers.AsQueryable();
+        if (!string.IsNullOrEmpty(name))
+        {
+            query = query.Where(p => EF.Functions.Like(p.Name.ToLower(), $"%{name.ToLower()}%"));
+        }
+        
+        var total = await query.CountAsync();
+        var data = await query.Skip(skip).Take(take).ToListAsync();
+
+        return (total, data);
+    }
+
     public async Task<List<Customer>> FindAll()
     {
         const string cacheKey = $"customers";

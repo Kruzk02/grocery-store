@@ -24,77 +24,13 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\Admin\.nuget\packages\nunit\4.2.2\lib\net6.0\nunit.framework.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=314ac5bc_002D0ec3_002D4454_002Da3c5_002D8800062f7744/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CategoryServiceTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c03d51b7_002D5ba9_002D4153_002Db3d5_002Db5a1b01b75d4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GET_me_returns_200_and_data" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CategoryServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.DeleteById_shouldDeleteInventory&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.FindById_shouldReturnInventory&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.UpdateInventory_shouldUpdateInventory&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.CreateInventory_shouldCreateProduct&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest.MarkAllAsRead_shouldMarkAllAsRead&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest.CreateOrderItem&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.Create_ShouldThrowValidationException_WhenNameIsMissing&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InvoiceServiceTest.FindById_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InvoiceServiceTest.FindByOrderId_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InvoiceServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest.DeleteById&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest.MarkAsRead_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.Create_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.Update&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.Update_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.FindById_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.Delete_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.CreateProduct_ShouldCreateProduct&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.CreateProduct_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.UpdateProduct_ShouldUpdateProduct&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.UpdateProduct_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.FindId_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.DeleteById_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Controllers.UserControllerTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a1733cad_002D3b0d_002D4f35_002D98a8_002D516663dfae13/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="FindByOrderId" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.TokenServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CategoryServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByPhoneNumber&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.DeleteById&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByEmail&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.Create&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.GetAllCustomers&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest.MarkAllAsRead_shouldMarkAllAsRead&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest.MarkAsRead_shouldMarkAsRead&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest.DeleteById_shouldDelete&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest.FindByUserId_shouldReturnNotification&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.NotificationServiceTest.CreateNotification_shouldCreate&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest.Delete&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest.FindByProductId&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest.FindByOrderId&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest.FindById&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest.CreateOrderItem&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.FindByCustomerId&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.DeleteById&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.FindById_ShouldReturnProduct&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.SearchProducts_shouldReturnListOfProduct&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.UpdateProduct_ShouldUpdateProduct&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.CreateProduct_ShouldCreateProduct&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.CreateInventory_shouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.UpdateInventory_shouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.UpdateInventory_shouldThrowNotFoundException_whenProductNotFound&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.FindById_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest.DeleteById_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InvoiceServiceTest.Create_ShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
+	
+	
 	
 	
 	</wpf:ResourceDictionary>

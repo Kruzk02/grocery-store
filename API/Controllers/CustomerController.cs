@@ -10,6 +10,14 @@ namespace API.Controllers;
 public class CustomerController(ICustomerService customerService, IOrderService orderService) : ControllerBase
 {
 
+    [HttpGet("search")]
+    [ProducesResponseType(typeof(List<Customer>), 200), ProducesResponseType(500)]
+    public async Task<IActionResult> FindCustomer([FromQuery] string? name, [FromQuery] int skip = 0, [FromQuery] int take = 10)
+    {
+        var (total, data) = await customerService.SearchCustomers(name, skip, take);
+        return Ok(new{total, data});
+    }
+    
     [HttpGet]
     [ProducesResponseType(typeof(List<Customer>), 200), ProducesResponseType(500)]
     public async Task<IActionResult> FindAll() => Ok(await customerService.FindAll());
