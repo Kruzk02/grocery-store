@@ -26,7 +26,7 @@
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c03d51b7_002D5ba9_002D4153_002Db3d5_002Db5a1b01b75d4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GET_me_returns_200_and_data" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Controllers.UserControllerTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.SearchCustomer_ShouldReturnListOfCustomers&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	

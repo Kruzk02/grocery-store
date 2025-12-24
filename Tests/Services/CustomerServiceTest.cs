@@ -37,6 +37,20 @@ public class CustomerServiceTest
         
         Assert.That(result, !Is.Empty);
     }
+
+    [Test]
+    [TestCaseSource(nameof(CreateCustomerDto))]
+    public async Task SearchCustomer_ShouldReturnListOfCustomers(CustomerDto customerDto)
+    {
+        await _customerService.Create(customerDto);
+
+        var (total, data) = await _customerService.SearchCustomers("na", 0, 10);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(total, Is.GreaterThan(0));
+            Assert.That(data, Is.Not.Null);
+        }
+    }
     
     [Test]
     [TestCaseSource(nameof(CreateCustomerDto))]
