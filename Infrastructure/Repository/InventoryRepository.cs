@@ -11,7 +11,7 @@ namespace Infrastructure.Repository;
 
 public class InventoryRepository(ApplicationDbContext ctx) : IInventoryRepository
 {
-    public async Task<List<Inventory>> FindAll(int? productId, int? stock, int skip, int take)
+    public async Task<(int total, List<Inventory> data)> FindAll(int? productId, int? stock, int skip, int take)
     {
         IQueryable<Inventory> query = ctx.Inventories;
 
@@ -21,13 +21,18 @@ public class InventoryRepository(ApplicationDbContext ctx) : IInventoryRepositor
         if (stock.HasValue)
             query = query.Where(i => i.Stock >= stock.Value);
 
-        return await query
+        var total = await query.CountAsync();
+
+        List<Inventory> data = await query
             .Include(i => i.Product)
-                .ThenInclude(p => p.Category)
+            .ThenInclude(p => p.Category)
             .OrderByDescending(i => i.Id)
             .Skip(skip)
             .Take(take)
             .ToListAsync();
+
+
+        return (total, data);
     }
 
     public async Task<Inventory> Add(Inventory inventory)

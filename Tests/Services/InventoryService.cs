@@ -107,12 +107,12 @@ public class InventoryServiceTest
 
         _ = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
-        List<Inventory> result = await _inventoryService.FindAll(null, null, 0, 10);
+        (int total, List<Inventory> data) result = await _inventoryService.FindAll(null, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result.data, Is.Not.Null);
+            Assert.That(result.data, Has.Count.EqualTo(1));
         }
     }
 
@@ -160,15 +160,15 @@ public class InventoryServiceTest
 
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
-        List<Inventory> result = await _inventoryService.FindAll(product.Id, 0, 0, 10);
+        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 0, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result, Has.Count.EqualTo(1));
-            Assert.That(result[0].Id, Is.EqualTo(inventory.Id));
-            Assert.That(result[0].ProductId, Is.EqualTo(inventory.ProductId));
-            Assert.That(result[0].Product, Is.EqualTo(inventory.Product));
-            Assert.That(result[0].Stock, Is.EqualTo(inventory.Stock));
+            Assert.That(result.data, Has.Count.EqualTo(1));
+            Assert.That(result.data[0].Id, Is.EqualTo(inventory.Id));
+            Assert.That(result.data[0].ProductId, Is.EqualTo(inventory.ProductId));
+            Assert.That(result.data[0].Product, Is.EqualTo(inventory.Product));
+            Assert.That(result.data[0].Stock, Is.EqualTo(inventory.Stock));
         }
     }
 
@@ -181,15 +181,15 @@ public class InventoryServiceTest
 
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
-        List<Inventory> result = await _inventoryService.FindAll(product.Id, 20, 0, 10);
+        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 20, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result, Has.Count.EqualTo(1));
-            Assert.That(result[0].Id, Is.EqualTo(inventory.Id));
-            Assert.That(result[0].ProductId, Is.EqualTo(inventory.ProductId));
-            Assert.That(result[0].Product, Is.EqualTo(inventory.Product));
-            Assert.That(result[0].Stock, Is.EqualTo(inventory.Stock));
+            Assert.That(result.data, Has.Count.EqualTo(1));
+            Assert.That(result.data[0].Id, Is.EqualTo(inventory.Id));
+            Assert.That(result.data[0].ProductId, Is.EqualTo(inventory.ProductId));
+            Assert.That(result.data[0].Product, Is.EqualTo(inventory.Product));
+            Assert.That(result.data[0].Stock, Is.EqualTo(inventory.Stock));
         }
     }
 

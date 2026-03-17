@@ -19,7 +19,7 @@ namespace Application.Services;
 public class InventoryService(IInventoryRepository inventoryRepository, IProductRepository productRepository, IMemoryCache cache) : IInventoryService
 {
     /// <inheritdoc />
-    public async Task<List<Inventory>> FindAll(int? productId, int? stock, int skip, int take)
+    public async Task<(int total, List<Inventory> data)> FindAll(int? productId, int? stock, int skip, int take)
     {
         var cacheKey = $"inventories:{productId}:{stock}:{skip}:{take}";
         return await cache.GetOrCreateAsync(cacheKey, async entry =>
@@ -28,7 +28,7 @@ public class InventoryService(IInventoryRepository inventoryRepository, IProduct
             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
             return await inventoryRepository.FindAll(productId, stock, skip, take);
-        }) ?? [];
+        });
     }
 
     /// <inheritdoc />
