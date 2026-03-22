@@ -107,7 +107,7 @@ public class InventoryServiceTest
 
         _ = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
-        (int total, List<Inventory> data) result = await _inventoryService.FindAll(null, null, 0, 10);
+        (int total, List<Inventory> data) result = await _inventoryService.FindAll(null, null, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
@@ -160,7 +160,7 @@ public class InventoryServiceTest
 
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
-        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 0, 0, 10);
+        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 0,  null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
@@ -181,7 +181,7 @@ public class InventoryServiceTest
 
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
-        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 20, 0, 10);
+        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 20, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {

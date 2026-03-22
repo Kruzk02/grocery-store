@@ -16,10 +16,14 @@ namespace Application.Services;
 /// This class interacts with database to performs CRUD operations relate to inventory.
 /// </remarks>
 /// <param name="ctx">The <see cref="ApplicationDbContext"/> used to access the database</param>
-public class InventoryService(IInventoryRepository inventoryRepository, IProductRepository productRepository, IMemoryCache cache) : IInventoryService
+public class InventoryService(
+    IInventoryRepository inventoryRepository,
+    IProductRepository productRepository,
+    IMemoryCache cache) : IInventoryService
 {
     /// <inheritdoc />
-    public async Task<(int total, List<Inventory> data)> FindAll(int? productId, int? stock, int skip, int take)
+    public async Task<(int total, List<Inventory> data)> FindAll(int? productId, int? stock, string? productName,
+        int skip, int take)
     {
         var cacheKey = $"inventories:{productId}:{stock}:{skip}:{take}";
         return await cache.GetOrCreateAsync(cacheKey, async entry =>
@@ -27,14 +31,15 @@ public class InventoryService(IInventoryRepository inventoryRepository, IProduct
             entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
-            return await inventoryRepository.FindAll(productId, stock, skip, take);
+            return await inventoryRepository.FindAll(productId, stock, productName, skip, take);
         });
     }
 
     /// <inheritdoc />
     public async Task<Inventory> Create(InventoryDto inventoryDto)
     {
-        Product? product = await productRepository.FindById(inventoryDto.ProductId) ?? throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
+        Product? product = await productRepository.FindById(inventoryDto.ProductId) ??
+                           throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
         var inventory = new Inventory
         {
             Product = product,
@@ -49,7 +54,8 @@ public class InventoryService(IInventoryRepository inventoryRepository, IProduct
     /// <inheritdoc />
     public async Task<Inventory> Update(int id, InventoryDto inventoryDto)
     {
-        Inventory? inventory = await inventoryRepository.FindById(id) ?? throw new NotFoundException($"Inventory with id: {id} not found");
+        Inventory? inventory = await inventoryRepository.FindById(id) ??
+                               throw new NotFoundException($"Inventory with id: {id} not found");
         if (inventoryDto.Stock >= 0 && inventoryDto.Stock != inventory.Stock)
         {
             inventory.Stock = inventoryDto.Stock;
@@ -57,7 +63,8 @@ public class InventoryService(IInventoryRepository inventoryRepository, IProduct
 
         if (inventoryDto.ProductId != inventory.ProductId)
         {
-            Product? product = await productRepository.FindById(inventoryDto.ProductId) ?? throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
+            Product? product = await productRepository.FindById(inventoryDto.ProductId) ??
+                               throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
             inventory.Product = product;
             inventory.ProductId = product.Id;
         }
@@ -94,7 +101,8 @@ public class InventoryService(IInventoryRepository inventoryRepository, IProduct
     /// <inheritdoc />
     public async Task<string> Delete(int id)
     {
-        Inventory? inventory = await inventoryRepository.FindById(id) ?? throw new NotFoundException($"Inventory with id: {id} not found");
+        Inventory? inventory = await inventoryRepository.FindById(id) ??
+                               throw new NotFoundException($"Inventory with id: {id} not found");
         cache.Remove($"inventory:{id}");
         await inventoryRepository.Delete(inventory);
         return "Inventory deleted successfully";

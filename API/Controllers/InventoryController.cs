@@ -11,11 +11,11 @@ namespace API.Controllers;
 [Route("[controller]"), ApiController, Authorize]
 public class InventoryController(IInventoryService service) : ControllerBase
 {
-
     [HttpGet, ProducesResponseType(typeof(Inventory), 200), ProducesResponseType(500)]
-    public async Task<IActionResult> FindAll(int? productId, int? stock, [FromQuery] int skip = 0, [FromQuery] int take = 50)
+    public async Task<IActionResult> FindAll(int? productId, int? stock, string? productName, [FromQuery] int skip = 0,
+        [FromQuery] int take = 50)
     {
-        (var total, List<Inventory> data) = await service.FindAll(productId, stock, skip, take);
+        (var total, List<Inventory> data) = await service.FindAll(productId, stock, productName, skip, take);
         return Ok(new { total, data });
     }
 
