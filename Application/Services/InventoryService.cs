@@ -25,7 +25,7 @@ public class InventoryService(
     public async Task<(int total, List<Inventory> data)> FindAll(int? productId, int? stock, string? productName,
         int skip, int take)
     {
-        var cacheKey = $"inventories:{productId}:{stock}:{skip}:{take}";
+        var cacheKey = $"inventories:{productId}:{stock}:{productName}:{skip}:{take}";
         return await cache.GetOrCreateAsync(cacheKey, async entry =>
         {
             entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
