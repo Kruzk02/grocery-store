@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Queries;
 using Application.Repository;
 
 using Domain.Entity;
@@ -19,9 +20,9 @@ namespace Application.Services;
 /// <param name="ctx">the <see cref="ApplicationDbContext"/> used to access the database.</param>
 public class ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, IImageStorage imageStorage, IMemoryCache cache) : IProductService
 {
-    public async Task<(int total, List<Product> data)> SearchProducts(string? name, int skip, int take)
+    public async Task<PageResult<Product>> SearchProducts(SearchProductQuery searchProductQuery)
     {
-        return await productRepository.Search(name, skip, take);
+        return await productRepository.Search(searchProductQuery);
     }
 
     ///  <inheritdoc/>

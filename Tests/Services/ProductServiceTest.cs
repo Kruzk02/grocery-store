@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Queries;
 using Application.Services;
 
 using Domain.Entity;
@@ -108,13 +109,13 @@ public class ProductServiceTest
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        var product = await _productService.Create(productDto);
+        Product product = await _productService.Create(productDto);
 
-        var result = await _productService.SearchProducts(product.Name, 0, 10);
+        PageResult<Product> result = await _productService.SearchProducts(new SearchProductQuery(product.Name, 0, ProductSortBy.Name, false));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.total, Is.GreaterThan(0));
-            Assert.That(result.data, Is.Not.Null);
+            Assert.That(result.Total, Is.GreaterThan(0));
+            Assert.That(result.Data, Is.Not.Null);
         }
     }
 

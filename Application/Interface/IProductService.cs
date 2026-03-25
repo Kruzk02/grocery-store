@@ -1,4 +1,6 @@
+using Application.Common;
 using Application.Dtos.Request;
+using Application.Queries;
 
 using Domain.Entity;
 
@@ -12,7 +14,7 @@ public interface IProductService
     /// <summary>
     /// Asynchronously retrieves products with the name from the database.
     /// </summary>
-    Task<(int total, List<Product> data)> SearchProducts(string? name, int skip, int take);
+    Task<PageResult<Product>> SearchProducts(SearchProductQuery searchProductQuery);
 
     /// <summary>
     /// Asynchronously creates a new product in the database.

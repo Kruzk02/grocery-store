@@ -3,6 +3,7 @@ using API.Dto;
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Queries;
 
 using Domain.Entity;
 
@@ -25,18 +26,7 @@ public class ProductController(IProductService productService, IOrderItemService
     /// <summary>
     /// Searches for products by name, or returns all products if no name is provided.
     /// </summary>
-    /// <param name="name">
-    /// Optional. The product name (full or partial) to search for.
-    /// Case-insensitive. If null or empty, all products are returned.
-    /// </param>
-    /// <param name="skip">
-    /// The number of products to skip (for pagination).
-    /// Defaults to 0.
-    /// </param>
-    /// <param name="take">
-    /// The maximum number of products to return.
-    /// Defaults to 10.
-    /// </param>
+    /// <param name="searchProductQuery"></param>
     /// <returns>
     /// A tuple containing:
     /// <list type="bullet">
@@ -47,16 +37,16 @@ public class ProductController(IProductService productService, IOrderItemService
     [HttpGet]
     [ProducesResponseType(typeof(List<Product>), 200)]
     [ProducesResponseType(500)]
-    public async Task<IActionResult> FindProducts([FromQuery] string? name, [FromQuery] int skip = 0, [FromQuery] int take = 10)
+    public async Task<IActionResult> FindProducts([FromQuery] SearchProductQuery searchProductQuery)
     {
-        (var total, List<Product>? data) = await productService.SearchProducts(name, skip, take);
-        return Ok(new { total, data });
+        PageResult<Product> pageResult = await productService.SearchProducts(searchProductQuery);
+        return Ok(pageResult);
     }
 
     /// <summary>
     /// Create a new product.
     /// </summary>
-    /// <param name="productDto">The product data to create.</param>
+    /// <param name="createdProductDto"></param>
     /// <returns>
     /// The newly created <see cref="Product"/>.
     /// </returns>
@@ -73,7 +63,7 @@ public class ProductController(IProductService productService, IOrderItemService
         var filename = "";
         if (createdProductDto.photo != null)
         {
-            using Stream stream = createdProductDto.photo.OpenReadStream();
+            await using Stream stream = createdProductDto.photo.OpenReadStream();
 
             filename = await imageStorage.Save(stream, Path.GetExtension(createdProductDto.photo.FileName));
         }
@@ -116,7 +106,7 @@ public class ProductController(IProductService productService, IOrderItemService
     /// Updates an existing product.
     /// </summary>
     /// <param name="id">The ID of the product to update.</param>
-    /// <param name="productDto">The update product data.</param>
+    /// <param name="updatedProductDto"></param>
     /// <returns>
     /// No content if the update was successful.
     /// </returns>
@@ -136,7 +126,7 @@ public class ProductController(IProductService productService, IOrderItemService
         var filename = "";
         if (updatedProductDto.photo != null)
         {
-            using Stream stream = updatedProductDto.photo.OpenReadStream();
+            await using Stream stream = updatedProductDto.photo.OpenReadStream();
             filename = await imageStorage.Save(stream, Path.GetExtension(updatedProductDto.photo.FileName));
         }
 

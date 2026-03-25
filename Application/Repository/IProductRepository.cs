@@ -1,10 +1,13 @@
+using Application.Common;
+using Application.Queries;
+
 using Domain.Entity;
 
 namespace Application.Repository;
 
 public interface IProductRepository
 {
-    Task<(int total, List<Product>)> Search(string? name, int skip, int take);
+    Task<PageResult<Product>> Search(SearchProductQuery searchProductQuery);
     Task<Product> Add(Product product);
     Task Update(Product product);
     Task<Product?> FindById(int Id);
