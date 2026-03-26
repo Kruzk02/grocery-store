@@ -1,3 +1,5 @@
+using System.Numerics;
+
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
@@ -21,7 +23,15 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
 {
     public async Task<PageResult<Product>> SearchProducts(SearchProductQuery searchProductQuery)
     {
-        return await productRepository.Search(searchProductQuery);
+        var cacheKey =
+            $"products:{searchProductQuery.Name}:{searchProductQuery.Ascending}:{searchProductQuery.SortBy}:{searchProductQuery.Skip}:{searchProductQuery.Take}";
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+            (var total, List<Product> data) = await productRepository.Search(searchProductQuery);
+            return new PageResult<Product>(total, data);
+        }) ?? throw new InvalidOperationException();
     }
 
     ///  <inheritdoc/>
