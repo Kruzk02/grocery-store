@@ -15,9 +15,8 @@ namespace Application.Services;
 /// Provides operations for create, retrieve, update and delete product.
 /// </summary>
 /// <remarks>
-/// This class interacts with database to performs CRUD operations related to produts.
+/// This class interacts with database to performs CRUD operations related to products.
 /// </remarks>
-/// <param name="ctx">the <see cref="ApplicationDbContext"/> used to access the database.</param>
 public class ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, IImageStorage imageStorage, IMemoryCache cache) : IProductService
 {
     public async Task<PageResult<Product>> SearchProducts(SearchProductQuery searchProductQuery)
@@ -28,7 +27,7 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
     ///  <inheritdoc/>
     public async Task<Product> Create(ProductDto productDto)
     {
-        var category = await categoryRepository.FindById(productDto.CategoryId);
+        Category? category = await categoryRepository.FindById(productDto.CategoryId);
         if (category == null)
         {
             throw new NotFoundException($"Category with id {productDto.CategoryId} not found");
@@ -53,7 +52,7 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
     /// <inheritdoc/>
     public async Task<Product> Update(int id, ProductDto productDto)
     {
-        var product = await productRepository.FindById(id);
+        Product? product = await productRepository.FindById(id);
         if (product == null)
         {
             throw new NotFoundException($"Product with id {id} not found");
@@ -73,7 +72,7 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
 
         if (productDto.CategoryId != product.CategoryId)
         {
-            var category = await categoryRepository.FindById(productDto.CategoryId);
+            Category? category = await categoryRepository.FindById(productDto.CategoryId);
             if (category == null)
             {
                 throw new NotFoundException($"Category with id {productDto.CategoryId} not found");
@@ -108,7 +107,7 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
         }
 
         product = await productRepository.FindById(id);
-        var cacheOption = new MemoryCacheEntryOptions()
+        MemoryCacheEntryOptions cacheOption = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromMinutes(10))
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
 
@@ -119,7 +118,7 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
     /// <inheritdoc/>
     public async Task<bool> DeleteById(int id)
     {
-        var product = await productRepository.FindById(id);
+        Product? product = await productRepository.FindById(id);
         if (product == null)
         {
             throw new NotFoundException($"Product with id {id} not found");
