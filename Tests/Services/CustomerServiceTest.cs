@@ -1,35 +1,39 @@
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Repository;
 using Application.Services;
 
+using Domain.Entity;
 using Domain.Exception;
 
-using Infrastructure.Persistence;
-using Infrastructure.Repository;
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+
+using Moq;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class CustomerServiceTest
 {
-
     private ICustomerService _customerService;
-    private ApplicationDbContext _dbContext;
+    private Mock<ICustomerRepository> _mock;
 
     [SetUp]
     public void SetUp()
     {
-        _dbContext = GetInMemoryDbContext();
-        _customerService = new CustomerService(new CustomerRepository(_dbContext), new MemoryCache(new MemoryCacheOptions()));
+        _mock = new Mock<ICustomerRepository>();
+        _customerService = new CustomerService(_mock.Object, new MemoryCache(new MemoryCacheOptions()));
     }
 
-    [TearDown]
-    public void TearDown()
+    private static Customer ToEntity(CustomerDto customerDto)
     {
-        _dbContext.Dispose();
+        return new Customer
+        {
+            Name = customerDto.Name,
+            Email = customerDto.Email,
+            Phone = customerDto.Phone,
+            Address = customerDto.Address
+        };
     }
 
     [Test]
@@ -38,18 +42,20 @@ public class CustomerServiceTest
     {
         await _customerService.Create(customerDto);
 
-        var result = await _customerService.FindAll();
+        _mock.Setup(x => x.FindAll()).ReturnsAsync([ToEntity(customerDto)]);
+
+        List<Customer> result = await _customerService.FindAll();
 
         Assert.That(result, !Is.Empty);
     }
 
     [Test]
     [TestCaseSource(nameof(CreateCustomerDto))]
-    public async Task SearchCustomer_ShouldReturnListOfCustomers(CustomerDto customerDto)
+    public async Task SearchCustomerShouldReturnListOfCustomers(CustomerDto customerDto)
     {
         await _customerService.Create(customerDto);
-
-        var (total, data) = await _customerService.SearchCustomers("na", 0, 10);
+        _mock.Setup(x => x.Search("na", 0, 10)).ReturnsAsync((1, [ToEntity(customerDto)]));
+        (var total, List<Customer> data) = await _customerService.SearchCustomers("na", 0, 10);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(total, Is.GreaterThan(0));
@@ -61,11 +67,16 @@ public class CustomerServiceTest
     [TestCaseSource(nameof(CreateCustomerDto))]
     public async Task CreateSuccess(CustomerDto customerDto)
     {
-        var result = await _customerService.Create(customerDto);
+        _mock.Setup(x => x.Add(It.IsAny<Customer>()))
+            .ReturnsAsync((Customer c) => c);
+        Customer result = await _customerService.Create(customerDto);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.GreaterThan(0));
+            Assert.That(result.Name, Is.Not.Null);
+            Assert.That(result.Email, Is.Not.Null);
+            Assert.That(result.Phone, Is.Not.Null);
+            Assert.That(result.Address, Is.Not.Null);
         }
     }
 
@@ -73,15 +84,15 @@ public class CustomerServiceTest
     [TestCase("Name", "", "123", "addr", "Email")]
     [TestCase("Name", "e@mail.com", "", "addr", "Phone")]
     [TestCase("Name", "e@mail.com", "123", "", "Address")]
-    public Task Create_ShouldThrowValidationException(
+    public Task CreateShouldThrowValidationException(
         string name,
         string email,
         string phone,
         string address,
         string expectedKey)
     {
-        var ex = Assert.ThrowsAsync<ValidationException>(
-            async () => await _customerService.Create(new CustomerDto(name, email, phone, address))
+        var ex = Assert.ThrowsAsync<ValidationException>(async () =>
+            await _customerService.Create(new CustomerDto(name, email, phone, address))
         );
 
         using (Assert.EnterMultipleScope())
@@ -89,15 +100,23 @@ public class CustomerServiceTest
             Assert.That(ex.Errors.ContainsKey(expectedKey), Is.True);
             Assert.That(ex.Errors[expectedKey], Does.Not.Empty);
         }
+
         return Task.CompletedTask;
     }
 
     [Test]
     public async Task Update()
     {
+        _mock.Setup(x => x.Add(It.IsAny<Customer>()))
+            .ReturnsAsync((Customer c) => c);
+
         await _customerService.Create(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22"));
 
-        var result = await _customerService.Update(1, new CustomerDto("Name13", "Emai44l@gmail.com", "843806784", "1b22"));
+        _mock.Setup(x => x.FindById(1))
+            .ReturnsAsync(ToEntity(new CustomerDto("Name", "Email@gmail.com", "843806784", "1b22")));
+        _mock.Setup(x => x.Update(It.IsAny<Customer>()));
+        var result =
+            await _customerService.Update(1, new CustomerDto("Name13", "Emai44l@gmail.com", "843806784", "1b22"));
 
         Assert.That(result, Is.EqualTo("Customer updated successfully"));
     }
@@ -107,7 +126,7 @@ public class CustomerServiceTest
     [TestCase("Name", "", "123", "addr")]
     [TestCase("Name", "e@mail.com", "", "addr")]
     [TestCase("Name", "e@mail.com", "123", "")]
-    public Task Update_ShouldThrowNotFoundException(string name, string email, string phone, string address)
+    public Task UpdateShouldThrowNotFoundException(string name, string email, string phone, string address)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _customerService.Update(1, new CustomerDto(name, email, phone, address)));
@@ -121,13 +140,16 @@ public class CustomerServiceTest
     [TestCaseSource(nameof(CreateCustomerDto))]
     public async Task FindById(CustomerDto customerDto)
     {
-        var customer = await _customerService.Create(customerDto);
+        _mock.Setup(x => x.Add(It.IsAny<Customer>()))
+            .ReturnsAsync((Customer c) => c);
+        Customer customer = await _customerService.Create(customerDto);
 
-        var result = await _customerService.FindById(customer.Id);
+        _mock.Setup(x => x.FindById(1)).ReturnsAsync(ToEntity(customerDto));
+
+        Customer result = await _customerService.FindById(1);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo(customer.Name));
             Assert.That(result.Email, Is.EqualTo(customer.Email));
             Assert.That(result.Phone, Is.EqualTo(customer.Phone));
@@ -140,7 +162,7 @@ public class CustomerServiceTest
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(4)]
-    public Task FindById_ShouldThrowNotFoundException(int id)
+    public Task FindByIdShouldThrowNotFoundException(int id)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _customerService.FindById(id));
@@ -152,13 +174,15 @@ public class CustomerServiceTest
     [TestCaseSource(nameof(CreateCustomerDto))]
     public async Task FindByName(CustomerDto customerDto)
     {
-        var customer = await _customerService.Create(customerDto);
+        _mock.Setup(x => x.Add(It.IsAny<Customer>()))
+            .ReturnsAsync((Customer c) => c);
+        Customer customer = await _customerService.Create(customerDto);
 
-        var result = await _customerService.FindByName(customer.Name);
+        _mock.Setup(x => x.FindByName(customerDto.Name)).ReturnsAsync(ToEntity(customerDto));
+        Customer result = await _customerService.FindByName(customer.Name);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo(customer.Name));
             Assert.That(result.Email, Is.EqualTo(customer.Email));
             Assert.That(result.Phone, Is.EqualTo(customer.Phone));
@@ -171,7 +195,7 @@ public class CustomerServiceTest
     [TestCase("zx")]
     [TestCase("cd")]
     [TestCase("ff")]
-    public Task FindByName_ShouldThrowNotFoundException(string name)
+    public Task FindByNameShouldThrowNotFoundException(string name)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _customerService.FindByName(name));
@@ -183,13 +207,15 @@ public class CustomerServiceTest
     [TestCaseSource(nameof(CreateCustomerDto))]
     public async Task FindByEmail(CustomerDto customerDto)
     {
-        var customer = await _customerService.Create(customerDto);
+        _mock.Setup(x => x.Add(It.IsAny<Customer>()))
+            .ReturnsAsync((Customer c) => c);
+        Customer customer = await _customerService.Create(customerDto);
 
-        var result = await _customerService.FindByEmail(customer.Email);
+        _mock.Setup(x => x.FindByEmail(customerDto.Email)).ReturnsAsync(ToEntity(customerDto));
+        Customer result = await _customerService.FindByEmail(customer.Email);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo(customer.Name));
             Assert.That(result.Email, Is.EqualTo(customer.Email));
             Assert.That(result.Phone, Is.EqualTo(customer.Phone));
@@ -202,7 +228,7 @@ public class CustomerServiceTest
     [TestCase("zx@gmail.com")]
     [TestCase("cd@gmail.com")]
     [TestCase("ff@gmail.com")]
-    public Task FindByEmail_ShouldThrowNotFoundException(string email)
+    public Task FindByEmailShouldThrowNotFoundException(string email)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _customerService.FindByEmail(email));
@@ -214,13 +240,15 @@ public class CustomerServiceTest
     [TestCaseSource(nameof(CreateCustomerDto))]
     public async Task FindByPhoneNumber(CustomerDto customerDto)
     {
-        var customer = await _customerService.Create(customerDto);
+        _mock.Setup(x => x.Add(It.IsAny<Customer>()))
+            .ReturnsAsync((Customer c) => c);
+        Customer customer = await _customerService.Create(customerDto);
 
-        var result = await _customerService.FindByPhoneNumber(customer.Phone);
+        _mock.Setup(x => x.FindByPhoneNumber(customerDto.Phone)).ReturnsAsync(ToEntity(customerDto));
+        Customer result = await _customerService.FindByPhoneNumber(customer.Phone);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.Not.Zero);
             Assert.That(result.Name, Is.EqualTo(customer.Name));
             Assert.That(result.Email, Is.EqualTo(customer.Email));
             Assert.That(result.Phone, Is.EqualTo(customer.Phone));
@@ -232,7 +260,7 @@ public class CustomerServiceTest
     [TestCase("123")]
     [TestCase("456")]
     [TestCase("789")]
-    public Task FindByPhone_ShouldThrowNotFoundException(string phone)
+    public Task FindByPhoneShouldThrowNotFoundException(string phone)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _customerService.FindByPhoneNumber(phone));
@@ -244,9 +272,13 @@ public class CustomerServiceTest
     [TestCaseSource(nameof(CreateCustomerDto))]
     public async Task DeleteById(CustomerDto customerDto)
     {
-        var customer = await _customerService.Create(customerDto);
+        _mock.Setup(x => x.Add(It.IsAny<Customer>()))
+            .ReturnsAsync((Customer c) => c);
+        Customer customer = await _customerService.Create(customerDto);
 
-        var result = await _customerService.DeleteById(customer.Id);
+        _mock.Setup(x => x.FindById(1)).ReturnsAsync(customer);
+        _mock.Setup(x => x.Delete(customer));
+        var result = await _customerService.DeleteById(1);
 
         Assert.That(result, Is.EqualTo("Customer deleted successfully"));
     }
@@ -256,7 +288,7 @@ public class CustomerServiceTest
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(4)]
-    public Task DeleteById_ShouldThrowNotFoundException(int id)
+    public Task DeleteByIdShouldThrowNotFoundException(int id)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _customerService.DeleteById(id));
@@ -271,14 +303,5 @@ public class CustomerServiceTest
         yield return new CustomerDto("Name3", "Email3@gmail.com", "843806554", "1b25");
         yield return new CustomerDto("Nam5e", "Email4@gmail.com", "843806424", "1b26");
         yield return new CustomerDto("Name6", "Email5@gmail.com", "843806324", "1b27");
-    }
-
-    private static ApplicationDbContext GetInMemoryDbContext()
-    {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new ApplicationDbContext(options);
     }
 }

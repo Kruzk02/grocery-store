@@ -30,6 +30,24 @@
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.SearchProducts_shouldReturnListOfProduct&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CategoryServiceTest.GetAllCategoriesShouldReturnListOfCategory&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CategoryServiceTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.GetAllCustomers&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.SearchCustomer_ShouldReturnListOfCustomers&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.SearchCustomerShouldReturnListOfCustomers&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.CreateSuccess&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.CreateShouldThrowValidationException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.Update&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.UpdateShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.DeleteByIdShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.DeleteById&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindById&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByIdShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByName&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByNameShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByEmail&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByEmailShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByPhoneNumber&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest.FindByPhoneShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.CustomerServiceTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
