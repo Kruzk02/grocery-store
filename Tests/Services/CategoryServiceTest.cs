@@ -1,43 +1,39 @@
+using Application.Repository;
 using Application.Services;
 
 using Domain.Entity;
 
-using Infrastructure.Persistence;
-using Infrastructure.Repository;
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+
+using Moq;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class CategoryServiceTest
 {
+    private Mock<ICategoryRepository> _mock;
 
-    private static ApplicationDbContext GetInMemoryDbContext()
+    [SetUp]
+    public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new ApplicationDbContext(options);
+        _mock = new Mock<ICategoryRepository>();
     }
 
     [Test]
     [TestCaseSource(nameof(CreateCategories))]
-    public async Task GetAllCategories_ShouldReturn_ListOfCategory(List<Category> category)
+    public async Task GetAllCategoriesShouldReturnListOfCategory(List<Category> category)
     {
-        var ctx = GetInMemoryDbContext();
-        foreach (var item in category) ctx.Categories.Add(item);
-        await ctx.SaveChangesAsync();
+        _mock.Setup(x => x.FindAll())
+            .ReturnsAsync(category);
 
-        var service = new CategoryService(new CategoryRepository(ctx), new MemoryCache(new MemoryCacheOptions()));
+        var service = new CategoryService(_mock.Object, new MemoryCache(new MemoryCacheOptions()));
 
-        var result = service.FindAll();
+        List<Category> result = await service.FindAll();
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Result, Is.Not.Null);
-            Assert.That(result.Result, Has.Count.EqualTo(13));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Has.Count.EqualTo(13));
         }
     }
 
