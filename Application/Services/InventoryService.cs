@@ -38,7 +38,7 @@ public class InventoryService(
     /// <inheritdoc />
     public async Task<Inventory> Create(InventoryDto inventoryDto)
     {
-        Product? product = await productRepository.FindById(inventoryDto.ProductId) ??
+        Product product = await productRepository.FindById(inventoryDto.ProductId) ??
                            throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
         var inventory = new Inventory
         {

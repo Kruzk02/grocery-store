@@ -1,15 +1,14 @@
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Repository;
 using Application.Services;
 
 using Domain.Entity;
 using Domain.Exception;
 
-using Infrastructure.Persistence;
-using Infrastructure.Repository;
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+
+using Moq;
 
 namespace Tests.Services;
 
@@ -17,33 +16,29 @@ namespace Tests.Services;
 public class InventoryServiceTest
 {
     private IInventoryService _inventoryService;
-    private ApplicationDbContext _dbContext;
+    private Mock<IInventoryRepository> _mockInventoryRepository;
+    private Mock<IProductRepository> _mockProductRepository;
 
     [SetUp]
     public void Setup()
     {
-        _dbContext = GetInMemoryDbContext();
-        _inventoryService = new InventoryService(new InventoryRepository(_dbContext), new ProductRepository(_dbContext), new MemoryCache(new MemoryCacheOptions()));
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _dbContext.Dispose();
+        _mockInventoryRepository = new Mock<IInventoryRepository>();
+        _mockProductRepository = new Mock<IProductRepository>();
+        _inventoryService = new InventoryService(_mockInventoryRepository.Object, _mockProductRepository.Object, new MemoryCache(new MemoryCacheOptions()));
     }
 
     [Test]
     [TestCaseSource(nameof(CreateProduct))]
     public async Task CreateInventoryShouldCreateProduct(Product product)
     {
-        _ = _dbContext.Products.Add(product);
-        _ = await _dbContext.SaveChangesAsync();
-
+        _mockProductRepository.Setup(x => x.FindById(It.IsAny<int>())).ReturnsAsync(product);
+        _mockInventoryRepository
+            .Setup(x => x.Add(It.IsAny<Inventory>()))
+            .ReturnsAsync((Inventory inv) => inv);
         Inventory result = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.ProductId, Is.EqualTo(product.Id));
             Assert.That(result.Product, Is.EqualTo(product));
             Assert.That(result.Stock, Is.EqualTo(20));
@@ -57,7 +52,7 @@ public class InventoryServiceTest
     [TestCase(1, 4)]
     public Task CreateInventoryShouldThrowNotFoundException(int productId, int quantity)
     {
-        NotFoundException? ex = Assert.ThrowsAsync<NotFoundException>(async () =>
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _inventoryService.Create(new InventoryDto(productId, quantity)));
 
         Assert.That(ex.Message, Is.EqualTo($"Product with id: {productId} not found"));
@@ -68,11 +63,15 @@ public class InventoryServiceTest
     [TestCaseSource(nameof(CreateProduct))]
     public async Task UpdateInventoryShouldUpdateInventory(Product product)
     {
-        _ = _dbContext.Products.Add(product);
-        _ = await _dbContext.SaveChangesAsync();
-
+        _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
+        _mockInventoryRepository.Setup(x => x.FindById(1)).ReturnsAsync(new Inventory
+        {
+            Product = product
+        });
+        _mockInventoryRepository.Setup(x => x.Update(It.IsAny<Inventory>()));
         Inventory result = await _inventoryService.Update(1, new InventoryDto(ProductId: product.Id, Stock: 10));
 
         using (Assert.EnterMultipleScope())
@@ -91,7 +90,7 @@ public class InventoryServiceTest
     [TestCase(1, 4)]
     public Task UpdateInventoryShouldThrowNotFoundExceptionWhenInventoryNotFound(int productId, int quantity)
     {
-        NotFoundException? ex = Assert.ThrowsAsync<NotFoundException>(async () =>
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _inventoryService.Update(1, new InventoryDto(productId, quantity)));
 
         Assert.That(ex.Message, Is.EqualTo("Inventory with id: 1 not found"));
@@ -102,11 +101,11 @@ public class InventoryServiceTest
     [TestCaseSource(nameof(CreateProduct))]
     public async Task FindAllShouldReturnListOfInventory(Product product)
     {
-        _ = _dbContext.Products.Add(product);
-        _ = await _dbContext.SaveChangesAsync();
+        _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
+        Inventory inv = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
-        _ = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
-
+        _mockInventoryRepository.Setup(x => x.FindAll(null, null, null, 0, 10)).ReturnsAsync((1, [inv]));
         (int total, List<Inventory> data) result = await _inventoryService.FindAll(null, null, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
@@ -120,11 +119,11 @@ public class InventoryServiceTest
     [TestCaseSource(nameof(CreateProduct))]
     public async Task FindByIdShouldReturnInventory(Product product)
     {
-        _ = _dbContext.Products.Add(product);
-        _ = await _dbContext.SaveChangesAsync();
-
+        _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
+        _mockInventoryRepository.Setup(x => x.FindById(inventory.Id)).ReturnsAsync(inventory);
         Inventory result = await _inventoryService.FindById(inventory.Id);
 
         using (Assert.EnterMultipleScope())
@@ -143,7 +142,7 @@ public class InventoryServiceTest
     [TestCase(4)]
     public Task FindByIdShouldThrowNotFoundException(int id)
     {
-        NotFoundException? ex = Assert.ThrowsAsync<NotFoundException>(async () =>
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _inventoryService.FindById(id));
 
         Assert.That(ex.Message, Is.EqualTo($"Inventory with id: {id} not found"));
@@ -155,11 +154,11 @@ public class InventoryServiceTest
     [TestCaseSource(nameof(CreateProduct))]
     public async Task FindByProductIdShouldReturnListOfInventory(Product product)
     {
-        _ = _dbContext.Products.Add(product);
-        _ = await _dbContext.SaveChangesAsync();
-
+        _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
+        _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 0, null, 0, 10)).ReturnsAsync((1, [inventory]));
         (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 0,  null, 0, 10);
 
         using (Assert.EnterMultipleScope())
@@ -174,13 +173,13 @@ public class InventoryServiceTest
 
     [Test]
     [TestCaseSource(nameof(CreateProduct))]
-    public async Task FindByQuantityShouldRetrunListOfInventory(Product product)
+    public async Task FindByQuantityShouldReturnListOfInventory(Product product)
     {
-        _ = _dbContext.Products.Add(product);
-        _ = await _dbContext.SaveChangesAsync();
-
+        _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
+        _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 20, null, 0, 10)).ReturnsAsync((1, [inventory]));
         (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 20, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
@@ -197,11 +196,11 @@ public class InventoryServiceTest
     [TestCaseSource(nameof(CreateProduct))]
     public async Task DeleteByIdShouldDeleteInventory(Product product)
     {
-        _ = _dbContext.Products.Add(product);
-        _ = await _dbContext.SaveChangesAsync();
-
+        _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
+        _mockInventoryRepository.Setup(x => x.FindById(inventory.Id)).ReturnsAsync(inventory);
         var result = await _inventoryService.Delete(inventory.Id);
         Assert.That(result, Is.EqualTo("Inventory deleted successfully"));
     }
@@ -213,7 +212,7 @@ public class InventoryServiceTest
     [TestCase(4)]
     public Task DeleteByIdShouldThrowNotFoundException(int id)
     {
-        NotFoundException? ex = Assert.ThrowsAsync<NotFoundException>(async () =>
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _inventoryService.Delete(id));
 
         Assert.That(ex.Message, Is.EqualTo($"Inventory with id: {id} not found"));
@@ -252,14 +251,5 @@ public class InventoryServiceTest
             Category = new Category { Id = 13, Name = "Miscellaneous", Description = "Other / seasonal products" }
         };
 
-    }
-
-    private static ApplicationDbContext GetInMemoryDbContext()
-    {
-        DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new ApplicationDbContext(options);
     }
 }
