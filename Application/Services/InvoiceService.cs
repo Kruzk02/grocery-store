@@ -12,7 +12,7 @@ public class InvoiceService(IInvoiceRepository invoiceRepository, IOrderReposito
 {
     public async Task<Invoice> Create(InvoiceDto invoiceDto)
     {
-        var order = await orderRepository.FindById(invoiceDto.OrderId);
+        Order? order = await orderRepository.FindById(invoiceDto.OrderId);
         if (order == null) throw new NotFoundException($"Order with id: {invoiceDto.OrderId} not found");
 
         var invoice = new Invoice
@@ -29,13 +29,13 @@ public class InvoiceService(IInvoiceRepository invoiceRepository, IOrderReposito
 
     public async Task<Invoice> FindById(int id)
     {
-        var invoice = await invoiceRepository.FindById(id);
+        Invoice? invoice = await invoiceRepository.FindById(id);
         return invoice ?? throw new NotFoundException($"Invoice with id: {id} not found");
     }
 
     public async Task<Invoice> FindByOrderId(int orderId)
     {
-        var invoice = await invoiceRepository.FindByOrderId(orderId);
+        Invoice? invoice = await invoiceRepository.FindByOrderId(orderId);
         return invoice ?? throw new NotFoundException($"Invoice with order id: {orderId} not found");
     }
 }
