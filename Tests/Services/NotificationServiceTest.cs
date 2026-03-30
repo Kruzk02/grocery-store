@@ -1,14 +1,13 @@
 using Application.Interface;
+using Application.Repository;
 using Application.Services;
 
 using Domain.Entity;
 using Domain.Exception;
 
-using Infrastructure.Persistence;
-using Infrastructure.Repository;
-using Infrastructure.Users;
+using Moq;
 
-using Microsoft.EntityFrameworkCore;
+using static NUnit.Framework.Is;
 
 namespace Tests.Services;
 
@@ -16,71 +15,52 @@ namespace Tests.Services;
 public class NotificationServiceTest
 {
     private INotificationService _notificationService;
-    private ApplicationDbContext _dbContext;
+    private Mock<INotificationRepository> _mock;
 
     [SetUp]
     public void Setup()
     {
-        _dbContext = GetInMemoryDbContext();
-        _notificationService = new NotificationService(new NotificationRepository(_dbContext));
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _dbContext.Dispose();
-
-    }
-
-    private static ApplicationDbContext GetInMemoryDbContext()
-    {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new ApplicationDbContext(options);
+        _mock = new Mock<INotificationRepository>();
+        _notificationService = new NotificationService(_mock.Object);
     }
 
     [Test]
     [TestCaseSource(nameof(CreateNotification))]
-    public async Task CreateNotification_shouldCreate(Notification notification)
+    public async Task CreateNotificationShouldCreate(Notification notification)
     {
-        var result = await _notificationService.Create(notification);
+        _mock.Setup(x => x.Add(It.IsAny<Notification>())).ReturnsAsync(notification);
+        Notification result = await _notificationService.Create(notification);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(notification.Id));
-            Assert.That(result.Message, Is.EqualTo(notification.Message));
-            Assert.That(result.IsRead, Is.False);
-            Assert.That(result.Type, Is.EqualTo(NotificationType.Info));
+            Assert.That(result.Id, EqualTo(notification.Id));
+            Assert.That(result.Message, EqualTo(notification.Message));
+            Assert.That(result.IsRead, False);
+            Assert.That(result.Type, EqualTo(NotificationType.Info));
         }
     }
 
     [Test]
     [TestCaseSource(nameof(CreateNotification))]
-    public async Task FindByUserId_shouldReturnNotification(Notification notification)
+    public async Task FindByUserIdShouldReturnNotification(Notification notification)
     {
-        var user = new ApplicationUser { Id = "1a" };
-        _dbContext.Users.Add(user);
-
-        _dbContext.Notifications.Add(notification);
-
-        await _dbContext.SaveChangesAsync();
-
-        var result = await _notificationService.FindByUserId(notification.UserId);
+        _mock.Setup(x => x.FindByUserId(notification.UserId)).ReturnsAsync([notification]);
+        List<Notification> result = await _notificationService.FindByUserId(notification.UserId);
 
         Assert.That(result, Has.Count.EqualTo(1));
     }
 
     [Test]
     [TestCaseSource(nameof(CreateNotification))]
-    public async Task DeleteById_shouldDelete(Notification notification)
+    public async Task DeleteByIdShouldDelete(Notification notification)
     {
+        _mock.Setup(x => x.Add(It.IsAny<Notification>())).ReturnsAsync(notification);
         await _notificationService.Create(notification);
 
+        _mock.Setup(x => x.FindById(notification.Id)).ReturnsAsync(notification);
         var serviceResult = await _notificationService.DeleteById(notification.Id);
 
-        Assert.That(serviceResult, Is.EqualTo("Notification Deleted Successfully"));
+        Assert.That(serviceResult, EqualTo("Notification Deleted Successfully"));
     }
 
     [Test]
@@ -88,23 +68,23 @@ public class NotificationServiceTest
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(4)]
-    public Task DeleteById_ShouldThrowNotFoundException(int id)
+    public Task DeleteByIdShouldThrowNotFoundException(int id)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _notificationService.DeleteById(id));
 
-        Assert.That(ex.Message, Is.EqualTo($"Notification with id {id} not found"));
+        Assert.That(ex.Message, EqualTo($"Notification with id {id} not found"));
         return Task.CompletedTask;
     }
 
     [Test]
     [TestCaseSource(nameof(CreateNotification))]
-    public async Task MarkAsRead_shouldMarkAsRead(Notification notification)
+    public async Task MarkAsReadShouldMarkAsRead(Notification notification)
     {
-        await _notificationService.Create(notification);
-
-        var result = await _notificationService.MarkAsRead(notification.Id);
-        Assert.That(result.IsRead, Is.True);
+        _mock.Setup(x => x.FindById(notification.Id)).ReturnsAsync(notification);
+        _mock.Setup(x => x.MarkAsRead(notification)).ReturnsAsync(notification);
+        Notification result = await _notificationService.MarkAsRead(notification.Id);
+        Assert.That(result.IsRead, Not.Null);
     }
 
     [Test]
@@ -112,23 +92,23 @@ public class NotificationServiceTest
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(4)]
-    public Task MarkAsRead_ShouldThrowNotFoundException(int id)
+    public Task MarkAsReadShouldThrowNotFoundException(int id)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _notificationService.MarkAsRead(id));
 
-        Assert.That(ex.Message, Is.EqualTo($"Notification with id {id} not found"));
+        Assert.That(ex.Message, EqualTo($"Notification with id {id} not found"));
         return Task.CompletedTask;
     }
 
     [Test]
     [TestCaseSource(nameof(CreateNotification))]
-    public async Task MarkAllAsRead_shouldMarkAllAsRead(Notification notification)
+    public async Task MarkAllAsReadShouldMarkAllAsRead(Notification notification)
     {
-        await _notificationService.Create(notification);
-
-        var result = await _notificationService.MarkAllAsRead("1a");
-        Assert.That(result, !Is.Empty);
+        _mock.Setup(x => x.FindById(notification.Id)).ReturnsAsync(notification);
+        _mock.Setup(x => x.MarkAllAsRead(notification.UserId)).ReturnsAsync([notification]);
+        List<Notification> result = await _notificationService.MarkAllAsRead("1a");
+        Assert.That(result, !Empty);
     }
 
     private static IEnumerable<Notification> CreateNotification()

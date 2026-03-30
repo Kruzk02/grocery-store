@@ -30,7 +30,7 @@ public class NotificationService(INotificationRepository notificationRepository)
     /// <inheritdoc />
     public async Task<string> DeleteById(int id)
     {
-        var notification = await notificationRepository.FindById(id);
+        Notification? notification = await notificationRepository.FindById(id);
         if (notification == null)
         {
             throw new NotFoundException($"Notification with id {id} not found");
@@ -43,7 +43,7 @@ public class NotificationService(INotificationRepository notificationRepository)
     /// <inheritdoc />
     public async Task<Notification> MarkAsRead(int id)
     {
-        var notification = await notificationRepository.FindById(id);
+        Notification? notification = await notificationRepository.FindById(id);
         if (notification == null)
         {
             throw new NotFoundException($"Notification with id {id} not found");
