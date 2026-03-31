@@ -82,9 +82,13 @@ public class NotificationServiceTest
     public async Task MarkAsReadShouldMarkAsRead(Notification notification)
     {
         _mock.Setup(x => x.FindById(notification.Id)).ReturnsAsync(notification);
-        _mock.Setup(x => x.MarkAsRead(notification)).ReturnsAsync(notification);
+        _mock.Setup(x => x.MarkAsRead(notification)).ReturnsAsync(() =>
+        {
+            notification.IsRead = true;
+            return notification;
+        });
         Notification result = await _notificationService.MarkAsRead(notification.Id);
-        Assert.That(result.IsRead, Not.Null);
+        Assert.That(result.IsRead, True);
     }
 
     [Test]
