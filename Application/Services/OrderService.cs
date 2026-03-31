@@ -13,7 +13,7 @@ public class OrderService(IOrderRepository orderRepository, ICustomerRepository 
 {
     public async Task<Order> Create(OrderDto orderDto)
     {
-        var customer = await customerRepository.FindById(orderDto.CustomerId);
+        Customer? customer = await customerRepository.FindById(orderDto.CustomerId);
         if (customer == null)
         {
             throw new NotFoundException($"Customer with id {orderDto.CustomerId} not found");
@@ -30,7 +30,7 @@ public class OrderService(IOrderRepository orderRepository, ICustomerRepository 
 
     public async Task<Order> Update(int id, OrderDto orderDto)
     {
-        var order = await orderRepository.FindById(id);
+        Order? order = await orderRepository.FindById(id);
         if (order == null)
         {
             throw new NotFoundException($"Order with id {id} not found");
@@ -38,7 +38,7 @@ public class OrderService(IOrderRepository orderRepository, ICustomerRepository 
 
         if (orderDto.CustomerId != order.CustomerId && orderDto.CustomerId != 0)
         {
-            var customer = await customerRepository.FindById(orderDto.CustomerId);
+            Customer? customer = await customerRepository.FindById(orderDto.CustomerId);
             if (customer == null)
             {
                 throw new NotFoundException($"Customer with id {orderDto.CustomerId} not found");
