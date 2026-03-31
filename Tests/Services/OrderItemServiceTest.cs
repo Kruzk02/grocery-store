@@ -1,43 +1,39 @@
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Repository;
 using Application.Services;
 
 using Domain.Entity;
 using Domain.Exception;
 
-using Infrastructure.Persistence;
-using Infrastructure.Repository;
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
-using NUnit.Framework.Internal;
+using Moq;
 
 namespace Tests.Services;
 
 [TestFixture]
 public class OrderItemServiceTest
 {
-
     private IOrderItemService _orderItemService;
-    private ApplicationDbContext _dbContext;
+    private Mock<IOrderItemRepository> _mockOrderItemRepository;
+    private Mock<IOrderRepository> _mockOrderRepository;
+    private Mock<IProductRepository> _mockProductRepository;
+
+    private Order _order;
+    private Product _product;
+    private OrderItem _orderItem;
 
     [SetUp]
     public void Setup()
     {
-        _dbContext = GetInMemoryDbContext();
-        _orderItemService = new OrderItemService(new OrderItemRepository(_dbContext), new OrderRepository(_dbContext), new ProductRepository(_dbContext), new MemoryCache(new MemoryCacheOptions()));
-    }
+        _mockOrderItemRepository = new Mock<IOrderItemRepository>();
+        _mockOrderRepository = new Mock<IOrderRepository>();
+        _mockProductRepository = new Mock<IProductRepository>();
+        _orderItemService = new OrderItemService(_mockOrderItemRepository.Object, _mockOrderRepository.Object,
+            _mockProductRepository.Object, new MemoryCache(new MemoryCacheOptions()));
 
-    [TearDown]
-    public void TearDown()
-    {
-        _dbContext.Dispose();
-    }
-
-    private static void CreateProductAndOrder(ApplicationDbContext ctx)
-    {
-        var order = new Order
+        _order = new Order
         {
             Id = 1,
             CustomerId = 1,
@@ -51,7 +47,7 @@ public class OrderItemServiceTest
             }
         };
 
-        var product = new Product
+        _product = new Product
         {
             Id = 1,
             Name = "name",
@@ -63,22 +59,30 @@ public class OrderItemServiceTest
             Category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" }
         };
 
-        ctx.Orders.Add(order);
-        ctx.Products.Add(product);
+        _orderItem = new OrderItem
+        {
+            Id = 1,
+            ProductId = _product.Id,
+            Product = _product,
+            OrderId = _order.Id,
+            Order = _order,
+            Quantity = 24
+        };
     }
 
     [Test]
     [TestCaseSource(nameof(CreateOrderItemsDto))]
     public async Task CreateOrderItem(OrderItemDto orderItemDto)
     {
-        CreateProductAndOrder(_dbContext);
-        await _dbContext.SaveChangesAsync();
+        _mockOrderRepository.Setup(x => x.FindById(orderItemDto.OrderId)).ReturnsAsync(_order);
+        _mockProductRepository.Setup(x => x.FindById(orderItemDto.ProductId)).ReturnsAsync(_product);
+        _mockOrderItemRepository.Setup(x => x.Add(It.IsAny<OrderItem>()))
+            .ReturnsAsync((OrderItem orderItem) => orderItem);
 
-        var result = await _orderItemService.Create(orderItemDto);
+        OrderItem result = await _orderItemService.Create(orderItemDto);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.ProductId, Is.EqualTo(1));
             Assert.That(result.OrderId, Is.EqualTo(1));
             Assert.That(result.Quantity, Is.EqualTo(24));
@@ -88,7 +92,7 @@ public class OrderItemServiceTest
 
     [Test]
     [TestCaseSource(nameof(CreateOrderItemsDto))]
-    public Task CreateOrderItem_ShouldThrowNotFoundException(OrderItemDto orderItemDto)
+    public Task CreateOrderItemShouldThrowNotFoundException(OrderItemDto orderItemDto)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _orderItemService.Create(orderItemDto));
@@ -101,11 +105,10 @@ public class OrderItemServiceTest
     [TestCaseSource(nameof(CreateOrderItemsDto))]
     public async Task Update(OrderItemDto orderItemDto)
     {
-        CreateProductAndOrder(_dbContext);
+        _mockOrderItemRepository.Setup(x => x.FindById(1)).ReturnsAsync(_orderItem);
+        _mockProductRepository.Setup(x => x.FindById(1)).ReturnsAsync(_product);
 
-        await _dbContext.SaveChangesAsync();
-        await _orderItemService.Create(orderItemDto);
-        var result = await _orderItemService.Update(1, new OrderItemDto(1, 1, 2));
+        OrderItem result = await _orderItemService.Update(1, new OrderItemDto(1, 1, 2));
 
         using (Assert.EnterMultipleScope())
         {
@@ -113,14 +116,13 @@ public class OrderItemServiceTest
             Assert.That(result.ProductId, Is.EqualTo(1));
             Assert.That(result.OrderId, Is.EqualTo(1));
             Assert.That(result.Quantity, Is.EqualTo(2));
-            Assert.That(result.Product.Quantity, Is.EqualTo(23));
+            Assert.That(result.Product.Quantity, Is.EqualTo(47));
         }
-
     }
 
     [Test]
     [TestCaseSource(nameof(CreateOrderItemsDto))]
-    public Task Update_ShouldThrowNotFoundException(OrderItemDto orderItemDto)
+    public Task UpdateShouldThrowNotFoundException(OrderItemDto orderItemDto)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _orderItemService.Update(1, orderItemDto));
@@ -133,10 +135,8 @@ public class OrderItemServiceTest
     [TestCaseSource(nameof(CreateOrderItemsDto))]
     public async Task FindById(OrderItemDto orderItemDto)
     {
-        CreateProductAndOrder(_dbContext);
-        await _dbContext.SaveChangesAsync();
-        await _orderItemService.Create(orderItemDto);
-        var result = await _orderItemService.FindById(orderItemDto.OrderId);
+        _mockOrderItemRepository.Setup(x => x.FindById(orderItemDto.OrderId)).ReturnsAsync(_orderItem);
+        OrderItem result = await _orderItemService.FindById(orderItemDto.OrderId);
 
         using (Assert.EnterMultipleScope())
         {
@@ -153,7 +153,7 @@ public class OrderItemServiceTest
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(4)]
-    public Task FindById_ShouldThrowNotFoundException(int id)
+    public Task FindByIdShouldThrowNotFoundException(int id)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _orderItemService.FindById(id));
@@ -166,10 +166,8 @@ public class OrderItemServiceTest
     [TestCaseSource(nameof(CreateOrderItemsDto))]
     public async Task FindByOrderId(OrderItemDto orderItemDto)
     {
-        CreateProductAndOrder(_dbContext);
-        await _dbContext.SaveChangesAsync();
-        var orderItem = await _orderItemService.Create(orderItemDto);
-        var result = await _orderItemService.FindByOrderId(orderItemDto.OrderId);
+        _mockOrderItemRepository.Setup(x => x.FindByOrderId(orderItemDto.OrderId)).ReturnsAsync([_orderItem]);
+        List<OrderItem> result = await _orderItemService.FindByOrderId(orderItemDto.OrderId);
 
         using (Assert.EnterMultipleScope())
         {
@@ -182,10 +180,8 @@ public class OrderItemServiceTest
     [TestCaseSource(nameof(CreateOrderItemsDto))]
     public async Task FindByProductId(OrderItemDto orderItemDto)
     {
-        CreateProductAndOrder(_dbContext);
-        await _dbContext.SaveChangesAsync();
-        var orderItem = await _orderItemService.Create(orderItemDto);
-        var result = await _orderItemService.FindByProductId(orderItemDto.ProductId);
+        _mockOrderItemRepository.Setup(x => x.FindByProductId(orderItemDto.ProductId)).ReturnsAsync([_orderItem]);
+        List<OrderItem> result = await _orderItemService.FindByProductId(orderItemDto.ProductId);
 
         using (Assert.EnterMultipleScope())
         {
@@ -198,9 +194,7 @@ public class OrderItemServiceTest
     [TestCaseSource(nameof(CreateOrderItemsDto))]
     public async Task Delete(OrderItemDto orderItemDto)
     {
-        CreateProductAndOrder(_dbContext);
-        await _dbContext.SaveChangesAsync();
-        await _orderItemService.Create(orderItemDto);
+        _mockOrderItemRepository.Setup(x => x.FindById(1)).ReturnsAsync(_orderItem);
         var result = await _orderItemService.Delete(orderItemDto.OrderId);
         Assert.That(result, Is.True);
     }
@@ -210,7 +204,7 @@ public class OrderItemServiceTest
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(4)]
-    public Task Delete_ShouldThrowNotFoundException(int id)
+    public Task DeleteShouldThrowNotFoundException(int id)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _orderItemService.Delete(id));
@@ -222,14 +216,5 @@ public class OrderItemServiceTest
     private static IEnumerable<OrderItemDto> CreateOrderItemsDto()
     {
         yield return new OrderItemDto(1, 1, 24);
-    }
-
-    private static ApplicationDbContext GetInMemoryDbContext()
-    {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new ApplicationDbContext(options);
     }
 }

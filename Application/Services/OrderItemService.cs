@@ -13,13 +13,13 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 {
     public async Task<OrderItem> Create(OrderItemDto orderItemDto)
     {
-        var order = await orderRepository.FindById(orderItemDto.OrderId);
+        Order? order = await orderRepository.FindById(orderItemDto.OrderId);
         if (order == null)
         {
             throw new NotFoundException($"Order with id {orderItemDto.OrderId} not found");
         }
 
-        var product = await productRepository.FindById(orderItemDto.ProductId);
+        Product? product = await productRepository.FindById(orderItemDto.ProductId);
         if (product == null)
         {
             throw new NotFoundException($"Product with id {orderItemDto.ProductId} not found");
@@ -51,7 +51,7 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 
     public async Task<OrderItem> Update(int id, OrderItemDto orderItemDto)
     {
-        var orderItem = await orderItemRepository.FindById(id);
+        OrderItem? orderItem = await orderItemRepository.FindById(id);
         if (orderItem == null)
         {
             throw new NotFoundException($"Order item with id {id} not found");
@@ -59,7 +59,7 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 
         if (orderItem.ProductId != orderItemDto.ProductId)
         {
-            var product = await productRepository.FindById(orderItemDto.ProductId);
+            Product? product = await productRepository.FindById(orderItemDto.ProductId);
             if (product == null)
             {
                 throw new NotFoundException($"Product with id {orderItemDto.ProductId} not found");
@@ -74,7 +74,7 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 
         if (orderItem.Quantity != orderItemDto.Quantity && orderItemDto.Quantity >= 0)
         {
-            var product = await productRepository.FindById(orderItem.ProductId);
+            Product? product = await productRepository.FindById(orderItem.ProductId);
             if (product == null)
             {
                 throw new NotFoundException($"Product with id {orderItem.ProductId} not found");
@@ -107,7 +107,7 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 
         orderItem = await orderItemRepository.FindById(id);
 
-        var cacheOption = new MemoryCacheEntryOptions()
+        MemoryCacheEntryOptions cacheOption = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromMinutes(10))
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
@@ -125,7 +125,7 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 
         orderItems = await orderItemRepository.FindByOrderId(orderId);
 
-        var cacheOption = new MemoryCacheEntryOptions()
+        MemoryCacheEntryOptions cacheOption = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromMinutes(10))
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
@@ -142,7 +142,7 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 
         orderItems = await orderItemRepository.FindByProductId(productId);
 
-        var cacheOption = new MemoryCacheEntryOptions()
+        MemoryCacheEntryOptions cacheOption = new MemoryCacheEntryOptions()
             .SetSlidingExpiration(TimeSpan.FromMinutes(10))
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
@@ -152,7 +152,7 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 
     public async Task<bool> Delete(int id)
     {
-        var orderItem = await orderItemRepository.FindById(id);
+        OrderItem? orderItem = await orderItemRepository.FindById(id);
         if (orderItem == null)
         {
             throw new NotFoundException($"Order item with id: {id} not found");
