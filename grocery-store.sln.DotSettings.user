@@ -24,12 +24,13 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\Admin\.nuget\packages\nunit\4.2.2\lib\net6.0\nunit.framework.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=364bbe09_002Dad0d_002D4d3d_002D9582_002D3a2a0d997bc0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Create" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=364bbe09_002Dad0d_002D4d3d_002D9582_002D3a2a0d997bc0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Create" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.CreateProductShouldCreateProduct&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a9449d26_002D4852_002D4571_002Dae27_002D9d09a7cf5bc3/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from &amp;lt;Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a9449d26_002D4852_002D4571_002Dae27_002D9d09a7cf5bc3/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.InventoryServiceTest&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.SearchProducts_shouldReturnListOfProduct&lt;/TestId&gt;&#xD;
@@ -81,6 +82,15 @@
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest.Delete&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderItemServiceTest.DeleteShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.OrderServiceTest.Create&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.CreateProductShouldCreateProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.CreateProductShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.UpdateProductShouldUpdateProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.UpdateProductShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.SearchProductsShouldReturnListOfProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.FindByIdShouldReturnProduct&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.FindByIdShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.DeleteById&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Services.ProductServiceTest.DeleteByIdShouldThrowNotFoundException&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	

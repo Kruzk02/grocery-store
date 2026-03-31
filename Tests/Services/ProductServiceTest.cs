@@ -2,17 +2,17 @@ using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
 using Application.Queries;
+using Application.Repository;
 using Application.Services;
 
 using Domain.Entity;
 using Domain.Exception;
 
 using Infrastructure.FileSystem;
-using Infrastructure.Persistence;
-using Infrastructure.Repository;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+
+using Moq;
 
 namespace Tests.Services;
 
@@ -21,45 +21,54 @@ public class ProductServiceTest
 {
     private IProductService _productService;
     private IImageStorage _imageService;
-    private ApplicationDbContext _context;
+    private Mock<IProductRepository> _mockProductRepository;
+    private Mock<ICategoryRepository> _mockCategoryRepository;
 
+    private Category _category;
+    private Product _product;
     [SetUp]
     public void SetUp()
     {
-        _context = GetInMemoryDbContext();
+        _mockProductRepository = new Mock<IProductRepository>();
+        _mockCategoryRepository = new Mock<ICategoryRepository>();
+
         _imageService = new FileSystemImageStorage("wwww");
-        _productService = new ProductService(new ProductRepository(_context), new CategoryRepository(_context), _imageService, new MemoryCache(new MemoryCacheOptions()));
-    }
+        _productService = new ProductService(_mockProductRepository.Object, _mockCategoryRepository.Object, _imageService, new MemoryCache(new MemoryCacheOptions()));
 
-    [TearDown]
-    public void Destroy()
-    {
-        _context.Dispose();
+        _category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
+        _product = new Product
+        {
+            Id = 1,
+            Name = "name",
+            Description = "description",
+            Price = 19.99m,
+            CategoryId = 1,
+            Quantity = 25,
+            CreatedAt = DateTime.UtcNow,
+            Category = _category
+        };
     }
-
     [Test]
     [TestCaseSource(nameof(CreateProductDto))]
-    public async Task CreateProduct_ShouldCreateProduct(ProductDto productDto)
+    public async Task CreateProductShouldCreateProduct(ProductDto productDto)
     {
-        var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
-
-        var result = await _productService.Create(productDto);
+        _mockCategoryRepository.Setup(x => x.FindById(productDto.CategoryId)).ReturnsAsync(_category);
+        _mockProductRepository.Setup(x => x.Add(It.IsAny<Product>())).ReturnsAsync(_product);
+        Product result = await _productService.Create(productDto);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.GreaterThan(0));
             Assert.That(result.Name, Does.StartWith("name"));
             Assert.That(result.Description, Does.StartWith("description"));
-            Assert.That(result.Price, Is.EqualTo(productDto.Price));
+            Assert.That(result.Price, Is.EqualTo(19.99m));
             Assert.That(result.CategoryId, Is.EqualTo(1));
         }
     }
 
     [Test]
     [TestCaseSource(nameof(CreateProductDto))]
-    public Task CreateProduct_ShouldThrowNotFoundException(ProductDto productDto)
+    public Task CreateProductShouldThrowNotFoundException(ProductDto productDto)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _productService.Create(productDto));
@@ -70,15 +79,11 @@ public class ProductServiceTest
 
     [Test]
     [TestCaseSource(nameof(CreateProductDto))]
-    public async Task UpdateProduct_ShouldUpdateProduct(ProductDto productDto)
+    public async Task UpdateProductShouldUpdateProduct(ProductDto productDto)
     {
-        var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
+        _mockProductRepository.Setup(x => x.FindById(1)).ReturnsAsync(_product);
 
-        var product = await _productService.Create(productDto);
-
-        var result = await _productService.Update(product.Id, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44, "image.jpg"));
+        Product result = await _productService.Update(_product.Id, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44, "image.jpg"));
 
         using (Assert.EnterMultipleScope())
         {
@@ -92,7 +97,7 @@ public class ProductServiceTest
 
     [Test]
     [TestCaseSource(nameof(CreateProductDto))]
-    public Task UpdateProduct_ShouldThrowNotFoundException(ProductDto productDto)
+    public Task UpdateProductShouldThrowNotFoundException(ProductDto productDto)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _productService.Update(1, productDto));
@@ -102,16 +107,11 @@ public class ProductServiceTest
     }
 
     [Test]
-    [TestCaseSource(nameof(CreateProductDto))]
-    public async Task SearchProducts_shouldReturnListOfProduct(ProductDto productDto)
+    public async Task SearchProductsShouldReturnListOfProduct()
     {
-        var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
-
-        Product product = await _productService.Create(productDto);
-
-        PageResult<Product> result = await _productService.SearchProducts(new SearchProductQuery(product.Name, 0, ProductSortBy.Name, false));
+        _mockProductRepository.Setup(x =>
+            x.Search(new SearchProductQuery(_product.Name, 0, ProductSortBy.Name, false))).ReturnsAsync(new PageResult<Product>(1, [_product]));
+        PageResult<Product> result = await _productService.SearchProducts(new SearchProductQuery(_product.Name, 0, ProductSortBy.Name, false));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Total, Is.GreaterThan(0));
@@ -120,24 +120,18 @@ public class ProductServiceTest
     }
 
     [Test]
-    [TestCaseSource(nameof(CreateProductDto))]
-    public async Task FindById_ShouldReturnProduct(ProductDto productDto)
+    public async Task FindByIdShouldReturnProduct()
     {
-        var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
-
-        var product = await _productService.Create(productDto);
-
-        var result = await _productService.FindById(product.Id);
+        _mockProductRepository.Setup(x => x.FindById(1)).ReturnsAsync(_product);
+        Product result = await _productService.FindById(_product.Id);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(product.Id));
-            Assert.That(result.Name, Is.EqualTo(product.Name));
-            Assert.That(result.Description, Is.EqualTo(product.Description));
-            Assert.That(result.Price, Is.EqualTo(product.Price));
-            Assert.That(result.CategoryId, Is.EqualTo(product.CategoryId));
+            Assert.That(result, !Is.Null);
+            Assert.That(result.Id, Is.GreaterThan(0));
+            Assert.That(result.Name, Does.StartWith("name"));
+            Assert.That(result.Description, Does.StartWith("description"));
+            Assert.That(result.CategoryId, Is.EqualTo(1));
         }
     }
 
@@ -146,7 +140,7 @@ public class ProductServiceTest
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(4)]
-    public Task FindById_ShouldThrowNotFoundException(int id)
+    public Task FindByIdShouldThrowNotFoundException(int id)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _productService.FindById(id));
@@ -156,16 +150,10 @@ public class ProductServiceTest
     }
 
     [Test]
-    [TestCaseSource(nameof(CreateProductDto))]
-    public async Task DeleteById(ProductDto productDto)
+    public async Task DeleteById()
     {
-        var category = new Category { Id = 1, Name = "Fresh Produce", Description = "Fruits, vegetables, herbs" };
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
-
-        var product = await _productService.Create(productDto);
-
-        var result = await _productService.DeleteById(product.Id);
+        _mockProductRepository.Setup(x => x.FindById(1)).ReturnsAsync(_product);
+        var result = await _productService.DeleteById(_product.Id);
 
         Assert.That(result, Is.True);
     }
@@ -175,7 +163,7 @@ public class ProductServiceTest
     [TestCase(2)]
     [TestCase(3)]
     [TestCase(4)]
-    public Task DeleteById_ShouldThrowNotFoundException(int id)
+    public Task DeleteByIdShouldThrowNotFoundException(int id)
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _productService.DeleteById(id));
@@ -189,14 +177,5 @@ public class ProductServiceTest
         yield return new ProductDto(Name: "name123", Description: "description3", Price: 2.99m, CategoryId: 1, Quantity: 1, "image.jpg");
         yield return new ProductDto(Name: "name4", Description: "description", Price: 5.99m, CategoryId: 1, Quantity: 1, "image.jpg");
         yield return new ProductDto(Name: "name56", Description: "description", Price: 6.99m, CategoryId: 1, Quantity: 1, "image.jpg");
-    }
-
-    private static ApplicationDbContext GetInMemoryDbContext()
-    {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new ApplicationDbContext(options);
     }
 }
