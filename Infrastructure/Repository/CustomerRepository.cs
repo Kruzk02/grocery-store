@@ -5,6 +5,7 @@ using Domain.Entity;
 using Infrastructure.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Repository;
 
@@ -12,13 +13,13 @@ public class CustomerRepository(ApplicationDbContext ctx) : ICustomerRepository
 {
     public async Task<(int total, List<Customer>)> Search(string? name, int skip, int take)
     {
-        var query = ctx.Customers.AsQueryable();
+        IQueryable<Customer> query = ctx.Customers.AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(p => EF.Functions.Like(p.Name.ToLower(), $"%{name.ToLower()}%"));
         }
         var total = await query.CountAsync();
-        var data = await query.Skip(skip).Take(take).ToListAsync();
+        List<Customer> data = await query.Skip(skip).Take(take).ToListAsync();
 
         return (total, data);
     }
@@ -30,7 +31,7 @@ public class CustomerRepository(ApplicationDbContext ctx) : ICustomerRepository
 
     public async Task<Customer> Add(Customer customer)
     {
-        var result = await ctx.AddAsync(customer);
+        EntityEntry<Customer> result = await ctx.AddAsync(customer);
         await ctx.SaveChangesAsync();
         return result.Entity;
     }
