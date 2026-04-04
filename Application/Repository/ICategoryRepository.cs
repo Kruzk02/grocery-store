@@ -5,5 +5,5 @@ namespace Application.Repository;
 public interface ICategoryRepository
 {
     Task<List<Category>> FindAll();
-    Task<Category?> FindById(int Id);
+    Task<Category?> FindById(int id);
 }
