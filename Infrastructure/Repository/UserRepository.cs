@@ -40,28 +40,28 @@ public class UserRepository(ApplicationDbContext ctx, UserManager<ApplicationUse
     public async Task<User> GetUser(ClaimsPrincipal user)
     {
         ApplicationUser? appUser = await userManager.GetUserAsync(user);
-        return map(appUser!);
+        return Map(appUser!);
     }
 
     public async Task<User?> FindById(string id)
     {
-        ApplicationUser? appUser = await userManager.FindByIdAsync(id) ?? throw new Exception($"User not found with id: {id}");
+        ApplicationUser appUser = await userManager.FindByIdAsync(id) ?? throw new Exception($"User not found with id: {id}");
         IList<string> roles = await userManager.GetRolesAsync(appUser);
-        return map(appUser, roles);
+        return Map(appUser, roles);
     }
 
     public async Task<User?> FindByUsername(string username)
     {
-        ApplicationUser? appUser = await userManager.FindByNameAsync(username) ?? throw new Exception($"User not found with username: {username}");
+        ApplicationUser appUser = await userManager.FindByNameAsync(username) ?? throw new Exception($"User not found with username: {username}");
         IList<string> roles = await userManager.GetRolesAsync(appUser);
-        return map(appUser, roles);
+        return Map(appUser, roles);
     }
 
     public async Task<User?> FindByEmail(string email)
     {
-        ApplicationUser? appUser = await userManager.FindByEmailAsync(email) ?? throw new Exception($"User not found with email: {email}");
+        ApplicationUser appUser = await userManager.FindByEmailAsync(email) ?? throw new Exception($"User not found with email: {email}");
         IList<string> roles = await userManager.GetRolesAsync(appUser);
-        return map(appUser, roles);
+        return Map(appUser, roles);
     }
 
     public async Task<IList<string>> GetRoles(User user)
@@ -124,7 +124,7 @@ public class UserRepository(ApplicationDbContext ctx, UserManager<ApplicationUse
 
     public async Task<bool> UpdateRoles(User user, string role)
     {
-        ApplicationUser? appUser = await userManager.FindByIdAsync(user.Id!) ?? throw new NotFoundException($"User not found with a id: {user.Id}");
+        ApplicationUser appUser = await userManager.FindByIdAsync(user.Id!) ?? throw new NotFoundException($"User not found with a id: {user.Id}");
         string[] roles = ["Admin", "Manager", "Employee"];
 
         if (!roles.Any(r => r.Equals(role, StringComparison.OrdinalIgnoreCase)))
@@ -145,7 +145,7 @@ public class UserRepository(ApplicationDbContext ctx, UserManager<ApplicationUse
         return result.Succeeded;
     }
 
-    private static User map(ApplicationUser user)
+    private static User Map(ApplicationUser user)
     {
         return new User
         {
@@ -155,7 +155,7 @@ public class UserRepository(ApplicationDbContext ctx, UserManager<ApplicationUse
         };
     }
 
-    private static User map(ApplicationUser user, IList<string> roles)
+    private static User Map(ApplicationUser user, IList<string> roles)
     {
         return new User
         {
