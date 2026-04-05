@@ -1,4 +1,4 @@
-﻿namespace Application.Queries;
+namespace Application.Queries;
 
 public record SearchProductQuery(string? Name, int Skip, ProductSortBy? SortBy, bool Ascending, int Take = 10)
 { }

@@ -6,9 +6,6 @@ using Application.Services;
 using Domain.Entity;
 using Domain.Exception;
 
-using Infrastructure.Persistence;
-using Infrastructure.Repository;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -169,6 +166,6 @@ public class OrderServiceTest
     private static IEnumerable<Customer> CreateCustomer()
     {
         yield return new Customer
-            { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3" };
+        { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3" };
     }
 }

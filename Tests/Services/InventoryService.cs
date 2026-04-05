@@ -159,7 +159,7 @@ public class InventoryServiceTest
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
         _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 0, null, 0, 10)).ReturnsAsync((1, [inventory]));
-        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 0,  null, 0, 10);
+        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 0, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
