@@ -5,6 +5,7 @@ using Domain.Entity;
 using Infrastructure.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Repository;
 
@@ -12,14 +13,14 @@ public class NotificationRepository(ApplicationDbContext ctx) : INotificationRep
 {
     public async Task<Notification> Add(Notification notification)
     {
-        var result = await ctx.Notifications.AddAsync(notification);
+        EntityEntry<Notification> result = await ctx.Notifications.AddAsync(notification);
         await ctx.SaveChangesAsync();
         return result.Entity;
     }
 
     public async Task Add(Notification notification, CancellationToken stoppingToken)
     {
-        var result = await ctx.Notifications.AddAsync(notification);
+        await ctx.Notifications.AddAsync(notification, stoppingToken);
         await ctx.SaveChangesAsync(stoppingToken);
     }
 
@@ -51,10 +52,10 @@ public class NotificationRepository(ApplicationDbContext ctx) : INotificationRep
 
     public async Task<List<Notification>> MarkAllAsRead(string userId)
     {
-        var notifications = await ctx.Notifications
+        List<Notification> notifications = await ctx.Notifications
             .Where(n => n.UserId == userId && !n.IsRead)
             .ToListAsync();
-        foreach (var n in notifications)
+        foreach (Notification n in notifications)
         {
             n.IsRead = true;
         }
