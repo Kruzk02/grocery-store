@@ -5,6 +5,7 @@ using Domain.Entity;
 using Infrastructure.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Repository;
 
@@ -12,7 +13,7 @@ public class OrderRepository(ApplicationDbContext ctx) : IOrderRepository
 {
     public async Task<Order> Add(Order order)
     {
-        var result = await ctx.Orders.AddAsync(order);
+        EntityEntry<Order> result = await ctx.Orders.AddAsync(order);
         await ctx.SaveChangesAsync();
         return result.Entity;
     }
@@ -23,9 +24,9 @@ public class OrderRepository(ApplicationDbContext ctx) : IOrderRepository
         await ctx.SaveChangesAsync();
     }
 
-    public async Task<Order?> FindById(int Id)
+    public async Task<Order?> FindById(int id)
     {
-        return await ctx.Orders.FindAsync(Id);
+        return await ctx.Orders.FindAsync(id);
     }
 
     public async Task<List<Order>> FindByCustomerId(int customerId)
