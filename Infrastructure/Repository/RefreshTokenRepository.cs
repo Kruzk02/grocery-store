@@ -16,10 +16,10 @@ public class RefreshTokenRepository(ApplicationDbContext dbContext) : IRefreshTo
         _ = await dbContext.SaveChangesAsync();
     }
 
-    public async Task<RefreshToken?> FindByToken(string RefreshToken)
+    public async Task<RefreshToken?> FindByToken(string refreshToken)
     {
         return await dbContext.RefreshTokens
-            .FirstOrDefaultAsync(x => x.Token == RefreshToken);
+            .FirstOrDefaultAsync(x => x.Token == refreshToken);
     }
 
     public async Task RevokeTokenByUserId(string userId)
