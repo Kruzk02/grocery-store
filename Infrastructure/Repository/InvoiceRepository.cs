@@ -6,6 +6,7 @@ using Domain.Entity;
 using Infrastructure.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Repository;
 
@@ -13,7 +14,7 @@ public class InvoiceRepository(ApplicationDbContext ctx) : IInvoiceRepository
 {
     public async Task<Invoice> Add(Invoice invoice)
     {
-        var result = await ctx.Invoices.AddAsync(invoice);
+        EntityEntry<Invoice> result = await ctx.Invoices.AddAsync(invoice);
         await ctx.SaveChangesAsync();
         return result.Entity;
     }
