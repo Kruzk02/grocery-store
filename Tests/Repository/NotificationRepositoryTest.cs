@@ -38,7 +38,6 @@ public class NotificationRepositoryTest
     public async Task AddShouldReturnNotification()
     {
         await using ApplicationDbContext context = CreateDbContext();
-        await context.Database.EnsureCreatedAsync();
 
         var repository = new NotificationRepository(context);
 
@@ -60,7 +59,6 @@ public class NotificationRepositoryTest
     public async Task FindByUserIdShouldReturnListOfNotification()
     {
         await using ApplicationDbContext context = CreateDbContext();
-        await context.Database.EnsureCreatedAsync();
 
         var repository = new NotificationRepository(context);
 
@@ -77,7 +75,6 @@ public class NotificationRepositoryTest
     public async Task FindByIdShouldReturnNotification()
     {
         await using ApplicationDbContext context = CreateDbContext();
-        await context.Database.EnsureCreatedAsync();
 
         var repository = new NotificationRepository(context);
 
@@ -95,7 +92,6 @@ public class NotificationRepositoryTest
     public async Task FindByIdShouldReturnNull()
     {
         await using ApplicationDbContext context = CreateDbContext();
-        await context.Database.EnsureCreatedAsync();
 
         var repository = new NotificationRepository(context);
 
@@ -107,7 +103,6 @@ public class NotificationRepositoryTest
     public async Task MarkAsReadShouldReturnNotificationWithIsRead()
     {
         await using ApplicationDbContext context = CreateDbContext();
-        await context.Database.EnsureCreatedAsync();
 
         var repository = new NotificationRepository(context);
 
@@ -126,7 +121,6 @@ public class NotificationRepositoryTest
     public async Task MarkAllAsReadShouldReturnListOfNotificationWithIsRead()
     {
         await using ApplicationDbContext context = CreateDbContext();
-        await context.Database.EnsureCreatedAsync();
 
         var repository = new NotificationRepository(context);
 
@@ -145,7 +139,6 @@ public class NotificationRepositoryTest
     public async Task DeleteShouldDeleteNotification()
     {
         await using ApplicationDbContext context = CreateDbContext();
-        await context.Database.EnsureCreatedAsync();
 
         var repository = new NotificationRepository(context);
 
