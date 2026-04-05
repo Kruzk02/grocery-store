@@ -10,6 +10,6 @@ public interface IProductRepository
     Task<PageResult<Product>> Search(SearchProductQuery searchProductQuery);
     Task<Product> Add(Product product);
     Task Update(Product product);
-    Task<Product?> FindById(int Id);
+    Task<Product?> FindById(int id);
     Task Delete(Product product);
 }

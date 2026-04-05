@@ -7,6 +7,7 @@ using Domain.Entity;
 using Infrastructure.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Repository;
 
@@ -36,7 +37,7 @@ public class ProductRepository(ApplicationDbContext ctx) : IProductRepository
 
     public async Task<Product> Add(Product product)
     {
-        var result = await ctx.Products.AddAsync(product);
+        EntityEntry<Product> result = await ctx.Products.AddAsync(product);
         await ctx.SaveChangesAsync();
         return result.Entity;
     }
@@ -47,9 +48,9 @@ public class ProductRepository(ApplicationDbContext ctx) : IProductRepository
         await ctx.SaveChangesAsync();
     }
 
-    public async Task<Product?> FindById(int Id)
+    public async Task<Product?> FindById(int id)
     {
-        return await ctx.Products.FindAsync(Id);
+        return await ctx.Products.FindAsync(id);
     }
 
     public async Task Delete(Product product)
