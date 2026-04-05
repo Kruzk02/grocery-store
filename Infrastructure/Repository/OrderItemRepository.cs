@@ -6,6 +6,7 @@ using Domain.Entity;
 using Infrastructure.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Repository;
 
@@ -13,7 +14,7 @@ public class OrderItemRepository(ApplicationDbContext ctx) : IOrderItemRepositor
 {
     public async Task<OrderItem> Add(OrderItem orderItem)
     {
-        var result = await ctx.OrderItems.AddAsync(orderItem);
+        EntityEntry<OrderItem> result = await ctx.OrderItems.AddAsync(orderItem);
         await ctx.SaveChangesAsync();
         return result.Entity;
     }
@@ -24,25 +25,25 @@ public class OrderItemRepository(ApplicationDbContext ctx) : IOrderItemRepositor
         await ctx.SaveChangesAsync();
     }
 
-    public async Task<OrderItem?> FindById(int Id)
+    public async Task<OrderItem?> FindById(int id)
     {
-        return await ctx.OrderItems.FindAsync(Id);
+        return await ctx.OrderItems.FindAsync(id);
     }
 
-    public async Task<List<OrderItem>> FindByOrderId(int OrderId)
+    public async Task<List<OrderItem>> FindByOrderId(int orderId)
     {
         return await ctx.OrderItems
-            .Where(oi => oi.OrderId == OrderId)
+            .Where(oi => oi.OrderId == orderId)
             .Include(oi => oi.Order)
                 .ThenInclude(o => o.Items)
             .Include(oi => oi.Product)
             .ToListAsync();
     }
 
-    public async Task<List<OrderItem>> FindByProductId(int ProductId)
+    public async Task<List<OrderItem>> FindByProductId(int productId)
     {
         return await ctx.OrderItems
-            .Where(oi => oi.ProductId == ProductId)
+            .Where(oi => oi.ProductId == productId)
             .Include(oi => oi.Product)
             .ToListAsync();
     }
