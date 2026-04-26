@@ -30,6 +30,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=41657c87_002D889a_002D4313_002D9fce_002D7ff471f998ab/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AddUserShouldCreateUserWithRole" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Repository.UserRepositoryTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::31772C01-F2CD-479E-8B25-F0276B9C8FA6::net10.0::Tests.Repository.InventoryRepositoryTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	

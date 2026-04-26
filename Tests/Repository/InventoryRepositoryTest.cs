@@ -181,7 +181,7 @@ public class InventoryRepositoryTest
         {
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Id, Is.EqualTo(1));
-            Assert.That(result.Product, Is.Null); // Is null because not include product in repository.
+            Assert.That(result.Product, Is.Not.Null);
             Assert.That(result.Stock, Is.EqualTo(10));
         }
     }

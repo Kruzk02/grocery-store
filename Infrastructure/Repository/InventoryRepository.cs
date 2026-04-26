@@ -53,7 +53,7 @@ public class InventoryRepository(ApplicationDbContext ctx) : IInventoryRepositor
 
     public async Task<Inventory?> FindById(int id)
     {
-        return await ctx.Inventories.FindAsync(id);
+        return await ctx.Inventories.Include(i => i.Product).Where(i => i.Id == id).FirstOrDefaultAsync();
     }
 
     public async Task<Inventory?> FindLessThanTenQuantity(CancellationToken stoppingToken)
