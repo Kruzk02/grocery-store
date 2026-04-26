@@ -182,6 +182,7 @@ public class InventoryRepositoryTest
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Id, Is.EqualTo(1));
             Assert.That(result.Product, Is.Not.Null);
+            Assert.That(result.Product.Category, Is.Not.Null);
             Assert.That(result.Stock, Is.EqualTo(10));
         }
     }
