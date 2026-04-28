@@ -2,12 +2,16 @@ using Application.Repository;
 
 using Domain.Entity;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
-public class DailyCheckService(ILogger<DailyCheckService> logger, IInventoryRepository inventoryRepository, IUserRepository userRepository, INotificationRepository notificationRepository) : BackgroundService
+public class DailyCheckService(
+    ILogger<DailyCheckService> logger,
+    IServiceScopeFactory scopeFactory)
+    : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -15,23 +19,29 @@ public class DailyCheckService(ILogger<DailyCheckService> logger, IInventoryRepo
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var now = DateTime.Now;
-            var scheduledTime = DateTime.Today.AddHours(8);
+            DateTime now = DateTime.UtcNow;
+            DateTime scheduledTime = DateTime.UtcNow.Date.AddHours(8);
 
             if (now > scheduledTime)
             {
                 scheduledTime = scheduledTime.AddDays(1);
             }
 
-            var delay = scheduledTime - now;
+            TimeSpan delay = scheduledTime - now;
             logger.LogInformation("Next check at {time}", scheduledTime);
 
             await Task.Delay(delay, stoppingToken);
 
-            var inventory = await inventoryRepository.FindLessThanTenQuantity(stoppingToken);
-            var adminUsers = await userRepository.GetUserByRole("Admin", stoppingToken);
+            using IServiceScope scope = scopeFactory.CreateScope();
 
-            foreach (var adminUser in adminUsers)
+            var inventoryRepository = scope.ServiceProvider.GetRequiredService<IInventoryRepository>();
+            var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+            var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
+
+            Inventory? inventory = await inventoryRepository.FindLessThanTenQuantity(stoppingToken);
+            List<User> adminUsers = await userRepository.GetUserByRole("Admin", stoppingToken);
+
+            foreach (User adminUser in adminUsers)
             {
                 if (adminUser.Id == null) continue;
                 await notificationRepository.Add(new Notification
