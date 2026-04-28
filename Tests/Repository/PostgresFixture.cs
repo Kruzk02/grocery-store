@@ -13,6 +13,7 @@ public class PostgresFixture
             .WithDatabase("testdb")
             .WithUsername("postgres")
             .WithPassword("postgres")
+            .WithPortBinding(5432, true)
             .Build();
 
         await Container.StartAsync();
