@@ -27,8 +27,7 @@ public class OrderItemController(IOrderItemService orderItemService) : Controlle
      ProducesResponseType(400),
      ProducesResponseType(404),
      ProducesResponseType(500),
-    Authorize(Roles = "Admin"),
-    Authorize(Roles = "Manager")]
+    Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, [FromBody] OrderItemDto orderItemDto)
     {
         OrderItem result = await orderItemService.Update(id, orderItemDto);

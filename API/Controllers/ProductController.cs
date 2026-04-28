@@ -119,8 +119,7 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     [ProducesResponseType(500)]
-    [Authorize(Roles = "Admin")]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, [FromForm] UpdatedProductDto updatedProductDto)
     {
         var filename = "";

@@ -44,8 +44,7 @@ public class CustomerController(ICustomerService customerService, IOrderService 
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(204), ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> Update(int id, [FromBody] CustomerDto customerDto)
     {

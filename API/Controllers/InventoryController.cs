@@ -27,8 +27,7 @@ public class InventoryController(IInventoryService service) : ControllerBase
     }
 
     [HttpPut("{id:int}"), ProducesResponseType(204), ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
-    [Authorize(Roles = "Admin")]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update([FromBody] InventoryDto inventoryDto, int id)
     {
         _ = await service.Update(id, inventoryDto);

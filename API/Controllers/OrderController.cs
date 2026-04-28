@@ -33,8 +33,7 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      ProducesResponseType(400),
      ProducesResponseType(404),
      ProducesResponseType(500),
-     Authorize(Roles = "Admin"),
-     Authorize(Roles = "Manager")]
+     Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, [FromBody] OrderDto orderDto)
     {
         Order result = await orderService.Update(id, orderDto);
