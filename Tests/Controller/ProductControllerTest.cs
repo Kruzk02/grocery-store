@@ -30,16 +30,13 @@ public class ProductControllerTest
             {
                 builder.ConfigureServices(services =>
                 {
-                    ServiceDescriptor? descriptor = services.SingleOrDefault(
-                        d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+                    ServiceDescriptor? descriptor = services.SingleOrDefault(d =>
+                        d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
 
                     if (descriptor != null)
                         services.Remove(descriptor);
 
-                    services.AddDbContext<ApplicationDbContext>(options =>
-                    {
-                        options.UseNpgsql(connectionString);
-                    });
+                    services.AddDbContext<ApplicationDbContext>(options => { options.UseNpgsql(connectionString); });
 
                     services.AddAuthentication("Test")
                         .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
@@ -81,6 +78,23 @@ public class ProductControllerTest
         }
     }
 
+    [Test, Order(0)]
+    public async Task CreateProductReturnsBadRequest()
+    {
+        using var content = new MultipartFormDataContent();
+        content.Add(new StringContent("12.99"), "Price");
+        content.Add(new StringContent("1"), "CategoryId");
+        content.Add(new StringContent("1"), "Quantity");
+
+        HttpResponseMessage response = await _client.PostAsync("/product", content);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.IsSuccessStatusCode, Is.False);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        }
+    }
+
     [Test, Order(1)]
     public async Task FindProductByIdReturnsOk()
     {
@@ -93,10 +107,24 @@ public class ProductControllerTest
         }
     }
 
+    [Test, Order(1)]
+    public async Task FindProductByIdReturnsNotFound()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/product/1123");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.IsSuccessStatusCode, Is.False);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        }
+    }
+
+
     [Test, Order(3)]
     public async Task FindProductsReturnsOk()
     {
-        HttpResponseMessage response = await _client.GetAsync("/product?Name=Name&Skip=0&SortBy=Price&Ascending=True&Take=10");
+        HttpResponseMessage response =
+            await _client.GetAsync("/product?Name=Name&Skip=0&SortBy=Price&Ascending=True&Take=10");
 
         using (Assert.EnterMultipleScope())
         {
@@ -148,6 +176,23 @@ public class ProductControllerTest
         }
     }
 
+    [Test, Order(6)]
+    public async Task UpdateReturnsBadRequest()
+    {
+        using var content = new MultipartFormDataContent();
+        content.Add(new StringContent("12.99"), "Price");
+        content.Add(new StringContent("1"), "CategoryId");
+        content.Add(new StringContent("1"), "Quantity");
+
+        HttpResponseMessage response = await _client.PutAsync("/product/1", content);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.IsSuccessStatusCode, Is.False);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        }
+    }
+
     [Test, Order(7)]
     public async Task DeleteByIdReturnsNoContent()
     {
@@ -157,6 +202,18 @@ public class ProductControllerTest
         {
             Assert.That(response.IsSuccessStatusCode, Is.True);
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        }
+    }
+
+    [Test, Order(7)]
+    public async Task DeleteByIdReturnsNotFound()
+    {
+        HttpResponseMessage response = await _client.DeleteAsync("/product/1234");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.IsSuccessStatusCode, Is.False);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         }
     }
 }
