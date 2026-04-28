@@ -61,11 +61,11 @@ public class ProductController(IProductService productService, IOrderItemService
     public async Task<IActionResult> Create([FromForm] CreatedProductDto createdProductDto)
     {
         var filename = "";
-        if (createdProductDto.photo != null)
+        if (createdProductDto.Photo != null)
         {
-            await using Stream stream = createdProductDto.photo.OpenReadStream();
+            await using Stream stream = createdProductDto.Photo.OpenReadStream();
 
-            filename = await imageStorage.Save(stream, Path.GetExtension(createdProductDto.photo.FileName));
+            filename = await imageStorage.Save(stream, Path.GetExtension(createdProductDto.Photo.FileName));
         }
 
         ProductDto productDto = new(createdProductDto.Name, createdProductDto.Description, createdProductDto.Price, createdProductDto.CategoryId, createdProductDto.Quantity, filename);
@@ -123,10 +123,10 @@ public class ProductController(IProductService productService, IOrderItemService
     public async Task<IActionResult> Update(int id, [FromForm] UpdatedProductDto updatedProductDto)
     {
         var filename = "";
-        if (updatedProductDto.photo != null)
+        if (updatedProductDto.Photo != null)
         {
-            await using Stream stream = updatedProductDto.photo.OpenReadStream();
-            filename = await imageStorage.Save(stream, Path.GetExtension(updatedProductDto.photo.FileName));
+            await using Stream stream = updatedProductDto.Photo.OpenReadStream();
+            filename = await imageStorage.Save(stream, Path.GetExtension(updatedProductDto.Photo.FileName));
         }
 
         ProductDto productDto = new(updatedProductDto.Name, updatedProductDto.Description, updatedProductDto.Price, updatedProductDto.CategoryId, updatedProductDto.Quantity, filename);
