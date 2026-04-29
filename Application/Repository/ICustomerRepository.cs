@@ -1,11 +1,13 @@
 
+using Application.Common;
+
 using Domain.Entity;
 
 namespace Application.Repository;
 
 public interface ICustomerRepository
 {
-    Task<(int total, List<Customer>)> Search(string? name, int skip, int take);
+    Task<PageResult<Customer>> Search(string? name, int skip, int take);
     Task<List<Customer>> FindAll();
     Task<Customer> Add(Customer customer);
     Task Update(Customer customer);

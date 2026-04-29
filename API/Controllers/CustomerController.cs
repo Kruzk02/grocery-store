@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
 
@@ -16,8 +17,8 @@ public class CustomerController(ICustomerService customerService, IOrderService 
     [ProducesResponseType(typeof(List<Customer>), 200), ProducesResponseType(500)]
     public async Task<IActionResult> FindCustomer([FromQuery] string? name, [FromQuery] int skip = 0, [FromQuery] int take = 10)
     {
-        (var total, List<Customer>? data) = await customerService.SearchCustomers(name, skip, take);
-        return Ok(new { total, data });
+        PageResult<Customer> pageResult = await customerService.SearchCustomers(name, skip, take);
+        return Ok(pageResult);
     }
 
     [HttpGet]

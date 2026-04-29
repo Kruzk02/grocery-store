@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Repository;
 
 using Domain.Entity;
@@ -11,7 +12,7 @@ namespace Infrastructure.Repository;
 
 public class CustomerRepository(ApplicationDbContext ctx) : ICustomerRepository
 {
-    public async Task<(int total, List<Customer>)> Search(string? name, int skip, int take)
+    public async Task<PageResult<Customer>> Search(string? name, int skip, int take)
     {
         IQueryable<Customer> query = ctx.Customers.AsQueryable();
         if (!string.IsNullOrEmpty(name))
@@ -21,7 +22,7 @@ public class CustomerRepository(ApplicationDbContext ctx) : ICustomerRepository
         var total = await query.CountAsync();
         List<Customer> data = await query.Skip(skip).Take(take).ToListAsync();
 
-        return (total, data);
+        return new PageResult<Customer>(total, data);
     }
 
     public async Task<List<Customer>> FindAll()
