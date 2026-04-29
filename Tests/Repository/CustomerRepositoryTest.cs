@@ -1,3 +1,5 @@
+using Application.Common;
+
 using Domain.Entity;
 
 using Infrastructure.Persistence;
@@ -49,12 +51,12 @@ public class CustomerRepositoryTest
 
         var repository = new CustomerRepository(context);
 
-        (int total, List<Customer> data) result = await repository.Search(null, 0, 10);
+        PageResult<Customer> result = await repository.Search(null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.total, Is.GreaterThanOrEqualTo(1));
-            Assert.That(result.data, Is.Not.Empty);
+            Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
+            Assert.That(result.Data, Is.Not.Empty);
         }
     }
 
