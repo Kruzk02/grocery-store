@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
 using Application.Repository;
@@ -54,7 +55,7 @@ public class CustomerServiceTest
     public async Task SearchCustomerShouldReturnListOfCustomers(CustomerDto customerDto)
     {
         await _customerService.Create(customerDto);
-        _mock.Setup(x => x.Search("na", 0, 10)).ReturnsAsync((1, [ToEntity(customerDto)]));
+        _mock.Setup(x => x.Search("na", 0, 10)).ReturnsAsync(new PageResult<Customer>(1, [ToEntity(customerDto)]));
         (var total, List<Customer> data) = await _customerService.SearchCustomers("na", 0, 10);
         using (Assert.EnterMultipleScope())
         {
