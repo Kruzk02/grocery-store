@@ -1,64 +1,11 @@
 ﻿using System.Net;
-
-using Infrastructure.Persistence;
-
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-
-using Tests.Repository;
+using System.Net.Http.Json;
 
 namespace Tests.Controller;
 
 [TestFixture]
-public class ProductControllerTest
+public class ProductControllerTest : BaseControllerTest
 {
-    private PostgresFixture _db;
-    private HttpClient _client;
-
-    [OneTimeSetUp]
-    public async Task Setup()
-    {
-        _db = new PostgresFixture();
-        await _db.StartAsync();
-
-        var connectionString = _db.GetConnectionString();
-
-        WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    ServiceDescriptor? descriptor = services.SingleOrDefault(d =>
-                        d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-
-                    if (descriptor != null)
-                        services.Remove(descriptor);
-
-                    services.AddDbContext<ApplicationDbContext>(options => { options.UseNpgsql(connectionString); });
-
-                    services.AddAuthentication("Test")
-                        .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
-                });
-            });
-
-        using (IServiceScope scope = factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            await db.Database.MigrateAsync();
-        }
-
-        _client = factory.CreateClient();
-    }
-
-    [OneTimeTearDown]
-    public async Task TearDown()
-    {
-        await _db.StopAsync();
-        _client.Dispose();
-    }
-
     [Test, Order(0)]
     public async Task CreateProductReturnsCreated()
     {
@@ -69,7 +16,7 @@ public class ProductControllerTest
         content.Add(new StringContent("1"), "CategoryId");
         content.Add(new StringContent("1"), "Quantity");
 
-        HttpResponseMessage response = await _client.PostAsync("/product", content);
+        HttpResponseMessage response = await Client.PostAsync("/product", content);
 
         using (Assert.EnterMultipleScope())
         {
@@ -86,7 +33,7 @@ public class ProductControllerTest
         content.Add(new StringContent("1"), "CategoryId");
         content.Add(new StringContent("1"), "Quantity");
 
-        HttpResponseMessage response = await _client.PostAsync("/product", content);
+        HttpResponseMessage response = await Client.PostAsync("/product", content);
 
         using (Assert.EnterMultipleScope())
         {
@@ -98,7 +45,7 @@ public class ProductControllerTest
     [Test, Order(1)]
     public async Task FindProductByIdReturnsOk()
     {
-        HttpResponseMessage response = await _client.GetAsync("/product/1");
+        HttpResponseMessage response = await Client.GetAsync("/product/1");
 
         using (Assert.EnterMultipleScope())
         {
@@ -110,7 +57,7 @@ public class ProductControllerTest
     [Test, Order(1)]
     public async Task FindProductByIdReturnsNotFound()
     {
-        HttpResponseMessage response = await _client.GetAsync("/product/1123");
+        HttpResponseMessage response = await Client.GetAsync("/product/1123");
 
         using (Assert.EnterMultipleScope())
         {
@@ -124,7 +71,7 @@ public class ProductControllerTest
     public async Task FindProductsReturnsOk()
     {
         HttpResponseMessage response =
-            await _client.GetAsync("/product?Name=Name&Skip=0&SortBy=Price&Ascending=True&Take=10");
+            await Client.GetAsync("/product?Name=Name&Skip=0&SortBy=Price&Ascending=True&Take=10");
 
         using (Assert.EnterMultipleScope())
         {
@@ -136,7 +83,7 @@ public class ProductControllerTest
     [Test, Order(4)]
     public async Task GetImageReturnsNotFound()
     {
-        HttpResponseMessage response = await _client.GetAsync("/product/nope.jpg");
+        HttpResponseMessage response = await Client.GetAsync("/product/nope.jpg");
 
         using (Assert.EnterMultipleScope())
         {
@@ -148,7 +95,7 @@ public class ProductControllerTest
     [Test, Order(5)]
     public async Task FindOrderItemByIdReturnsOk()
     {
-        HttpResponseMessage response = await _client.GetAsync("/product/1/ordersItem");
+        HttpResponseMessage response = await Client.GetAsync("/product/1/ordersItem");
 
         using (Assert.EnterMultipleScope())
         {
@@ -167,7 +114,7 @@ public class ProductControllerTest
         content.Add(new StringContent("1"), "CategoryId");
         content.Add(new StringContent("1"), "Quantity");
 
-        HttpResponseMessage response = await _client.PutAsync("/product/1", content);
+        HttpResponseMessage response = await Client.PutAsync("/product/1", content);
 
         using (Assert.EnterMultipleScope())
         {
@@ -184,7 +131,7 @@ public class ProductControllerTest
         content.Add(new StringContent("1"), "CategoryId");
         content.Add(new StringContent("1"), "Quantity");
 
-        HttpResponseMessage response = await _client.PutAsync("/product/1", content);
+        HttpResponseMessage response = await Client.PutAsync("/product/1", content);
 
         using (Assert.EnterMultipleScope())
         {
@@ -196,7 +143,7 @@ public class ProductControllerTest
     [Test, Order(7)]
     public async Task DeleteByIdReturnsNoContent()
     {
-        HttpResponseMessage response = await _client.DeleteAsync("/product/1");
+        HttpResponseMessage response = await Client.DeleteAsync("/product/1");
 
         using (Assert.EnterMultipleScope())
         {
@@ -208,7 +155,7 @@ public class ProductControllerTest
     [Test, Order(7)]
     public async Task DeleteByIdReturnsNotFound()
     {
-        HttpResponseMessage response = await _client.DeleteAsync("/product/1234");
+        HttpResponseMessage response = await Client.DeleteAsync("/product/1234");
 
         using (Assert.EnterMultipleScope())
         {
