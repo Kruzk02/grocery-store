@@ -1,4 +1,6 @@
-﻿using Infrastructure.Persistence;
+﻿using Domain.Entity;
+
+using Infrastructure.Persistence;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -37,7 +39,11 @@ public class BaseControllerTest
 
                     services.AddDbContext<ApplicationDbContext>(options => { options.UseNpgsql(connectionString); });
 
-                    services.AddAuthentication("Test")
+                    services.AddAuthentication(options =>
+                        {
+                            options.DefaultAuthenticateScheme = "Test";
+                            options.DefaultChallengeScheme = "Test";
+                        })
                         .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
                 });
             });
@@ -45,6 +51,23 @@ public class BaseControllerTest
         using IServiceScope scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await db.Database.MigrateAsync();
+
+        db.Notifications.Add(new Notification
+        {
+            Id = 1,
+            UserId = "test-user-id",
+            IsRead = false,
+            Message = "Meesage"
+        });
+        db.Notifications.Add(new Notification
+        {
+            Id = 2,
+            UserId = "test-user-id",
+            IsRead = false,
+            Message = "Meesage1"
+        });
+
+        await db.SaveChangesAsync();
 
         Client = _factory.CreateClient();
     }
