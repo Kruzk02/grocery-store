@@ -45,7 +45,7 @@ public class UserController(
         return Ok(new TokenResponse(authResponse.AccessToken));
     }
 
-    [Authorize]
+    [AllowAnonymous]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh()
     {
@@ -57,11 +57,6 @@ public class UserController(
         }
 
         AuthResponse auth = await userService.RefreshToken(refreshToken);
-
-        if (auth == null)
-        {
-            return Unauthorized("Invalid refresh token");
-        }
 
         Response.Cookies.Append("refreshToken", auth.RefreshToken, new CookieOptions
         {
@@ -80,7 +75,7 @@ public class UserController(
     {
         ClaimsPrincipal user = HttpContext.User;
 
-        if (user?.Identity == null || !user.Identity.IsAuthenticated)
+        if (user.Identity is not { IsAuthenticated: true })
         {
             return Unauthorized();
         }
@@ -102,10 +97,10 @@ public class UserController(
     }
 
     [Authorize]
-    [HttpDelete]
-    public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest request)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(string id)
     {
-        var result = await userService.DeleteUser(request.Id);
+        var result = await userService.DeleteUser(id);
         return result ? NoContent() : BadRequest();
     }
 
@@ -114,7 +109,7 @@ public class UserController(
     public async Task<IActionResult> Logout()
     {
         ClaimsPrincipal user = HttpContext.User;
-        if (user.Identity != null && !user.Identity.IsAuthenticated)
+        if (user.Identity is { IsAuthenticated: false })
         {
             return Unauthorized();
         }
