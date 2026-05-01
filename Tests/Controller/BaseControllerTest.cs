@@ -5,6 +5,7 @@ using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 
 using Tests.Repository;
@@ -81,13 +82,20 @@ public class BaseControllerTest
             Quantity = 1,
         });
 
-        await db.Customers.AddAsync(new Customer
+        EntityEntry<Customer> customer = await db.Customers.AddAsync(new Customer
         {
             Id = 2,
             Name = "eeeee",
             Email = "eeeemail@gmail.com",
             Phone = "0223456789",
             Address = "Customer-Address"
+        });
+
+        await db.Orders.AddAsync(new Order
+        {
+            Id = 2,
+            Customer = customer.Entity,
+            CreatedAt = DateTime.UtcNow
         });
 
         await db.SaveChangesAsync();
