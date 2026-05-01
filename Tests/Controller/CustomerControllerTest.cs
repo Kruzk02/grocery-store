@@ -50,11 +50,11 @@ public class CustomerControllerTest : BaseControllerTest
         Assert.That(customers, Is.Not.Null.And.Not.Empty);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(customers[0].Id, Is.GreaterThan(0));
-            Assert.That(customers[0].Name, Is.EqualTo("Name"));
-            Assert.That(customers[0].Email, Is.EqualTo("Email@gmail.com"));
-            Assert.That(customers[0].Phone, Is.EqualTo("0123456789"));
-            Assert.That(customers[0].Address, Is.EqualTo("Address1245"));
+            Assert.That(customers[1].Id, Is.GreaterThan(0));
+            Assert.That(customers[1].Name, Is.EqualTo("Name"));
+            Assert.That(customers[1].Email, Is.EqualTo("Email@gmail.com"));
+            Assert.That(customers[1].Phone, Is.EqualTo("0123456789"));
+            Assert.That(customers[1].Address, Is.EqualTo("Address1245"));
         }
     }
 
@@ -72,7 +72,6 @@ public class CustomerControllerTest : BaseControllerTest
         List<Customer> customers = pageResult.Data;
         using (Assert.EnterMultipleScope())
         {
-            ;
             Assert.That(customers[0].Id, Is.GreaterThan(0));
             Assert.That(customers[0].Name, Is.EqualTo("Name"));
             Assert.That(customers[0].Email, Is.EqualTo("Email@gmail.com"));

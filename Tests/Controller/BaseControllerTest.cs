@@ -52,19 +52,42 @@ public class BaseControllerTest
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await db.Database.MigrateAsync();
 
-        db.Notifications.Add(new Notification
+        await db.Notifications.AddAsync(new Notification
         {
             Id = 1,
             UserId = "test-user-id",
             IsRead = false,
             Message = "Meesage"
         });
-        db.Notifications.Add(new Notification
+
+        await db.Notifications.AddAsync(new Notification
         {
             Id = 2,
             UserId = "test-user-id",
             IsRead = false,
             Message = "Meesage1"
+        });
+
+        await db.Products.AddAsync(new Product
+        {
+            Id = 2,
+            Name = "product-name",
+            Description = "product-description",
+            CategoryId = 1,
+            Category = (await db.Categories.FindAsync(1))!,
+            Price = 129m,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Quantity = 1,
+        });
+
+        await db.Customers.AddAsync(new Customer
+        {
+            Id = 2,
+            Name = "eeeee",
+            Email = "eeeemail@gmail.com",
+            Phone = "0223456789",
+            Address = "Customer-Address"
         });
 
         await db.SaveChangesAsync();
