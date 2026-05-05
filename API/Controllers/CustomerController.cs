@@ -22,13 +22,6 @@ public class CustomerController(ICustomerService customerService, IOrderService 
         return Ok(pageResult);
     }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(List<Customer>), 200), ProducesResponseType(500)]
-    public async Task<IActionResult> FindAll()
-    {
-        return Ok(await customerService.FindAll());
-    }
-
     [HttpPost]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(Customer), 201), ProducesResponseType(500)]

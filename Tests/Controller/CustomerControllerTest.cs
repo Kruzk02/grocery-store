@@ -39,25 +39,6 @@ public class CustomerControllerTest : BaseControllerTest
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
-    [Test, Order(1)]
-    public async Task FindAllReturnOk()
-    {
-        HttpResponseMessage response = await Client.GetAsync("/customer");
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-
-        var customers = await response.Content.ReadFromJsonAsync<List<Customer>>();
-
-        Assert.That(customers, Is.Not.Null.And.Not.Empty);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(customers[1].Id, Is.GreaterThan(0));
-            Assert.That(customers[1].Name, Is.EqualTo("Name"));
-            Assert.That(customers[1].Email, Is.EqualTo("Email@gmail.com"));
-            Assert.That(customers[1].Phone, Is.EqualTo("0123456789"));
-            Assert.That(customers[1].Address, Is.EqualTo("Address1245"));
-        }
-    }
-
     [Test, Order(2)]
     public async Task SearchReturnOk()
     {

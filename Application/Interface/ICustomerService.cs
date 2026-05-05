@@ -9,7 +9,6 @@ namespace Application.Interface;
 public interface ICustomerService
 {
     Task<PageResult<Customer>> SearchCustomers(SearchCustomerQuery searchCustomerQuery);
-    Task<List<Customer>> FindAll();
     Task<Customer> Create(CustomerDto customerDto);
     Task<string> Update(int id, CustomerDto customerDto);
     Task<Customer> FindById(int id);

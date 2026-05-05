@@ -52,27 +52,12 @@ public class CustomerRepositoryTest
 
         var repository = new CustomerRepository(context);
 
-        PageResult<Customer> result = await repository.Search(new SearchCustomerQuery(null, 0, 10));
+        PageResult<Customer> result = await repository.Search(new SearchCustomerQuery(null, 0));
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
             Assert.That(result.Data, Is.Not.Empty);
-        }
-    }
-
-    [Test]
-    public async Task FindAllShouldReturnListOfCustomers()
-    {
-        await using ApplicationDbContext context = CreateContext();
-
-        var repository = new CustomerRepository(context);
-
-        List<Customer> result = await repository.FindAll();
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result, Is.Not.Empty);
         }
     }
 

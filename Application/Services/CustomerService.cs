@@ -18,23 +18,6 @@ public class CustomerService(ICustomerRepository customerRepository, IMemoryCach
         return await customerRepository.Search(searchCustomerQuery);
     }
 
-    public async Task<List<Customer>> FindAll()
-    {
-        const string cacheKey = $"customers";
-        if (cache.TryGetValue(cacheKey, out List<Customer>? customers))
-            if (customers != null)
-                return customers;
-
-        customers = await customerRepository.FindAll();
-        var cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-
-        cache.Set(cacheKey, customers, cacheOption);
-
-        return customers;
-    }
-
     public async Task<Customer> Create(CustomerDto customerDto)
     {
         if (string.IsNullOrEmpty(customerDto.Name))

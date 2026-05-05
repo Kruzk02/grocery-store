@@ -28,11 +28,6 @@ public class CustomerRepository(ApplicationDbContext ctx) : ICustomerRepository
         return new PageResult<Customer>(total, data);
     }
 
-    public async Task<List<Customer>> FindAll()
-    {
-        return await ctx.Customers.ToListAsync();
-    }
-
     public async Task<Customer> Add(Customer customer)
     {
         EntityEntry<Customer> result = await ctx.AddAsync(customer);

@@ -40,24 +40,11 @@ public class CustomerServiceTest
 
     [Test]
     [TestCaseSource(nameof(CreateCustomerDto))]
-    public async Task GetAllCustomers(CustomerDto customerDto)
-    {
-        await _customerService.Create(customerDto);
-
-        _mock.Setup(x => x.FindAll()).ReturnsAsync([ToEntity(customerDto)]);
-
-        List<Customer> result = await _customerService.FindAll();
-
-        Assert.That(result, !Is.Empty);
-    }
-
-    [Test]
-    [TestCaseSource(nameof(CreateCustomerDto))]
     public async Task SearchCustomerShouldReturnListOfCustomers(CustomerDto customerDto)
     {
         await _customerService.Create(customerDto);
         _mock.Setup(x => x.Search(new SearchCustomerQuery("na", 0, 10))).ReturnsAsync(new PageResult<Customer>(1, [ToEntity(customerDto)]));
-        (var total, List<Customer> data) = await _customerService.SearchCustomers(new SearchCustomerQuery("na", 0, 10));
+        (var total, List<Customer> data) = await _customerService.SearchCustomers(new SearchCustomerQuery("na", 0));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(total, Is.GreaterThan(0));
