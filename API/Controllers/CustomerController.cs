@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Queries;
 
 using Domain.Entity;
 
@@ -15,9 +16,9 @@ public class CustomerController(ICustomerService customerService, IOrderService 
 
     [HttpGet("search")]
     [ProducesResponseType(typeof(List<Customer>), 200), ProducesResponseType(500)]
-    public async Task<IActionResult> FindCustomer([FromQuery] string? name, [FromQuery] int skip = 0, [FromQuery] int take = 10)
+    public async Task<IActionResult> FindCustomer([FromQuery] SearchCustomerQuery searchCustomerQuery)
     {
-        PageResult<Customer> pageResult = await customerService.SearchCustomers(name, skip, take);
+        PageResult<Customer> pageResult = await customerService.SearchCustomers(searchCustomerQuery);
         return Ok(pageResult);
     }
 

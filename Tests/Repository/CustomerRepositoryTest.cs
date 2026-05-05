@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Queries;
 
 using Domain.Entity;
 
@@ -51,7 +52,7 @@ public class CustomerRepositoryTest
 
         var repository = new CustomerRepository(context);
 
-        PageResult<Customer> result = await repository.Search(null, 0, 10);
+        PageResult<Customer> result = await repository.Search(new SearchCustomerQuery(null, 0, 10));
 
         using (Assert.EnterMultipleScope())
         {

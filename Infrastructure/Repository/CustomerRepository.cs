@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Queries;
 using Application.Repository;
 
 using Domain.Entity;
@@ -12,15 +13,17 @@ namespace Infrastructure.Repository;
 
 public class CustomerRepository(ApplicationDbContext ctx) : ICustomerRepository
 {
-    public async Task<PageResult<Customer>> Search(string? name, int skip, int take)
+    public async Task<PageResult<Customer>> Search(SearchCustomerQuery searchCustomerQuery)
     {
         IQueryable<Customer> query = ctx.Customers.AsQueryable();
-        if (!string.IsNullOrEmpty(name))
+        if (!string.IsNullOrEmpty(searchCustomerQuery.Name))
         {
-            query = query.Where(p => EF.Functions.Like(p.Name.ToLower(), $"%{name.ToLower()}%"));
+            query = query.Where(p =>
+                EF.Functions.ILike(p.Name, $"%{searchCustomerQuery.Name}%"));
         }
+
         var total = await query.CountAsync();
-        List<Customer> data = await query.Skip(skip).Take(take).ToListAsync();
+        List<Customer> data = await query.Skip(searchCustomerQuery.Skip).Take(searchCustomerQuery.Take).ToListAsync();
 
         return new PageResult<Customer>(total, data);
     }
@@ -68,5 +71,4 @@ public class CustomerRepository(ApplicationDbContext ctx) : ICustomerRepository
         ctx.Customers.Remove(customer);
         await ctx.SaveChangesAsync();
     }
-
 }

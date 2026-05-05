@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Queries;
 using Application.Repository;
 
 using Domain.Entity;
@@ -12,9 +13,9 @@ namespace Application.Services;
 
 public class CustomerService(ICustomerRepository customerRepository, IMemoryCache cache) : ICustomerService
 {
-    public async Task<PageResult<Customer>> SearchCustomers(string? name, int skip, int take)
+    public async Task<PageResult<Customer>> SearchCustomers(SearchCustomerQuery searchCustomerQuery)
     {
-        return await customerRepository.Search(name, skip, take);
+        return await customerRepository.Search(searchCustomerQuery);
     }
 
     public async Task<List<Customer>> FindAll()

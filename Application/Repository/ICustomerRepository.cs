@@ -1,5 +1,6 @@
 
 using Application.Common;
+using Application.Queries;
 
 using Domain.Entity;
 
@@ -7,7 +8,7 @@ namespace Application.Repository;
 
 public interface ICustomerRepository
 {
-    Task<PageResult<Customer>> Search(string? name, int skip, int take);
+    Task<PageResult<Customer>> Search(SearchCustomerQuery searchCustomerQuery);
     Task<List<Customer>> FindAll();
     Task<Customer> Add(Customer customer);
     Task Update(Customer customer);
