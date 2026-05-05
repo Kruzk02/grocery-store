@@ -13,7 +13,7 @@ public interface IUserService
     Task<User> CreateUser(RegisterDto dto);
     Task<AuthResponse> Login(LoginDto dto);
     Task<User> GetUser(string usernameOrEmail);
-    Task<AuthResponse> RefreshToken(string RefreshToken);
+    Task<AuthResponse> RefreshToken(string refreshToken);
     Task<string> UpdateUser(string id, UpdateUserDto dto);
     Task Logout(ClaimsPrincipal claims);
     Task<bool> DeleteUser(string id);

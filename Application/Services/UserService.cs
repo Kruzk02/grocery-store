@@ -56,9 +56,9 @@ public class UserService(
         return (await userRepository.FindByUsername(usernameOrEmail) ?? await userRepository.FindByEmail(usernameOrEmail)) ?? throw new NotFoundException($"User with username or email: {usernameOrEmail} not found");
     }
 
-    public async Task<AuthResponse> RefreshToken(string RefreshToken)
+    public async Task<AuthResponse> RefreshToken(string refreshToken)
     {
-        RefreshToken? storedToken = await refreshTokenRepository.FindByToken(RefreshToken) ?? throw new Exception("Invalid refresh token");
+        RefreshToken? storedToken = await refreshTokenRepository.FindByToken(refreshToken) ?? throw new Exception("Invalid refresh token");
         if (storedToken.IsRevoked || storedToken.ExpiryDate < DateTime.UtcNow)
         {
             throw new Exception("Refresh token expired or revoked");
