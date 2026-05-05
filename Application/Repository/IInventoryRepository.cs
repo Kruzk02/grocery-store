@@ -1,10 +1,12 @@
+using Application.Common;
+
 using Domain.Entity;
 
 namespace Application.Repository;
 
 public interface IInventoryRepository
 {
-    Task<(int total, List<Inventory> data)> FindAll(int? productId, int? stock, string? productName, int skip, int take);
+    Task<PageResult<Inventory>> FindAll(int? productId, int? stock, string? productName, int skip, int take);
     Task<Inventory> Add(Inventory inventory);
     Task Update(Inventory inventory);
     Task<Inventory?> FindById(int id);

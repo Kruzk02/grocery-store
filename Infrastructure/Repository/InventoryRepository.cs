@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Repository;
 
 using Domain.Entity;
@@ -11,7 +12,7 @@ namespace Infrastructure.Repository;
 
 public class InventoryRepository(ApplicationDbContext ctx) : IInventoryRepository
 {
-    public async Task<(int total, List<Inventory> data)> FindAll(int? productId, int? stock, string? productName,
+    public async Task<PageResult<Inventory>> FindAll(int? productId, int? stock, string? productName,
         int skip, int take)
     {
         IQueryable<Inventory> query = ctx.Inventories;
@@ -35,7 +36,7 @@ public class InventoryRepository(ApplicationDbContext ctx) : IInventoryRepositor
             .Take(take)
             .ToListAsync();
 
-        return (total, data);
+        return new PageResult<Inventory>(total, data);
     }
 
     public async Task<Inventory> Add(Inventory inventory)

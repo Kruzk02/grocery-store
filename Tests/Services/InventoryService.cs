@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
 using Application.Repository;
@@ -24,7 +25,8 @@ public class InventoryServiceTest
     {
         _mockInventoryRepository = new Mock<IInventoryRepository>();
         _mockProductRepository = new Mock<IProductRepository>();
-        _inventoryService = new InventoryService(_mockInventoryRepository.Object, _mockProductRepository.Object, new MemoryCache(new MemoryCacheOptions()));
+        _inventoryService = new InventoryService(_mockInventoryRepository.Object, _mockProductRepository.Object,
+            new MemoryCache(new MemoryCacheOptions()));
     }
 
     [Test]
@@ -105,13 +107,14 @@ public class InventoryServiceTest
         _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inv = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
-        _mockInventoryRepository.Setup(x => x.FindAll(null, null, null, 0, 10)).ReturnsAsync((1, [inv]));
-        (int total, List<Inventory> data) result = await _inventoryService.FindAll(null, null, null, 0, 10);
+        _mockInventoryRepository.Setup(x => x.FindAll(null, null, null, 0, 10))
+            .ReturnsAsync(new PageResult<Inventory>(1, [inv]));
+        PageResult<Inventory> result = await _inventoryService.FindAll(null, null, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.data, Is.Not.Null);
-            Assert.That(result.data, Has.Count.EqualTo(1));
+            Assert.That(result.Data, Is.Not.Null);
+            Assert.That(result.Data, Has.Count.EqualTo(1));
         }
     }
 
@@ -147,7 +150,6 @@ public class InventoryServiceTest
 
         Assert.That(ex.Message, Is.EqualTo($"Inventory with id: {id} not found"));
         return Task.CompletedTask;
-
     }
 
     [Test]
@@ -158,16 +160,17 @@ public class InventoryServiceTest
         _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
-        _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 0, null, 0, 10)).ReturnsAsync((1, [inventory]));
-        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 0, null, 0, 10);
+        _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 0, null, 0, 10))
+            .ReturnsAsync(new PageResult<Inventory>(1, [inventory]));
+        PageResult<Inventory> result = await _inventoryService.FindAll(product.Id, 0, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.data, Has.Count.EqualTo(1));
-            Assert.That(result.data[0].Id, Is.EqualTo(inventory.Id));
-            Assert.That(result.data[0].ProductId, Is.EqualTo(inventory.ProductId));
-            Assert.That(result.data[0].Product, Is.EqualTo(inventory.Product));
-            Assert.That(result.data[0].Stock, Is.EqualTo(inventory.Stock));
+            Assert.That(result.Data, Has.Count.EqualTo(1));
+            Assert.That(result.Data[0].Id, Is.EqualTo(inventory.Id));
+            Assert.That(result.Data[0].ProductId, Is.EqualTo(inventory.ProductId));
+            Assert.That(result.Data[0].Product, Is.EqualTo(inventory.Product));
+            Assert.That(result.Data[0].Stock, Is.EqualTo(inventory.Stock));
         }
     }
 
@@ -179,16 +182,17 @@ public class InventoryServiceTest
         _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
-        _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 20, null, 0, 10)).ReturnsAsync((1, [inventory]));
-        (int total, List<Inventory> data) result = await _inventoryService.FindAll(product.Id, 20, null, 0, 10);
+        _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 20, null, 0, 10))
+            .ReturnsAsync(new PageResult<Inventory>(1, [inventory]));
+        PageResult<Inventory> result = await _inventoryService.FindAll(product.Id, 20, null, 0, 10);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.data, Has.Count.EqualTo(1));
-            Assert.That(result.data[0].Id, Is.EqualTo(inventory.Id));
-            Assert.That(result.data[0].ProductId, Is.EqualTo(inventory.ProductId));
-            Assert.That(result.data[0].Product, Is.EqualTo(inventory.Product));
-            Assert.That(result.data[0].Stock, Is.EqualTo(inventory.Stock));
+            Assert.That(result.Data, Has.Count.EqualTo(1));
+            Assert.That(result.Data[0].Id, Is.EqualTo(inventory.Id));
+            Assert.That(result.Data[0].ProductId, Is.EqualTo(inventory.ProductId));
+            Assert.That(result.Data[0].Product, Is.EqualTo(inventory.Product));
+            Assert.That(result.Data[0].Stock, Is.EqualTo(inventory.Stock));
         }
     }
 
@@ -217,7 +221,6 @@ public class InventoryServiceTest
 
         Assert.That(ex.Message, Is.EqualTo($"Inventory with id: {id} not found"));
         return Task.CompletedTask;
-
     }
 
     private static IEnumerable<Product> CreateProduct()
@@ -239,7 +242,7 @@ public class InventoryServiceTest
             Price = 99.99m,
             CategoryId = 10,
             Category = new Category
-            { Id = 10, Name = "Household & Cleaning", Description = "Detergents, cleaning items" }
+                { Id = 10, Name = "Household & Cleaning", Description = "Detergents, cleaning items" }
         };
         yield return new Product
         {
@@ -250,6 +253,5 @@ public class InventoryServiceTest
             CategoryId = 13,
             Category = new Category { Id = 13, Name = "Miscellaneous", Description = "Other / seasonal products" }
         };
-
     }
 }

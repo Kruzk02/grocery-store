@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
 
@@ -15,8 +16,8 @@ public class InventoryController(IInventoryService service) : ControllerBase
     public async Task<IActionResult> FindAll(int? productId, int? stock, string? productName, [FromQuery] int skip = 0,
         [FromQuery] int take = 50)
     {
-        (var total, List<Inventory> data) = await service.FindAll(productId, stock, productName, skip, take);
-        return Ok(new { total, data });
+        PageResult<Inventory> inventories = await service.FindAll(productId, stock, productName, skip, take);
+        return Ok(inventories);
     }
 
     [HttpPost, ProducesResponseType(typeof(Inventory), 201), ProducesResponseType(401), ProducesResponseType(500)]

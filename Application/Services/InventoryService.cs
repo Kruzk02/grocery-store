@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
 using Application.Repository;
@@ -15,14 +16,13 @@ namespace Application.Services;
 /// <remarks>
 /// This class interacts with database to performs CRUD operations relate to inventory.
 /// </remarks>
-/// <param name="ctx">The <see cref="ApplicationDbContext"/> used to access the database</param>
 public class InventoryService(
     IInventoryRepository inventoryRepository,
     IProductRepository productRepository,
     IMemoryCache cache) : IInventoryService
 {
     /// <inheritdoc />
-    public async Task<(int total, List<Inventory> data)> FindAll(int? productId, int? stock, string? productName,
+    public async Task<PageResult<Inventory>> FindAll(int? productId, int? stock, string? productName,
         int skip, int take)
     {
         var cacheKey = $"inventories:{productId}:{stock}:{productName}:{skip}:{take}";
@@ -32,7 +32,7 @@ public class InventoryService(
             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
             return await inventoryRepository.FindAll(productId, stock, productName, skip, take);
-        });
+        }) ?? throw new InvalidOperationException();
     }
 
     /// <inheritdoc />

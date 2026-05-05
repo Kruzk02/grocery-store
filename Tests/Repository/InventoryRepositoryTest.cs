@@ -1,3 +1,5 @@
+using Application.Common;
+
 using Domain.Entity;
 
 using Infrastructure.Persistence;
@@ -58,11 +60,11 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        (int total, List<Inventory> data) result = await repository.FindAll(null, null, null, 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(null, null, null, 0, 10);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.total, Is.GreaterThanOrEqualTo(1));
-            Assert.That(result.data, Is.Not.Empty);
+            Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
+            Assert.That(result.Data, Is.Not.Empty);
         }
     }
 
@@ -72,11 +74,11 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        (int total, List<Inventory> data) result = await repository.FindAll(1, null, null, 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(1, null, null, 0, 10);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.total, Is.GreaterThanOrEqualTo(1));
-            Assert.That(result.data, Is.Not.Empty);
+            Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
+            Assert.That(result.Data, Is.Not.Empty);
         }
     }
 
@@ -86,11 +88,11 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        (int total, List<Inventory> data) result = await repository.FindAll(null, 10, null, 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(null, 10, null, 0, 10);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.total, Is.GreaterThanOrEqualTo(1));
-            Assert.That(result.data, Is.Not.Empty);
+            Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
+            Assert.That(result.Data, Is.Not.Empty);
         }
     }
 
@@ -100,11 +102,11 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        (int total, List<Inventory> data) result = await repository.FindAll(null, null, "Apple", 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(null, null, "Apple", 0, 10);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.total, Is.GreaterThanOrEqualTo(1));
-            Assert.That(result.data, Is.Not.Empty);
+            Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
+            Assert.That(result.Data, Is.Not.Empty);
         }
     }
 
@@ -114,11 +116,11 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        (int total, List<Inventory> data) result = await repository.FindAll(1, 10, "Apple", 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(1, 10, "Apple", 0, 10);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.total, Is.GreaterThanOrEqualTo(1));
-            Assert.That(result.data, Is.Not.Empty);
+            Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
+            Assert.That(result.Data, Is.Not.Empty);
         }
     }
 
