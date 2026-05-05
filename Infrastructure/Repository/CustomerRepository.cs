@@ -22,6 +22,26 @@ public class CustomerRepository(ApplicationDbContext ctx) : ICustomerRepository
                 EF.Functions.ILike(p.Name, $"%{searchCustomerQuery.Name}%"));
         }
 
+        query = searchCustomerQuery.SortBy switch
+        {
+            CustomerSortBy.Name => searchCustomerQuery.Ascending
+                ? query.OrderBy(c => c.Name)
+                : query.OrderByDescending(c => c.Name),
+            CustomerSortBy.Email => searchCustomerQuery.Ascending
+                ? query.OrderBy(c => c.Email)
+                : query.OrderByDescending(c => c.Email),
+            CustomerSortBy.Phone => searchCustomerQuery.Ascending
+                ? query.OrderBy(c => c.Phone)
+                : query.OrderByDescending(c => c.Phone),
+            CustomerSortBy.Address => searchCustomerQuery.Ascending
+                ? query.OrderBy(c => c.Address)
+                : query.OrderByDescending(c => c.Address),
+            CustomerSortBy.CreatedAt => searchCustomerQuery.Ascending
+                ? query.OrderBy(c => c.CreatedAt)
+                : query.OrderByDescending(c => c.CreatedAt),
+            _ => query
+        };
+
         var total = await query.CountAsync();
         List<Customer> data = await query.Skip(searchCustomerQuery.Skip).Take(searchCustomerQuery.Take).ToListAsync();
 

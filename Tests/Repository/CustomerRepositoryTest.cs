@@ -52,7 +52,7 @@ public class CustomerRepositoryTest
 
         var repository = new CustomerRepository(context);
 
-        PageResult<Customer> result = await repository.Search(new SearchCustomerQuery(null, 0));
+        PageResult<Customer> result = await repository.Search(new SearchCustomerQuery(null, CustomerSortBy.Name, true, 0));
 
         using (Assert.EnterMultipleScope())
         {

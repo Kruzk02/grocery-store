@@ -14,7 +14,7 @@ namespace API.Controllers;
 public class CustomerController(ICustomerService customerService, IOrderService orderService) : ControllerBase
 {
 
-    [HttpGet("search")]
+    [HttpGet]
     [ProducesResponseType(typeof(List<Customer>), 200), ProducesResponseType(500)]
     public async Task<IActionResult> FindCustomer([FromQuery] SearchCustomerQuery searchCustomerQuery)
     {
