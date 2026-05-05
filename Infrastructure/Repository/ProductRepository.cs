@@ -19,14 +19,20 @@ public class ProductRepository(ApplicationDbContext ctx) : IProductRepository
 
         if (!string.IsNullOrEmpty(searchProductQuery.Name))
         {
-            query = query.Where(p => EF.Functions.Like(p.Name.ToLower(), $"%{searchProductQuery.Name.ToLower()}%"));
+            query = query.Where(p => EF.Functions.Like(p.Name, $"%{searchProductQuery.Name}%"));
         }
 
         query = searchProductQuery.SortBy switch
         {
-            ProductSortBy.Price => searchProductQuery.Ascending ? query.OrderBy(p => p.Price) : query.OrderByDescending(p => p.Price),
-            ProductSortBy.Name => searchProductQuery.Ascending ? query.OrderBy(p => p.Name) : query.OrderByDescending(p => p.Name),
-            ProductSortBy.CreatedAt => searchProductQuery.Ascending ? query.OrderBy(p => p.CreatedAt) : query.OrderByDescending(p => p.CreatedAt),
+            ProductSortBy.Price => searchProductQuery.Ascending
+                ? query.OrderBy(p => p.Price)
+                : query.OrderByDescending(p => p.Price),
+            ProductSortBy.Name => searchProductQuery.Ascending
+                ? query.OrderBy(p => p.Name)
+                : query.OrderByDescending(p => p.Name),
+            ProductSortBy.CreatedAt => searchProductQuery.Ascending
+                ? query.OrderBy(p => p.CreatedAt)
+                : query.OrderByDescending(p => p.CreatedAt),
             _ => query
         };
 
