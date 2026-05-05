@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Queries;
 
 using Domain.Entity;
 
@@ -13,7 +14,7 @@ public interface IInventoryService
     /// <summary>
     /// Asynchronously retrieve all inventory from the database.
     /// </summary>
-    Task<PageResult<Inventory>> FindAll(int? productId, int? stock, string? productName, int skip, int take);
+    Task<PageResult<Inventory>> FindAll(SearchInventoryQuery searchInventoryQuery);
     /// <summary>
     /// Asynchronously creates a new inventory in the database.
     /// </summary>

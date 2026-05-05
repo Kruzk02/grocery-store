@@ -1,4 +1,4 @@
-﻿using Application.Common;
+using Application.Common;
 using Application.Queries;
 
 using Domain.Entity;

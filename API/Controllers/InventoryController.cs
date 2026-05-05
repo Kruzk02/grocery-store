@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Queries;
 
 using Domain.Entity;
 
@@ -13,10 +14,9 @@ namespace API.Controllers;
 public class InventoryController(IInventoryService service) : ControllerBase
 {
     [HttpGet, ProducesResponseType(typeof(Inventory), 200), ProducesResponseType(500)]
-    public async Task<IActionResult> FindAll(int? productId, int? stock, string? productName, [FromQuery] int skip = 0,
-        [FromQuery] int take = 50)
+    public async Task<IActionResult> FindAll([FromQuery] SearchInventoryQuery searchInventoryQuery)
     {
-        PageResult<Inventory> inventories = await service.FindAll(productId, stock, productName, skip, take);
+        PageResult<Inventory> inventories = await service.FindAll(searchInventoryQuery);
         return Ok(inventories);
     }
 

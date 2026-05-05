@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using Application.Dtos.Request;
@@ -29,7 +29,7 @@ public class UserControllerTest : BaseControllerTest
     [Test, Order(0)]
     public async Task RegisterReturnBadRequest()
     {
-        HttpResponseMessage response = await Client.PostAsync("/user/register", JsonContent.Create(new {}));
+        HttpResponseMessage response = await Client.PostAsync("/user/register", JsonContent.Create(new { }));
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
@@ -50,7 +50,7 @@ public class UserControllerTest : BaseControllerTest
     [Test, Order(1)]
     public async Task LoginReturnBadRequest()
     {
-        HttpResponseMessage response = await Client.PostAsync("/user/login", JsonContent.Create(new {}));
+        HttpResponseMessage response = await Client.PostAsync("/user/login", JsonContent.Create(new { }));
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }

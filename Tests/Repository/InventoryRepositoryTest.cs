@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Queries;
 
 using Domain.Entity;
 
@@ -60,7 +61,7 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        PageResult<Inventory> result = await repository.FindAll(null, null, null, 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(new SearchInventoryQuery(null, null, null, null, true, 0));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
@@ -74,7 +75,7 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        PageResult<Inventory> result = await repository.FindAll(1, null, null, 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(new SearchInventoryQuery(1, null, null, InventorySortBy.ProductId, true, 0));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
@@ -88,7 +89,7 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        PageResult<Inventory> result = await repository.FindAll(null, 10, null, 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(new SearchInventoryQuery(null, 10, null, InventorySortBy.Stock, true, 0));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
@@ -102,7 +103,7 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        PageResult<Inventory> result = await repository.FindAll(null, null, "Apple", 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(new SearchInventoryQuery(null, null, "Apple", InventorySortBy.ProductName, true, 0));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));
@@ -116,7 +117,7 @@ public class InventoryRepositoryTest
         await using ApplicationDbContext context = CreateContext();
         var repository = new InventoryRepository(context);
 
-        PageResult<Inventory> result = await repository.FindAll(1, 10, "Apple", 0, 10);
+        PageResult<Inventory> result = await repository.FindAll(new SearchInventoryQuery(1, 10, "Apple", InventorySortBy.ProductName, true, 0));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Total, Is.GreaterThanOrEqualTo(1));

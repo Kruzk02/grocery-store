@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Queries;
 using Application.Repository;
 
 using Domain.Entity;
@@ -12,19 +13,35 @@ namespace Infrastructure.Repository;
 
 public class InventoryRepository(ApplicationDbContext ctx) : IInventoryRepository
 {
-    public async Task<PageResult<Inventory>> FindAll(int? productId, int? stock, string? productName,
-        int skip, int take)
+    public async Task<PageResult<Inventory>> FindAll(SearchInventoryQuery searchInventoryQuery)
     {
         IQueryable<Inventory> query = ctx.Inventories;
 
-        if (productId.HasValue)
-            query = query.Where(i => i.ProductId == productId.Value);
+        if (searchInventoryQuery.ProductId.HasValue)
+            query = query.Where(i => i.ProductId == searchInventoryQuery.ProductId.Value);
 
-        if (stock.HasValue)
-            query = query.Where(i => i.Stock >= stock.Value);
+        if (searchInventoryQuery.Stock.HasValue)
+            query = query.Where(i => i.Stock >= searchInventoryQuery.Stock.Value);
 
-        if (!string.IsNullOrEmpty(productName))
-            query = query.Where(i => i.Product.Name == productName);
+        if (!string.IsNullOrEmpty(searchInventoryQuery.ProductName))
+            query = query.Where(i => i.Product.Name == searchInventoryQuery.ProductName);
+
+        query = searchInventoryQuery.SortBy switch
+        {
+            InventorySortBy.ProductId => searchInventoryQuery.Ascending
+                ? query.OrderBy(i => i.ProductId)
+                : query.OrderByDescending(i => i.ProductId),
+            InventorySortBy.ProductName => searchInventoryQuery.Ascending
+                ? query.OrderBy(i => i.Product.Name)
+                : query.OrderByDescending(i => i.Product.Name),
+            InventorySortBy.Stock => searchInventoryQuery.Ascending
+                ? query.OrderBy(i => i.Stock)
+                : query.OrderByDescending(i => i.Stock),
+            InventorySortBy.UpdatedAt => searchInventoryQuery.Ascending
+                ? query.OrderBy(i => i.UpdatedAt)
+                : query.OrderByDescending(i => i.UpdatedAt),
+            _ => query
+        };
 
         var total = await query.CountAsync();
 
@@ -32,8 +49,8 @@ public class InventoryRepository(ApplicationDbContext ctx) : IInventoryRepositor
             .Include(i => i.Product)
             .ThenInclude(p => p.Category)
             .OrderByDescending(i => i.Id)
-            .Skip(skip)
-            .Take(take)
+            .Skip(searchInventoryQuery.Skip)
+            .Take(searchInventoryQuery.Take)
             .ToListAsync();
 
         return new PageResult<Inventory>(total, data);

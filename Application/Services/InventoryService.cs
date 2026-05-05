@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Queries;
 using Application.Repository;
 
 using Domain.Entity;
@@ -22,16 +23,16 @@ public class InventoryService(
     IMemoryCache cache) : IInventoryService
 {
     /// <inheritdoc />
-    public async Task<PageResult<Inventory>> FindAll(int? productId, int? stock, string? productName,
-        int skip, int take)
+    public async Task<PageResult<Inventory>> FindAll(SearchInventoryQuery searchInventoryQuery)
     {
-        var cacheKey = $"inventories:{productId}:{stock}:{productName}:{skip}:{take}";
+        var cacheKey =
+            $"inventories:{searchInventoryQuery.ProductId}:{searchInventoryQuery.Stock}:{searchInventoryQuery.ProductName}:{searchInventoryQuery.Skip}:{searchInventoryQuery.Take}";
         return await cache.GetOrCreateAsync(cacheKey, async entry =>
         {
             entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
-            return await inventoryRepository.FindAll(productId, stock, productName, skip, take);
+            return await inventoryRepository.FindAll(searchInventoryQuery);
         }) ?? throw new InvalidOperationException();
     }
 
@@ -39,7 +40,7 @@ public class InventoryService(
     public async Task<Inventory> Create(InventoryDto inventoryDto)
     {
         Product product = await productRepository.FindById(inventoryDto.ProductId) ??
-                           throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
+                          throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
         var inventory = new Inventory
         {
             Product = product,
@@ -54,8 +55,8 @@ public class InventoryService(
     /// <inheritdoc />
     public async Task<Inventory> Update(int id, InventoryDto inventoryDto)
     {
-        Inventory? inventory = await inventoryRepository.FindById(id) ??
-                               throw new NotFoundException($"Inventory with id: {id} not found");
+        Inventory inventory = await inventoryRepository.FindById(id) ??
+                              throw new NotFoundException($"Inventory with id: {id} not found");
         if (inventoryDto.Stock >= 0 && inventoryDto.Stock != inventory.Stock)
         {
             inventory.Stock = inventoryDto.Stock;
@@ -63,8 +64,8 @@ public class InventoryService(
 
         if (inventoryDto.ProductId != inventory.ProductId)
         {
-            Product? product = await productRepository.FindById(inventoryDto.ProductId) ??
-                               throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
+            Product product = await productRepository.FindById(inventoryDto.ProductId) ??
+                              throw new NotFoundException($"Product with id: {inventoryDto.ProductId} not found");
             inventory.Product = product;
             inventory.ProductId = product.Id;
         }
@@ -101,8 +102,8 @@ public class InventoryService(
     /// <inheritdoc />
     public async Task<string> Delete(int id)
     {
-        Inventory? inventory = await inventoryRepository.FindById(id) ??
-                               throw new NotFoundException($"Inventory with id: {id} not found");
+        Inventory inventory = await inventoryRepository.FindById(id) ??
+                              throw new NotFoundException($"Inventory with id: {id} not found");
         cache.Remove($"inventory:{id}");
         await inventoryRepository.Delete(inventory);
         return "Inventory deleted successfully";

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using Application.Common;
@@ -42,7 +42,7 @@ public class CustomerControllerTest : BaseControllerTest
     [Test, Order(2)]
     public async Task SearchReturnOk()
     {
-        HttpResponseMessage response = await Client.GetAsync("/customer/search?name=Na&skip=0&take=10");
+        HttpResponseMessage response = await Client.GetAsync("/customer?name=Na&skip=0&take=10");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
         var pageResult = await response.Content.ReadFromJsonAsync<PageResult<Customer>>();

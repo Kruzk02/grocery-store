@@ -1,4 +1,4 @@
-﻿using Domain.Entity;
+using Domain.Entity;
 
 using Infrastructure.Persistence;
 

@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Dtos.Request;
 using Application.Interface;
+using Application.Queries;
 using Application.Repository;
 using Application.Services;
 
@@ -107,9 +108,9 @@ public class InventoryServiceTest
         _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inv = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
-        _mockInventoryRepository.Setup(x => x.FindAll(null, null, null, 0, 10))
+        _mockInventoryRepository.Setup(x => x.FindAll(new SearchInventoryQuery(null, null, null, InventorySortBy.ProductName, true, 10)))
             .ReturnsAsync(new PageResult<Inventory>(1, [inv]));
-        PageResult<Inventory> result = await _inventoryService.FindAll(null, null, null, 0, 10);
+        PageResult<Inventory> result = await _inventoryService.FindAll(new SearchInventoryQuery(null, null, null, InventorySortBy.ProductName, true, 10));
 
         using (Assert.EnterMultipleScope())
         {
@@ -160,9 +161,9 @@ public class InventoryServiceTest
         _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
-        _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 0, null, 0, 10))
+        _mockInventoryRepository.Setup(x => x.FindAll(new SearchInventoryQuery(product.Id, 0, null, InventorySortBy.ProductId, true, 10)))
             .ReturnsAsync(new PageResult<Inventory>(1, [inventory]));
-        PageResult<Inventory> result = await _inventoryService.FindAll(product.Id, 0, null, 0, 10);
+        PageResult<Inventory> result = await _inventoryService.FindAll(new SearchInventoryQuery(product.Id, 0, null, InventorySortBy.ProductId, true, 10));
 
         using (Assert.EnterMultipleScope())
         {
@@ -182,9 +183,9 @@ public class InventoryServiceTest
         _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
         Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
-        _mockInventoryRepository.Setup(x => x.FindAll(product.Id, 20, null, 0, 10))
+        _mockInventoryRepository.Setup(x => x.FindAll(new SearchInventoryQuery(product.Id, 20, null, InventorySortBy.ProductId, true, 10)))
             .ReturnsAsync(new PageResult<Inventory>(1, [inventory]));
-        PageResult<Inventory> result = await _inventoryService.FindAll(product.Id, 20, null, 0, 10);
+        PageResult<Inventory> result = await _inventoryService.FindAll(new SearchInventoryQuery(product.Id, 20, null, InventorySortBy.ProductId, true, 10));
 
         using (Assert.EnterMultipleScope())
         {
@@ -242,7 +243,7 @@ public class InventoryServiceTest
             Price = 99.99m,
             CategoryId = 10,
             Category = new Category
-                { Id = 10, Name = "Household & Cleaning", Description = "Detergents, cleaning items" }
+            { Id = 10, Name = "Household & Cleaning", Description = "Detergents, cleaning items" }
         };
         yield return new Product
         {
