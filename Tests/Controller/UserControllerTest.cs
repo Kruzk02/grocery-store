@@ -17,13 +17,17 @@ public class UserControllerTest : BaseControllerTest
         var content = JsonContent.Create(new RegisterDto("Username", "Email@gmail.com", "Password123!"));
         HttpResponseMessage response = await Client.PostAsync("/user/register", content);
 
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
 
-        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        var userResponse = await response.Content.ReadFromJsonAsync<User>();
 
         Assert.That(userResponse, Is.Not.Null);
-        Assert.That(userResponse.Message, Is.Not.Null);
-        Assert.That(userResponse.Message, Does.Contain("Success"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(userResponse.Id, Is.Not.Null);
+            Assert.That(userResponse.Username, Is.Not.Null.And.Not.Empty);
+            Assert.That(userResponse.Email, Is.Not.Null.And.Not.Empty);
+        }
     }
 
     [Test, Order(0)]

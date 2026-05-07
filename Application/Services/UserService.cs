@@ -83,7 +83,7 @@ public class UserService(
         return new AuthResponse(newACcessToken, newRefreshToken, newRefreshTokenEntity.ExpiryDate);
     }
 
-    public async Task<string> UpdateUser(string id, UpdateUserDto dto)
+    public async Task<bool> UpdateUser(string id, UpdateUserDto dto)
     {
         User existingUser = await userRepository.FindById(id) ?? throw new NotFoundException($"User not found");
         if (!string.IsNullOrEmpty(dto.Email))
@@ -127,7 +127,7 @@ public class UserService(
             }
 
         }
-        return "User updated successfully";
+        return true;
     }
 
     public async Task<bool> DeleteUser(string id)

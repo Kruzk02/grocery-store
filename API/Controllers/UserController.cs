@@ -23,8 +23,8 @@ public class UserController(
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        _ = await userService.CreateUser(dto);
-        return Ok(new UserResponse("Success create user"));
+        User result = await userService.CreateUser(dto);
+        return CreatedAtAction(nameof(GetUser), new { id = result}, result);
     }
 
     [AllowAnonymous]
@@ -92,8 +92,8 @@ public class UserController(
     [HttpPut("update/{id}")]
     public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto dto)
     {
-        var result = await userService.UpdateUser(id, dto);
-        return Ok(new UserResponse(result));
+        await userService.UpdateUser(id, dto);
+        return NoContent();
     }
 
     [Authorize]
