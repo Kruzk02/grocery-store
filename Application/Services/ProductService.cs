@@ -27,8 +27,8 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
         {
             entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-            (var total, List<Product> data) = await productRepository.Search(searchProductQuery);
-            return new PageResult<Product>(total, data);
+            PageResult<Product> pageResult = await productRepository.Search(searchProductQuery);
+            return new PageResult<Product>(pageResult.Total, pageResult.Data);
         }) ?? throw new InvalidOperationException();
     }
 

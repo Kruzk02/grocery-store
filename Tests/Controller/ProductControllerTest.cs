@@ -88,7 +88,7 @@ public class ProductControllerTest : BaseControllerTest
         Assert.That(pageResult, Is.Not.Null);
         Assert.That(pageResult.Total, Is.GreaterThan(0));
 
-        List<Product> products = pageResult.Data;
+        IReadOnlyList<Product> products = pageResult.Data;
         Assert.That(products, Is.Not.Null.And.Not.Empty, "List of product should not be null and empty");
         using (Assert.EnterMultipleScope())
         {
