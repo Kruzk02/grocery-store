@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Queries;
 using Application.Repository;
@@ -13,12 +14,13 @@ namespace Application.Services;
 
 public class CustomerService(ICustomerRepository customerRepository, IMemoryCache cache) : ICustomerService
 {
-    public async Task<PageResult<Customer>> SearchCustomers(SearchCustomerQuery searchCustomerQuery)
+    public async Task<PageResult<CustomerResponse>> SearchCustomers(SearchCustomerQuery searchCustomerQuery)
     {
-        return await customerRepository.Search(searchCustomerQuery);
+        PageResult<Customer> pageResult = await customerRepository.Search(searchCustomerQuery);
+        return new PageResult<CustomerResponse>(Total:  pageResult.Total, Data: pageResult.Data.Select(CustomerResponse.FromEntity).ToList());
     }
 
-    public async Task<Customer> Create(CustomerDto customerDto)
+    public async Task<CustomerResponse> Create(CustomerDto customerDto)
     {
         if (string.IsNullOrEmpty(customerDto.Name))
             throw new ValidationException(new Dictionary<string, string[]> { { "Name", ["Name is required"] } });
@@ -37,12 +39,12 @@ public class CustomerService(ICustomerRepository customerRepository, IMemoryCach
             Address = customerDto.Address
         };
 
-        return await customerRepository.Add(customer);
+        return CustomerResponse.FromEntity(await customerRepository.Add(customer));
     }
 
     public async Task<string> Update(int id, CustomerDto customerDto)
     {
-        var existingCustomer = await customerRepository.FindById(id);
+        Customer? existingCustomer = await customerRepository.FindById(id);
         if (existingCustomer == null)
             throw new NotFoundException($"Customer with id: {id} not found");
 
@@ -60,75 +62,57 @@ public class CustomerService(ICustomerRepository customerRepository, IMemoryCach
         return "Customer updated successfully";
     }
 
-    public async Task<Customer> FindById(int id)
+    public async Task<CustomerResponse> FindById(int id)
     {
         var cacheKey = $"customer:{id}";
-
-        if (cache.TryGetValue(cacheKey, out Customer? customer))
-            if (customer != null)
-                return customer;
-
-        customer = await customerRepository.FindById(id);
-        var cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-
-        cache.Set(cacheKey, customer, cacheOption);
-        return customer ?? throw new NotFoundException($"Customer with id: {id} not found");
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+            Customer? customer = await customerRepository.FindById(id);
+            return CustomerResponse.FromEntity(customer ??  throw new NotFoundException($"Customer with id: {id} not found"));
+        }) ?? throw new InvalidOperationException();
     }
 
-    public async Task<Customer> FindByEmail(string email)
+    public async Task<CustomerResponse> FindByEmail(string email)
     {
         var cacheKey = $"customer:email:{email}";
-        if (cache.TryGetValue(cacheKey, out Customer? customer))
-            if (customer != null)
-                return customer;
-
-        customer = await customerRepository.FindByEmail(email);
-        var cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-
-        cache.Set(cacheKey, customer, cacheOption);
-
-        return customer ?? throw new NotFoundException($"Customer with email: {email} not found");
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+            Customer? customer = await customerRepository.FindByEmail(email);
+            return CustomerResponse.FromEntity(customer ??  throw new NotFoundException($"Customer with email: {email} not found"));
+        }) ?? throw new InvalidOperationException();
     }
 
-    public async Task<Customer> FindByName(string name)
+    public async Task<CustomerResponse> FindByName(string name)
     {
         var cacheKey = $"customer:name:{name}";
-        if (cache.TryGetValue(cacheKey, out Customer? customer))
-            if (customer != null)
-                return customer;
-
-        customer = await customerRepository.FindByName(name);
-        var cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-
-        cache.Set(cacheKey, customer, cacheOption);
-        return customer ?? throw new NotFoundException($"Customer with name: {name} not found");
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+            Customer? customer = await customerRepository.FindByName(name);
+            return CustomerResponse.FromEntity(customer ??  throw new NotFoundException($"Customer with name: {name} not found"));
+        }) ?? throw new InvalidOperationException();
     }
 
-    public async Task<Customer> FindByPhoneNumber(string phoneNumber)
+    public async Task<CustomerResponse> FindByPhoneNumber(string phoneNumber)
     {
         var cacheKey = $"customer:phone:{phoneNumber}";
-        if (cache.TryGetValue(cacheKey, out Customer? customer))
-            if (customer != null)
-                return customer;
-
-        customer = await customerRepository.FindByPhoneNumber(phoneNumber);
-        var cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-
-        cache.Set(cacheKey, customer, cacheOption);
-        return customer ?? throw new NotFoundException($"Customer with number: {phoneNumber} not found");
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+            Customer? customer = await customerRepository.FindByPhoneNumber(phoneNumber);
+            return CustomerResponse.FromEntity(customer ??  throw new NotFoundException($"Customer with phone number: {phoneNumber} not found"));
+        }) ?? throw new InvalidOperationException();
     }
 
     public async Task<string> DeleteById(int id)
     {
-        var customer = await customerRepository.FindById(id);
+        Customer? customer = await customerRepository.FindById(id);
         if (customer == null)
         {
             throw new NotFoundException($"Customer with id: {id} not found");

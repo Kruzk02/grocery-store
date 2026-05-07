@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Queries;
 using Application.Repository;
@@ -42,13 +43,15 @@ public class CustomerServiceTest
     [TestCaseSource(nameof(CreateCustomerDto))]
     public async Task SearchCustomerShouldReturnListOfCustomers(CustomerDto customerDto)
     {
+        _mock.Setup(x => x.Add(It.IsAny<Customer>()))
+            .ReturnsAsync((Customer c) => c);
         await _customerService.Create(customerDto);
         _mock.Setup(x => x.Search(new SearchCustomerQuery("na", CustomerSortBy.Name, true, 0, 10))).ReturnsAsync(new PageResult<Customer>(1, [ToEntity(customerDto)]));
-        (var total, List<Customer> data) = await _customerService.SearchCustomers(new SearchCustomerQuery("na", CustomerSortBy.Name, true, 0));
+        PageResult<CustomerResponse> pageResult = await _customerService.SearchCustomers(new SearchCustomerQuery("na", CustomerSortBy.Name, true, 0));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(total, Is.GreaterThan(0));
-            Assert.That(data, Is.Not.Null);
+            Assert.That(pageResult.Total, Is.GreaterThan(0));
+            Assert.That(pageResult.Data, Is.Not.Null);
         }
     }
 
@@ -58,7 +61,7 @@ public class CustomerServiceTest
     {
         _mock.Setup(x => x.Add(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);
-        Customer result = await _customerService.Create(customerDto);
+        CustomerResponse result = await _customerService.Create(customerDto);
 
         using (Assert.EnterMultipleScope())
         {
@@ -131,11 +134,11 @@ public class CustomerServiceTest
     {
         _mock.Setup(x => x.Add(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);
-        Customer customer = await _customerService.Create(customerDto);
+        CustomerResponse customer = await _customerService.Create(customerDto);
 
         _mock.Setup(x => x.FindById(1)).ReturnsAsync(ToEntity(customerDto));
 
-        Customer result = await _customerService.FindById(1);
+        CustomerResponse result = await _customerService.FindById(1);
 
         using (Assert.EnterMultipleScope())
         {
@@ -165,10 +168,10 @@ public class CustomerServiceTest
     {
         _mock.Setup(x => x.Add(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);
-        Customer customer = await _customerService.Create(customerDto);
+        CustomerResponse customer = await _customerService.Create(customerDto);
 
         _mock.Setup(x => x.FindByName(customerDto.Name)).ReturnsAsync(ToEntity(customerDto));
-        Customer result = await _customerService.FindByName(customer.Name);
+        CustomerResponse result = await _customerService.FindByName(customer.Name);
 
         using (Assert.EnterMultipleScope())
         {
@@ -198,10 +201,10 @@ public class CustomerServiceTest
     {
         _mock.Setup(x => x.Add(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);
-        Customer customer = await _customerService.Create(customerDto);
+        CustomerResponse customer = await _customerService.Create(customerDto);
 
         _mock.Setup(x => x.FindByEmail(customerDto.Email)).ReturnsAsync(ToEntity(customerDto));
-        Customer result = await _customerService.FindByEmail(customer.Email);
+        CustomerResponse result = await _customerService.FindByEmail(customer.Email);
 
         using (Assert.EnterMultipleScope())
         {
@@ -231,10 +234,10 @@ public class CustomerServiceTest
     {
         _mock.Setup(x => x.Add(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);
-        Customer customer = await _customerService.Create(customerDto);
+        CustomerResponse customer = await _customerService.Create(customerDto);
 
         _mock.Setup(x => x.FindByPhoneNumber(customerDto.Phone)).ReturnsAsync(ToEntity(customerDto));
-        Customer result = await _customerService.FindByPhoneNumber(customer.Phone);
+        CustomerResponse result = await _customerService.FindByPhoneNumber(customer.Phone);
 
         using (Assert.EnterMultipleScope())
         {
@@ -253,7 +256,7 @@ public class CustomerServiceTest
     {
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _customerService.FindByPhoneNumber(phone));
-        Assert.That(ex.Message, Is.EqualTo($"Customer with number: {phone} not found"));
+        Assert.That(ex.Message, Is.EqualTo($"Customer with phone number: {phone} not found"));
         return Task.CompletedTask;
     }
 
@@ -263,8 +266,15 @@ public class CustomerServiceTest
     {
         _mock.Setup(x => x.Add(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);
-        Customer customer = await _customerService.Create(customerDto);
-
+        CustomerResponse customerResponse = await _customerService.Create(customerDto);
+        var customer = new Customer
+        {
+            Id = customerResponse.Id,
+            Name = customerDto.Name,
+            Email = customerDto.Email,
+            Phone = customerDto.Phone,
+            Address = customerDto.Address
+        };
         _mock.Setup(x => x.FindById(1)).ReturnsAsync(customer);
         _mock.Setup(x => x.Delete(customer));
         var result = await _customerService.DeleteById(1);

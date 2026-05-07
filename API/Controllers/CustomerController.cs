@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Queries;
 
@@ -18,7 +19,7 @@ public class CustomerController(ICustomerService customerService, IOrderService 
     [ProducesResponseType(typeof(List<Customer>), 200), ProducesResponseType(500)]
     public async Task<IActionResult> FindCustomer([FromQuery] SearchCustomerQuery searchCustomerQuery)
     {
-        PageResult<Customer> pageResult = await customerService.SearchCustomers(searchCustomerQuery);
+        PageResult<CustomerResponse> pageResult = await customerService.SearchCustomers(searchCustomerQuery);
         return Ok(pageResult);
     }
 
@@ -27,7 +28,7 @@ public class CustomerController(ICustomerService customerService, IOrderService 
     [ProducesResponseType(typeof(Customer), 201), ProducesResponseType(500)]
     public async Task<IActionResult> Create([FromBody] CustomerDto customerDto)
     {
-        Customer result = await customerService.Create(customerDto);
+        CustomerResponse result = await customerService.Create(customerDto);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, result);
     }
 

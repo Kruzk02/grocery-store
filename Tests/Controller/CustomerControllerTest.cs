@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 
 using Domain.Entity;
 
@@ -18,7 +19,7 @@ public class CustomerControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.PostAsync("/customer", content);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
 
-        var customer = await response.Content.ReadFromJsonAsync<Customer>();
+        var customer = await response.Content.ReadFromJsonAsync<CustomerResponse>();
         Assert.That(customer, Is.Not.Null);
 
         using (Assert.EnterMultipleScope())
@@ -45,12 +46,12 @@ public class CustomerControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.GetAsync("/customer?name=Na&skip=0&take=10");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var pageResult = await response.Content.ReadFromJsonAsync<PageResult<Customer>>();
+        var pageResult = await response.Content.ReadFromJsonAsync<PageResult<CustomerResponse>>();
 
         Assert.That(pageResult, Is.Not.Null);
         Assert.That(pageResult.Total, Is.GreaterThan(0));
 
-        List<Customer> customers = pageResult.Data;
+        IReadOnlyList<CustomerResponse> customers = pageResult.Data;
         using (Assert.EnterMultipleScope())
         {
             Assert.That(customers[0].Id, Is.GreaterThan(0));
@@ -78,7 +79,7 @@ public class CustomerControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.GetAsync("/customer/1");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var customer = await response.Content.ReadFromJsonAsync<Customer>();
+        var customer = await response.Content.ReadFromJsonAsync<CustomerResponse>();
 
         Assert.That(customer, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -104,7 +105,7 @@ public class CustomerControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.GetAsync("/customer/Name/name");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var customer = await response.Content.ReadFromJsonAsync<Customer>();
+        var customer = await response.Content.ReadFromJsonAsync<CustomerResponse>();
 
         Assert.That(customer, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -130,7 +131,7 @@ public class CustomerControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.GetAsync("/customer/Email@gmail.com/email");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var customer = await response.Content.ReadFromJsonAsync<Customer>();
+        var customer = await response.Content.ReadFromJsonAsync<CustomerResponse>();
 
         Assert.That(customer, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -156,7 +157,7 @@ public class CustomerControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.GetAsync("/customer/0123456789/phone");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var customer = await response.Content.ReadFromJsonAsync<Customer>();
+        var customer = await response.Content.ReadFromJsonAsync<CustomerResponse>();
 
         Assert.That(customer, Is.Not.Null);
         using (Assert.EnterMultipleScope())
