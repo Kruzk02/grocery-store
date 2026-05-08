@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Repository;
 using Application.Services;
@@ -39,12 +40,11 @@ public class InvoiceServiceTest
         _orderMock.Setup(x => x.FindById(1)).ReturnsAsync(order);
         _invoiceMock.Setup(x => x.Add(It.IsAny<Invoice>())).ReturnsAsync((Invoice invoice) => invoice);
 
-        Invoice result = await _invoiceService.Create(new InvoiceDto(1));
+        InvoiceResponse result = await _invoiceService.Create(new InvoiceDto(1));
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.OrderId, Is.EqualTo(order.Id));
-            Assert.That(result.Order, Is.Not.Null);
             Assert.That(result.InvoiceNumber, Is.EqualTo("INV-2026:0001"));
         }
     }
@@ -108,14 +108,12 @@ public class InvoiceServiceTest
         };
 
         _invoiceMock.Setup(x => x.FindById(1)).ReturnsAsync(invoice);
-        Invoice result = await _invoiceService.FindById(1);
+        InvoiceResponse result = await _invoiceService.FindById(1);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.OrderId, Is.EqualTo(order.Id));
-            Assert.That(result.Order, Is.Not.Null);
             Assert.That(result.InvoiceNumber, Is.EqualTo("INV-2026:0000"));
-            Assert.That(result.Order.Items, Is.Not.Empty);
         }
     }
 
@@ -182,9 +180,7 @@ public class InvoiceServiceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.OrderId, Is.EqualTo(order.Id));
-            Assert.That(result.Order, Is.Not.Null);
             Assert.That(result.InvoiceNumber, Is.EqualTo($"INV-{DateTime.UtcNow.Year}:{order.Id:D4}"));
-            Assert.That(result.Order.Items, Is.Not.Empty);
         }
     }
 

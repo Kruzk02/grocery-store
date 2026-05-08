@@ -2,8 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using Application.Dtos.Request;
-
-using Domain.Entity;
+using Application.Dtos.Response;
 
 namespace Tests.Controller;
 
@@ -18,7 +17,7 @@ public class InvoiceControllerTest : BaseControllerTest
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
 
-        var invoice = await response.Content.ReadFromJsonAsync<Invoice>();
+        var invoice = await response.Content.ReadFromJsonAsync<InvoiceResponse>();
         Assert.That(invoice, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -42,7 +41,7 @@ public class InvoiceControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.GetAsync("/invoice/1");
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        var invoice = await response.Content.ReadFromJsonAsync<Invoice>();
+        var invoice = await response.Content.ReadFromJsonAsync<InvoiceResponse>();
         Assert.That(invoice, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

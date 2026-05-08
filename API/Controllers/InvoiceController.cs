@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 
 using Domain.Entity;
@@ -18,7 +19,7 @@ public class InvoiceController(IInvoiceService invoiceService) : ControllerBase
      Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] InvoiceDto invoiceDto)
     {
-        Invoice result = await invoiceService.Create(invoiceDto);
+        InvoiceResponse result = await invoiceService.Create(invoiceDto);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, result);
     }
 
@@ -28,7 +29,7 @@ public class InvoiceController(IInvoiceService invoiceService) : ControllerBase
      ProducesResponseType(500)]
     public async Task<IActionResult> FindById(int id)
     {
-        Invoice result = await invoiceService.FindById(id);
+        InvoiceResponse result = await invoiceService.FindById(id);
         return Ok(result);
     }
 }

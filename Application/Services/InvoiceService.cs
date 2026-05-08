@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Repository;
 
@@ -10,7 +11,7 @@ namespace Application.Services;
 
 public class InvoiceService(IInvoiceRepository invoiceRepository, IOrderRepository orderRepository) : IInvoiceService
 {
-    public async Task<Invoice> Create(InvoiceDto invoiceDto)
+    public async Task<InvoiceResponse> Create(InvoiceDto invoiceDto)
     {
         Order? order = await orderRepository.FindById(invoiceDto.OrderId);
         if (order == null) throw new NotFoundException($"Order with id: {invoiceDto.OrderId} not found");
@@ -24,13 +25,13 @@ public class InvoiceService(IInvoiceRepository invoiceRepository, IOrderReposito
             InvoiceNumber = $"INV-{DateTime.UtcNow.Year}:{order.Id:D4}"
         };
 
-        return await invoiceRepository.Add(invoice);
+        return InvoiceResponse.FromEntity(await invoiceRepository.Add(invoice));
     }
 
-    public async Task<Invoice> FindById(int id)
+    public async Task<InvoiceResponse> FindById(int id)
     {
         Invoice? invoice = await invoiceRepository.FindById(id);
-        return invoice ?? throw new NotFoundException($"Invoice with id: {id} not found");
+        return InvoiceResponse.FromEntity(invoice ?? throw new NotFoundException($"Invoice with id: {id} not found"));
     }
 
     public async Task<Invoice> FindByOrderId(int orderId)

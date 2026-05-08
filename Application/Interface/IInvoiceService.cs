@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 
 using Domain.Entity;
 
@@ -6,7 +7,7 @@ namespace Application.Interface;
 
 public interface IInvoiceService
 {
-    Task<Invoice> Create(InvoiceDto invoiceDto);
-    Task<Invoice> FindById(int id);
+    Task<InvoiceResponse> Create(InvoiceDto invoiceDto);
+    Task<InvoiceResponse> FindById(int id);
     Task<Invoice> FindByOrderId(int orderId);
 }
