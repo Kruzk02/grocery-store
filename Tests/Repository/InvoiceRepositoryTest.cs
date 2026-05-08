@@ -98,7 +98,8 @@ public class InvoiceRepositoryTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Order, Is.Not.Null);
+            Assert.That(result.OrderId, Is.GreaterThan(0));
+            Assert.That(result.InvoiceNumber, Is.Not.Null);
         }
     }
 

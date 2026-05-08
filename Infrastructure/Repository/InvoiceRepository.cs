@@ -21,13 +21,7 @@ public class InvoiceRepository(ApplicationDbContext ctx) : IInvoiceRepository
 
     public async Task<Invoice?> FindById(int id)
     {
-        return await ctx.Invoices
-            .Include(i => i.Order)
-                .ThenInclude(o => o.Customer)
-            .Include(i => i.Order)
-                .ThenInclude(o => o.Items)
-                    .ThenInclude(i => i.Product)
-            .FirstOrDefaultAsync(i => i.Id == id);
+        return await ctx.Invoices.FirstOrDefaultAsync(i => i.Id == id);
     }
 
     public async Task<Invoice?> FindByOrderId(int orderId)

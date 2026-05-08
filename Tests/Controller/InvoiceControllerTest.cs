@@ -23,6 +23,7 @@ public class InvoiceControllerTest : BaseControllerTest
         {
             Assert.That(invoice.Id, Is.GreaterThan(0));
             Assert.That(invoice.OrderId, Is.EqualTo(2));
+            Assert.That(invoice.InvoiceNumber, Is.Not.Null.And.Not.Empty);
         }
     }
 
@@ -47,6 +48,7 @@ public class InvoiceControllerTest : BaseControllerTest
         {
             Assert.That(invoice.Id, Is.GreaterThan(0));
             Assert.That(invoice.OrderId, Is.EqualTo(2));
+            Assert.That(invoice.InvoiceNumber, Is.Not.Null.And.Not.Empty);
         }
     }
 
