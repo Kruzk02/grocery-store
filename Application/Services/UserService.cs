@@ -30,7 +30,7 @@ public class UserService(
 
     public async Task<AuthResponse> Login(LoginDto dto)
     {
-        User? user = await GetUser(dto.UserNameOrEmail);
+        User user = await GetUser(dto.UserNameOrEmail);
         var result = await userRepository.CheckPasswordSignIn(user, dto.Password);
         if (!result)
         {
@@ -42,7 +42,7 @@ public class UserService(
         var refreshTokenEntity = new RefreshToken
         {
             Token = refreshToken,
-            UserId = user.Id,
+            UserId = user.Id!,
             ExpiryDate = DateTime.UtcNow.AddDays(7)
         };
 
@@ -73,7 +73,7 @@ public class UserService(
         var newRefreshTokenEntity = new RefreshToken
         {
             Token = newRefreshToken,
-            UserId = user.Id,
+            UserId = user.Id!,
             ExpiryDate = DateTime.UtcNow.AddDays(7)
         };
 

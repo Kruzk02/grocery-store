@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using Application.Common;
+using Application.Dtos.Response;
 
 using Domain.Entity;
 
@@ -23,7 +24,7 @@ public class ProductControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.PostAsync("/product", content);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created), "A request should succeed created product.");
 
-        var product = await response.Content.ReadFromJsonAsync<Product>();
+        var product = await response.Content.ReadFromJsonAsync<ProductResponse>();
 
         Assert.That(product, Is.Not.Null, "Response body should not be null");
 
@@ -57,7 +58,7 @@ public class ProductControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.GetAsync("/product/1");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var product = await response.Content.ReadFromJsonAsync<Product>();
+        var product = await response.Content.ReadFromJsonAsync<ProductResponse>();
         Assert.That(product, Is.Not.Null, "Response body should not be null");
         using (Assert.EnterMultipleScope())
         {
@@ -84,11 +85,11 @@ public class ProductControllerTest : BaseControllerTest
             await Client.GetAsync("/product?Name=Name&Skip=0&SortBy=Price&Ascending=True&Take=10");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var pageResult = await response.Content.ReadFromJsonAsync<PageResult<Product>>();
+        var pageResult = await response.Content.ReadFromJsonAsync<PageResult<ProductResponse>>();
         Assert.That(pageResult, Is.Not.Null);
         Assert.That(pageResult.Total, Is.GreaterThan(0));
 
-        IReadOnlyList<Product> products = pageResult.Data;
+        IReadOnlyList<ProductResponse> products = pageResult.Data;
         Assert.That(products, Is.Not.Null.And.Not.Empty, "List of product should not be null and empty");
         using (Assert.EnterMultipleScope())
         {
@@ -129,7 +130,7 @@ public class ProductControllerTest : BaseControllerTest
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var product = await response.Content.ReadFromJsonAsync<Product>();
+        var product = await response.Content.ReadFromJsonAsync<ProductResponse>();
 
         Assert.That(product, Is.Not.Null, "Response body should not be null");
 

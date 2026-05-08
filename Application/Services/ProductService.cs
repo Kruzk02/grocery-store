@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Queries;
 using Application.Repository;
@@ -19,7 +20,7 @@ namespace Application.Services;
 /// </remarks>
 public class ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, IImageStorage imageStorage, IMemoryCache cache) : IProductService
 {
-    public async Task<PageResult<Product>> SearchProducts(SearchProductQuery searchProductQuery)
+    public async Task<PageResult<ProductResponse>> SearchProducts(SearchProductQuery searchProductQuery)
     {
         var cacheKey =
             $"products:{searchProductQuery.Name}:{searchProductQuery.Ascending}:{searchProductQuery.SortBy}:{searchProductQuery.Skip}:{searchProductQuery.Take}";
@@ -28,12 +29,12 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
             entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
             PageResult<Product> pageResult = await productRepository.Search(searchProductQuery);
-            return new PageResult<Product>(pageResult.Total, pageResult.Data);
+            return new PageResult<ProductResponse>(pageResult.Total, pageResult.Data.Select(ProductResponse.FromEntity).ToList());
         }) ?? throw new InvalidOperationException();
     }
 
     ///  <inheritdoc/>
-    public async Task<Product> Create(ProductDto productDto)
+    public async Task<ProductResponse> Create(ProductDto productDto)
     {
         Category? category = await categoryRepository.FindById(productDto.CategoryId);
         if (category == null)
@@ -49,16 +50,16 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
             Quantity = productDto.Quantity,
             CategoryId = productDto.CategoryId,
             Category = category,
-            imagePath = productDto.filename,
+            ImagePath = productDto.Filename,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
 
-        return await productRepository.Add(product);
+        return ProductResponse.FromEntity(await productRepository.Add(product));
     }
 
     /// <inheritdoc/>
-    public async Task<Product> Update(int id, ProductDto productDto)
+    public async Task<ProductResponse> Update(int id, ProductDto productDto)
     {
         Product? product = await productRepository.FindById(id);
         if (product == null)
@@ -90,37 +91,32 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
             product.Category = category;
         }
 
-        if (productDto.filename != null && product.imagePath != null)
+        if (productDto.Filename != null && product.ImagePath != null)
         {
-            await imageStorage.Delete(product.imagePath);
-            product.imagePath = productDto.filename;
+            await imageStorage.Delete(product.ImagePath);
+            product.ImagePath = productDto.Filename;
         }
 
         product.UpdatedAt = DateTime.UtcNow;
 
         await productRepository.Update(product);
 
-        return product;
+        return ProductResponse.FromEntity(product);
     }
 
     /// <inheritdoc/>
-    public async Task<Product> FindById(int id)
+    public async Task<ProductResponse> FindById(int id)
     {
         var cacheKey = $"product:{id}";
-        if (cache.TryGetValue(cacheKey, out Product? product))
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
         {
-            Console.WriteLine("Hit");
-            if (product != null)
-                return product;
-        }
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
-        product = await productRepository.FindById(id);
-        MemoryCacheEntryOptions cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+            Product? product = await productRepository.FindById(id);
 
-        cache.Set(cacheKey, product, cacheOption);
-        return product ?? throw new NotFoundException($"Product with id {id} not found");
+            return ProductResponse.FromEntity(product ?? throw new NotFoundException($"Product with id {id} not found"));
+        }) ?? throw new InvalidOperationException();
     }
 
     /// <inheritdoc/>
@@ -134,8 +130,8 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
 
         cache.Remove($"product:{id}");
         await productRepository.Delete(product);
-        if (product.imagePath != null)
-            await imageStorage.Delete(product.imagePath);
+        if (product.ImagePath != null)
+            await imageStorage.Delete(product.ImagePath);
         return true;
     }
 }

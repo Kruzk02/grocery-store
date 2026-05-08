@@ -2,6 +2,7 @@ using API.Dto;
 
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Queries;
 
@@ -39,7 +40,7 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(500)]
     public async Task<IActionResult> FindProducts([FromQuery] SearchProductQuery searchProductQuery)
     {
-        PageResult<Product> pageResult = await productService.SearchProducts(searchProductQuery);
+        PageResult<ProductResponse> pageResult = await productService.SearchProducts(searchProductQuery);
         return Ok(pageResult);
     }
 
@@ -70,7 +71,7 @@ public class ProductController(IProductService productService, IOrderItemService
 
         ProductDto productDto = new(createdProductDto.Name, createdProductDto.Description, createdProductDto.Price, createdProductDto.CategoryId, createdProductDto.Quantity, filename);
 
-        Product result = await productService.Create(productDto);
+        ProductResponse result = await productService.Create(productDto);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, result);
     }
 
@@ -130,7 +131,7 @@ public class ProductController(IProductService productService, IOrderItemService
         }
 
         ProductDto productDto = new(updatedProductDto.Name, updatedProductDto.Description, updatedProductDto.Price, updatedProductDto.CategoryId, updatedProductDto.Quantity, filename);
-        Product result = await productService.Update(id, productDto);
+        ProductResponse result = await productService.Update(id, productDto);
         return Ok(result);
     }
 
@@ -150,7 +151,7 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(500)]
     public async Task<IActionResult> FindById(int id)
     {
-        Product result = await productService.FindById(id);
+        ProductResponse result = await productService.FindById(id);
         return Ok(result);
     }
 

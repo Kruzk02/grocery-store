@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Queries;
 using Application.Repository;
@@ -54,7 +55,7 @@ public class ProductServiceTest
     {
         _mockCategoryRepository.Setup(x => x.FindById(productDto.CategoryId)).ReturnsAsync(_category);
         _mockProductRepository.Setup(x => x.Add(It.IsAny<Product>())).ReturnsAsync(_product);
-        Product result = await _productService.Create(productDto);
+        ProductResponse result = await _productService.Create(productDto);
 
         using (Assert.EnterMultipleScope())
         {
@@ -83,7 +84,7 @@ public class ProductServiceTest
     {
         _mockProductRepository.Setup(x => x.FindById(1)).ReturnsAsync(_product);
 
-        Product result = await _productService.Update(_product.Id, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44, "image.jpg"));
+        ProductResponse result = await _productService.Update(_product.Id, new ProductDto(Name: "name123", Description: "description123", Price: 11.99m, CategoryId: 1, Quantity: 44, "image.jpg"));
 
         using (Assert.EnterMultipleScope())
         {
@@ -111,7 +112,7 @@ public class ProductServiceTest
     {
         _mockProductRepository.Setup(x =>
             x.Search(new SearchProductQuery(_product.Name, 0, ProductSortBy.Name, false))).ReturnsAsync(new PageResult<Product>(1, [_product]));
-        PageResult<Product> result = await _productService.SearchProducts(new SearchProductQuery(_product.Name, 0, ProductSortBy.Name, false));
+        PageResult<ProductResponse> result = await _productService.SearchProducts(new SearchProductQuery(_product.Name, 0, ProductSortBy.Name, false));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Total, Is.GreaterThan(0));
@@ -123,7 +124,7 @@ public class ProductServiceTest
     public async Task FindByIdShouldReturnProduct()
     {
         _mockProductRepository.Setup(x => x.FindById(1)).ReturnsAsync(_product);
-        Product result = await _productService.FindById(_product.Id);
+        ProductResponse result = await _productService.FindById(_product.Id);
 
         using (Assert.EnterMultipleScope())
         {
