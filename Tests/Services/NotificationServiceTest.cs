@@ -1,3 +1,4 @@
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Repository;
 using Application.Services;
@@ -29,7 +30,7 @@ public class NotificationServiceTest
     public async Task CreateNotificationShouldCreate(Notification notification)
     {
         _mock.Setup(x => x.Add(It.IsAny<Notification>())).ReturnsAsync(notification);
-        Notification result = await _notificationService.Create(notification);
+        NotificationResponse result = await _notificationService.Create(notification);
 
         using (Assert.EnterMultipleScope())
         {
@@ -45,7 +46,7 @@ public class NotificationServiceTest
     public async Task FindByUserIdShouldReturnNotification(Notification notification)
     {
         _mock.Setup(x => x.FindByUserId(notification.UserId)).ReturnsAsync([notification]);
-        List<Notification> result = await _notificationService.FindByUserId(notification.UserId);
+        List<NotificationResponse> result = await _notificationService.FindByUserId(notification.UserId);
 
         Assert.That(result, Has.Count.EqualTo(1));
     }
@@ -60,7 +61,7 @@ public class NotificationServiceTest
         _mock.Setup(x => x.FindById(notification.Id)).ReturnsAsync(notification);
         var serviceResult = await _notificationService.DeleteById(notification.Id);
 
-        Assert.That(serviceResult, EqualTo("Notification Deleted Successfully"));
+        Assert.That(serviceResult, True);
     }
 
     [Test]
@@ -87,7 +88,7 @@ public class NotificationServiceTest
             notification.IsRead = true;
             return notification;
         });
-        Notification result = await _notificationService.MarkAsRead(notification.Id);
+        NotificationResponse result = await _notificationService.MarkAsRead(notification.Id);
         Assert.That(result.IsRead, True);
     }
 
@@ -111,7 +112,7 @@ public class NotificationServiceTest
     {
         _mock.Setup(x => x.FindById(notification.Id)).ReturnsAsync(notification);
         _mock.Setup(x => x.MarkAllAsRead(notification.UserId)).ReturnsAsync([notification]);
-        List<Notification> result = await _notificationService.MarkAllAsRead("1a");
+        List<NotificationResponse> result = await _notificationService.MarkAllAsRead("1a");
         Assert.That(result, !Empty);
     }
 

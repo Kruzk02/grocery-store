@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 
+using Application.Dtos.Response;
+
 using Domain.Entity;
 
 namespace Tests.Controller;
@@ -14,7 +16,7 @@ public class NotificationControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.PutAsync("/Notification/1", null);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var content = await response.Content.ReadFromJsonAsync<Notification>();
+        var content = await response.Content.ReadFromJsonAsync<NotificationResponse>();
         Assert.That(content, Is.Not.Null);
         Assert.That(content.IsRead, Is.True);
     }
@@ -32,10 +34,10 @@ public class NotificationControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.PutAsync("/Notification/all-as-read", null);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var notifications = await response.Content.ReadFromJsonAsync<List<Notification>>();
+        var notifications = await response.Content.ReadFromJsonAsync<List<NotificationResponse>>();
         Assert.That(notifications, Is.Not.Null.And.Not.Empty);
 
-        foreach (Notification notification in notifications)
+        foreach (NotificationResponse notification in notifications)
         {
             Assert.That(notification.IsRead, Is.True);
         }

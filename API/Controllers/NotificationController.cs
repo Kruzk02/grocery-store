@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using Application.Dtos.Response;
 using Application.Interface;
 
 using Domain.Entity;
@@ -29,7 +30,7 @@ public class NotificationController(INotificationService notificationService) : 
     [ProducesResponseType(500)]
     public async Task<IActionResult> MarkAsRead(int id)
     {
-        Notification result = await notificationService.MarkAsRead(id);
+        NotificationResponse result = await notificationService.MarkAsRead(id);
         return Ok(result);
     }
 
@@ -44,7 +45,7 @@ public class NotificationController(INotificationService notificationService) : 
         {
             return BadRequest();
         }
-        List<Notification> result = await notificationService.MarkAllAsRead(userId);
+        List<NotificationResponse> result = await notificationService.MarkAllAsRead(userId);
         return Ok(result);
     }
 }

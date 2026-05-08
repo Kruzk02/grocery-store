@@ -138,7 +138,7 @@ public class UserController(
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            List<Notification> serviceResult = await notificationService.FindByUserId(userId!);
+            List<NotificationResponse> serviceResult = await notificationService.FindByUserId(userId!);
             var json = System.Text.Json.JsonSerializer.Serialize(serviceResult);
             await Response.WriteAsync(json);
             await Response.Body.FlushAsync();
