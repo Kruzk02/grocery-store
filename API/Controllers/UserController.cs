@@ -23,7 +23,7 @@ public class UserController(
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        User result = await userService.CreateUser(dto);
+        UserResponse result = await userService.CreateUser(dto);
         return CreatedAtAction(nameof(GetUser), new { id = result}, result);
     }
 
@@ -84,7 +84,7 @@ public class UserController(
             ? user.Identity.Name
             : usernameOrEmail;
 
-        User result = await userService.GetUser(lookupKey!);
+        UserResponse result = await userService.GetUser(lookupKey!);
         return Ok(result);
     }
 

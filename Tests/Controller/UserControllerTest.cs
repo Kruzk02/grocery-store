@@ -19,7 +19,7 @@ public class UserControllerTest : BaseControllerTest
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
 
-        var userResponse = await response.Content.ReadFromJsonAsync<User>();
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
 
         Assert.That(userResponse, Is.Not.Null);
         using (Assert.EnterMultipleScope())

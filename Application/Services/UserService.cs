@@ -14,9 +14,9 @@ public class UserService(
     IUserRepository userRepository,
     IRefreshTokenRepository refreshTokenRepository,
     TokenService tokenService
-    ) : IUserService
+) : IUserService
 {
-    public async Task<User> CreateUser(RegisterDto dto)
+    public async Task<UserResponse> CreateUser(RegisterDto dto)
     {
         var user = new User
         {
@@ -25,12 +25,14 @@ public class UserService(
         };
 
         User result = await userRepository.Add(user, dto.Password);
-        return result;
+        return UserResponse.FromEntity(result);
     }
 
     public async Task<AuthResponse> Login(LoginDto dto)
     {
-        User user = await GetUser(dto.UserNameOrEmail);
+        User user = await userRepository.FindByUsername(dto.UserNameOrEmail) ??
+                    await userRepository.FindByEmail(dto.UserNameOrEmail) ?? throw new NotFoundException(
+                        $"User with username or email: {dto.UserNameOrEmail} not found");
         var result = await userRepository.CheckPasswordSignIn(user, dto.Password);
         if (!result)
         {
@@ -51,20 +53,25 @@ public class UserService(
         return new AuthResponse(accessToken, refreshToken, refreshTokenEntity.ExpiryDate);
     }
 
-    public async Task<User> GetUser(string usernameOrEmail)
+    public async Task<UserResponse> GetUser(string usernameOrEmail)
     {
-        return (await userRepository.FindByUsername(usernameOrEmail) ?? await userRepository.FindByEmail(usernameOrEmail)) ?? throw new NotFoundException($"User with username or email: {usernameOrEmail} not found");
+        return UserResponse.FromEntity(await userRepository.FindByUsername(usernameOrEmail) ??
+                                       await userRepository.FindByEmail(usernameOrEmail) ??
+                                       throw new NotFoundException(
+                                           $"User with username or email: {usernameOrEmail} not found"));
     }
 
     public async Task<AuthResponse> RefreshToken(string refreshToken)
     {
-        RefreshToken? storedToken = await refreshTokenRepository.FindByToken(refreshToken) ?? throw new Exception("Invalid refresh token");
+        RefreshToken? storedToken = await refreshTokenRepository.FindByToken(refreshToken) ??
+                                    throw new Exception("Invalid refresh token");
         if (storedToken.IsRevoked || storedToken.ExpiryDate < DateTime.UtcNow)
         {
             throw new Exception("Refresh token expired or revoked");
         }
 
-        User? user = await userRepository.FindById(storedToken.UserId) ?? throw new Exception($"User not found with id:{storedToken.UserId}");
+        User? user = await userRepository.FindById(storedToken.UserId) ??
+                     throw new Exception($"User not found with id:{storedToken.UserId}");
 
         storedToken.IsRevoked = true;
 
@@ -125,24 +132,23 @@ public class UserService(
                     throw new Exception("Failed to update new role");
                 }
             }
-
         }
+
         return true;
     }
 
     public async Task<bool> DeleteUser(string id)
     {
-        User? existingUser = await userRepository.FindById(id) ?? throw new NotFoundException($"User with id: {id} not found");
+        User? existingUser = await userRepository.FindById(id) ??
+                             throw new NotFoundException($"User with id: {id} not found");
         var result = await userRepository.Delete(existingUser);
-        return result ?
-            true :
-            throw new Exception("Failed to delete user");
+        return result ? true : throw new Exception("Failed to delete user");
     }
 
     public async Task Logout(ClaimsPrincipal claims)
     {
-        var userId = (claims.FindFirst(ClaimTypes.NameIdentifier)?.Value) ?? throw new Exception("Failed to extract userId from ClaimsPrincipal");
+        var userId = (claims.FindFirst(ClaimTypes.NameIdentifier)?.Value) ??
+                     throw new Exception("Failed to extract userId from ClaimsPrincipal");
         await refreshTokenRepository.DeleteAllByUserId(userId);
-
     }
 }
