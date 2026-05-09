@@ -161,7 +161,7 @@ public class ProductController(IProductService productService, IOrderItemService
     [ProducesResponseType(500)]
     public async Task<IActionResult> FindOrderItemById(int id)
     {
-        List<OrderItem> result = await itemService.FindByProductId(id);
+        List<OrderItemResponse> result = await itemService.FindByProductId(id);
         return Ok(result);
     }
 

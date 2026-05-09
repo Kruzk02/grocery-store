@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Repository;
 
@@ -11,7 +12,7 @@ namespace Application.Services;
 
 public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRepository orderRepository, IProductRepository productRepository, IMemoryCache cache) : IOrderItemService
 {
-    public async Task<OrderItem> Create(OrderItemDto orderItemDto)
+    public async Task<OrderItemResponse> Create(OrderItemDto orderItemDto)
     {
         Order? order = await orderRepository.FindById(orderItemDto.OrderId);
         if (order == null)
@@ -46,10 +47,10 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
             Product = product,
             Quantity = orderItemDto.Quantity,
         };
-        return await orderItemRepository.Add(orderItem);
+        return OrderItemResponse.FromEntity(await orderItemRepository.Add(orderItem));
     }
 
-    public async Task<OrderItem> Update(int id, OrderItemDto orderItemDto)
+    public async Task<OrderItemResponse> Update(int id, OrderItemDto orderItemDto)
     {
         OrderItem? orderItem = await orderItemRepository.FindById(id);
         if (orderItem == null)
@@ -95,59 +96,49 @@ public class OrderItemService(IOrderItemRepository orderItemRepository, IOrderRe
 
         await orderItemRepository.Update(orderItem);
 
-        return orderItem;
+        return OrderItemResponse.FromEntity(orderItem);
     }
 
-    public async Task<OrderItem> FindById(int id)
+    public async Task<OrderItemResponse> FindById(int id)
     {
         var cacheKey = $"orderItem:{id}";
-        if (cache.TryGetValue(cacheKey, out OrderItem? orderItem))
-            if (orderItem != null)
-                return orderItem;
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
 
-        orderItem = await orderItemRepository.FindById(id);
+            OrderItem? orderItem = await orderItemRepository.FindById(id);
 
-        MemoryCacheEntryOptions cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-
-        cache.Set(cacheKey, orderItem, cacheOption);
-
-        return orderItem ?? throw new NotFoundException($"Order item with id {id} not found");
+            return OrderItemResponse.FromEntity(orderItem ?? throw new NotFoundException($"Order item with id: {id} not found"));
+        }) ?? throw new InvalidOperationException();
     }
 
-    public async Task<List<OrderItem>> FindByOrderId(int orderId)
+    public async Task<List<OrderItemResponse>> FindByOrderId(int orderId)
     {
         var cacheKey = $"order:{orderId}:orderItem";
-        if (cache.TryGetValue(cacheKey, out List<OrderItem>? orderItems))
-            if (orderItems != null)
-                return orderItems;
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
 
-        orderItems = await orderItemRepository.FindByOrderId(orderId);
+            List<OrderItem> orderItems = await orderItemRepository.FindByOrderId(orderId);
 
-        MemoryCacheEntryOptions cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-
-        cache.Set(cacheKey, orderItems, cacheOption);
-        return orderItems;
+            return orderItems.Select(OrderItemResponse.FromEntity).ToList();
+        }) ?? throw new InvalidOperationException();
     }
 
-    public async Task<List<OrderItem>> FindByProductId(int productId)
+    public async Task<List<OrderItemResponse>> FindByProductId(int productId)
     {
         var cacheKey = $"product:{productId}:orderItem";
-        if (cache.TryGetValue(cacheKey, out List<OrderItem>? orderItems))
-            if (orderItems != null)
-                return orderItems;
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
 
-        orderItems = await orderItemRepository.FindByProductId(productId);
+            List<OrderItem> orderItems = await orderItemRepository.FindByProductId(productId);
 
-        MemoryCacheEntryOptions cacheOption = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-
-        cache.Set(cacheKey, orderItems, cacheOption);
-        return orderItems;
+            return orderItems.Select(OrderItemResponse.FromEntity).ToList();
+        }) ?? throw new InvalidOperationException();
     }
 
     public async Task<bool> Delete(int id)

@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Repository;
 using Application.Services;
@@ -79,14 +80,14 @@ public class OrderItemServiceTest
         _mockOrderItemRepository.Setup(x => x.Add(It.IsAny<OrderItem>()))
             .ReturnsAsync((OrderItem orderItem) => orderItem);
 
-        OrderItem result = await _orderItemService.Create(orderItemDto);
+        OrderItemResponse result = await _orderItemService.Create(orderItemDto);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.ProductId, Is.EqualTo(1));
             Assert.That(result.OrderId, Is.EqualTo(1));
             Assert.That(result.Quantity, Is.EqualTo(24));
-            Assert.That(result.Product.Quantity, Is.EqualTo(1));
+            Assert.That(result.SubTotal, Is.GreaterThan(100));
         }
     }
 
@@ -108,7 +109,7 @@ public class OrderItemServiceTest
         _mockOrderItemRepository.Setup(x => x.FindById(1)).ReturnsAsync(_orderItem);
         _mockProductRepository.Setup(x => x.FindById(1)).ReturnsAsync(_product);
 
-        OrderItem result = await _orderItemService.Update(1, new OrderItemDto(1, 1, 2));
+        OrderItemResponse result = await _orderItemService.Update(1, new OrderItemDto(1, 1, 2));
 
         using (Assert.EnterMultipleScope())
         {
@@ -116,7 +117,7 @@ public class OrderItemServiceTest
             Assert.That(result.ProductId, Is.EqualTo(1));
             Assert.That(result.OrderId, Is.EqualTo(1));
             Assert.That(result.Quantity, Is.EqualTo(2));
-            Assert.That(result.Product.Quantity, Is.EqualTo(47));
+            Assert.That(result.SubTotal, Is.EqualTo(39.98m));
         }
     }
 
@@ -136,7 +137,7 @@ public class OrderItemServiceTest
     public async Task FindById(OrderItemDto orderItemDto)
     {
         _mockOrderItemRepository.Setup(x => x.FindById(orderItemDto.OrderId)).ReturnsAsync(_orderItem);
-        OrderItem result = await _orderItemService.FindById(orderItemDto.OrderId);
+        OrderItemResponse result = await _orderItemService.FindById(orderItemDto.OrderId);
 
         using (Assert.EnterMultipleScope())
         {
@@ -158,7 +159,7 @@ public class OrderItemServiceTest
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _orderItemService.FindById(id));
 
-        Assert.That(ex.Message, Is.EqualTo($"Order item with id {id} not found"));
+        Assert.That(ex.Message, Is.EqualTo($"Order item with id: {id} not found"));
         return Task.CompletedTask;
     }
 
@@ -167,7 +168,7 @@ public class OrderItemServiceTest
     public async Task FindByOrderId(OrderItemDto orderItemDto)
     {
         _mockOrderItemRepository.Setup(x => x.FindByOrderId(orderItemDto.OrderId)).ReturnsAsync([_orderItem]);
-        List<OrderItem> result = await _orderItemService.FindByOrderId(orderItemDto.OrderId);
+        List<OrderItemResponse> result = await _orderItemService.FindByOrderId(orderItemDto.OrderId);
 
         using (Assert.EnterMultipleScope())
         {
@@ -181,7 +182,7 @@ public class OrderItemServiceTest
     public async Task FindByProductId(OrderItemDto orderItemDto)
     {
         _mockOrderItemRepository.Setup(x => x.FindByProductId(orderItemDto.ProductId)).ReturnsAsync([_orderItem]);
-        List<OrderItem> result = await _orderItemService.FindByProductId(orderItemDto.ProductId);
+        List<OrderItemResponse> result = await _orderItemService.FindByProductId(orderItemDto.ProductId);
 
         using (Assert.EnterMultipleScope())
         {

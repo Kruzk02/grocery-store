@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 
 using Domain.Entity;
@@ -18,7 +19,7 @@ public class OrderItemController(IOrderItemService orderItemService) : Controlle
     Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] OrderItemDto orderItemDto)
     {
-        OrderItem result = await orderItemService.Create(orderItemDto);
+        OrderItemResponse result = await orderItemService.Create(orderItemDto);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, result);
     }
 
@@ -30,7 +31,7 @@ public class OrderItemController(IOrderItemService orderItemService) : Controlle
     Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, [FromBody] OrderItemDto orderItemDto)
     {
-        OrderItem result = await orderItemService.Update(id, orderItemDto);
+        OrderItemResponse result = await orderItemService.Update(id, orderItemDto);
         return Ok(result);
     }
 
@@ -41,7 +42,7 @@ public class OrderItemController(IOrderItemService orderItemService) : Controlle
      ProducesResponseType(500)]
     public async Task<IActionResult> FindById(int id)
     {
-        OrderItem result = await orderItemService.FindById(id);
+        OrderItemResponse result = await orderItemService.FindById(id);
         return Ok(result);
     }
 

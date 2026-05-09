@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 
 using Domain.Entity;
 
@@ -6,10 +7,10 @@ namespace Application.Interface;
 
 public interface IOrderItemService
 {
-    Task<OrderItem> Create(OrderItemDto orderItemDto);
-    Task<OrderItem> Update(int id, OrderItemDto orderItemDto);
-    Task<OrderItem> FindById(int id);
-    Task<List<OrderItem>> FindByOrderId(int orderId);
-    Task<List<OrderItem>> FindByProductId(int productId);
+    Task<OrderItemResponse> Create(OrderItemDto orderItemDto);
+    Task<OrderItemResponse> Update(int id, OrderItemDto orderItemDto);
+    Task<OrderItemResponse> FindById(int id);
+    Task<List<OrderItemResponse>> FindByOrderId(int orderId);
+    Task<List<OrderItemResponse>> FindByProductId(int productId);
     Task<bool> Delete(int id);
 }
