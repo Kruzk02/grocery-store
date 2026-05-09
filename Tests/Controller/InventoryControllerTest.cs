@@ -2,8 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using Application.Dtos.Request;
-
-using Domain.Entity;
+using Application.Dtos.Response;
 
 namespace Tests.Controller;
 
@@ -17,7 +16,7 @@ public class InventoryControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.PostAsync("/inventory", content);
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
-        var inventory = await response.Content.ReadFromJsonAsync<Inventory>();
+        var inventory = await response.Content.ReadFromJsonAsync<InventoryResponse>();
         Assert.That(inventory, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -49,7 +48,7 @@ public class InventoryControllerTest : BaseControllerTest
     {
         HttpResponseMessage response = await Client.GetAsync("/inventory/1");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        var inventory = await response.Content.ReadFromJsonAsync<Inventory>();
+        var inventory = await response.Content.ReadFromJsonAsync<InventoryResponse>();
         Assert.That(inventory, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

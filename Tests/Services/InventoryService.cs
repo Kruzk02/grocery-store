@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Queries;
 using Application.Repository;
@@ -38,12 +39,11 @@ public class InventoryServiceTest
         _mockInventoryRepository
             .Setup(x => x.Add(It.IsAny<Inventory>()))
             .ReturnsAsync((Inventory inv) => inv);
-        Inventory result = await _inventoryService.Create(new InventoryDto(product.Id, 20));
+        InventoryResponse result = await _inventoryService.Create(new InventoryDto(product.Id, 20));
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.ProductId, Is.EqualTo(product.Id));
-            Assert.That(result.Product, Is.EqualTo(product));
             Assert.That(result.Stock, Is.EqualTo(20));
         }
     }
@@ -68,20 +68,19 @@ public class InventoryServiceTest
     {
         _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
         _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
-        Inventory inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
+        InventoryResponse inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
         _mockInventoryRepository.Setup(x => x.FindById(1)).ReturnsAsync(new Inventory
         {
             Product = product
         });
         _mockInventoryRepository.Setup(x => x.Update(It.IsAny<Inventory>()));
-        Inventory result = await _inventoryService.Update(1, new InventoryDto(ProductId: product.Id, Stock: 10));
+        InventoryResponse result = await _inventoryService.Update(1, new InventoryDto(ProductId: product.Id, Stock: 10));
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(inventory.Id));
             Assert.That(result.ProductId, Is.EqualTo(inventory.ProductId));
-            Assert.That(result.Product, Is.EqualTo(inventory.Product));
             Assert.That(result.Stock, Is.EqualTo(10));
         }
     }
@@ -105,12 +104,14 @@ public class InventoryServiceTest
     public async Task FindAllShouldReturnListOfInventory(Product product)
     {
         _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
-        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
-        Inventory inv = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
-
+        var inventory = new Inventory()
+        {
+            Product = product
+        };
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync(inventory);
         _mockInventoryRepository.Setup(x => x.FindAll(new SearchInventoryQuery(null, null, null, InventorySortBy.ProductName, true, 10)))
-            .ReturnsAsync(new PageResult<Inventory>(1, [inv]));
-        PageResult<Inventory> result = await _inventoryService.FindAll(new SearchInventoryQuery(null, null, null, InventorySortBy.ProductName, true, 10));
+            .ReturnsAsync(new PageResult<Inventory>(1, [inventory]));
+        PageResult<InventoryResponse> result = await _inventoryService.FindAll(new SearchInventoryQuery(null, null, null, InventorySortBy.ProductName, true, 10));
 
         using (Assert.EnterMultipleScope())
         {
@@ -124,17 +125,20 @@ public class InventoryServiceTest
     public async Task FindByIdShouldReturnInventory(Product product)
     {
         _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
-        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
-        Inventory inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
+        var inventory = new Inventory()
+        {
+            Product = product
+        };
+
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync(inventory);
 
         _mockInventoryRepository.Setup(x => x.FindById(inventory.Id)).ReturnsAsync(inventory);
-        Inventory result = await _inventoryService.FindById(inventory.Id);
+        InventoryResponse result = await _inventoryService.FindById(inventory.Id);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(inventory.Id));
             Assert.That(result.ProductId, Is.EqualTo(inventory.ProductId));
-            Assert.That(result.Product, Is.EqualTo(inventory.Product));
             Assert.That(result.Stock, Is.EqualTo(inventory.Stock));
         }
     }
@@ -158,19 +162,21 @@ public class InventoryServiceTest
     public async Task FindByProductIdShouldReturnListOfInventory(Product product)
     {
         _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
-        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
-        Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
+        var inventory = new Inventory()
+        {
+            Product = product
+        };
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync(inventory);
 
         _mockInventoryRepository.Setup(x => x.FindAll(new SearchInventoryQuery(product.Id, 0, null, InventorySortBy.ProductId, true, 10)))
             .ReturnsAsync(new PageResult<Inventory>(1, [inventory]));
-        PageResult<Inventory> result = await _inventoryService.FindAll(new SearchInventoryQuery(product.Id, 0, null, InventorySortBy.ProductId, true, 10));
+        PageResult<InventoryResponse> result = await _inventoryService.FindAll(new SearchInventoryQuery(product.Id, 0, null, InventorySortBy.ProductId, true, 10));
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data, Has.Count.EqualTo(1));
             Assert.That(result.Data[0].Id, Is.EqualTo(inventory.Id));
             Assert.That(result.Data[0].ProductId, Is.EqualTo(inventory.ProductId));
-            Assert.That(result.Data[0].Product, Is.EqualTo(inventory.Product));
             Assert.That(result.Data[0].Stock, Is.EqualTo(inventory.Stock));
         }
     }
@@ -180,19 +186,20 @@ public class InventoryServiceTest
     public async Task FindByQuantityShouldReturnListOfInventory(Product product)
     {
         _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
-        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
-        Inventory inventory = await _inventoryService.Create(new InventoryDto(product.Id, 20));
-
+        var inventory = new Inventory()
+        {
+            Product = product
+        };
+        _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync(inventory);
         _mockInventoryRepository.Setup(x => x.FindAll(new SearchInventoryQuery(product.Id, 20, null, InventorySortBy.ProductId, true, 10)))
             .ReturnsAsync(new PageResult<Inventory>(1, [inventory]));
-        PageResult<Inventory> result = await _inventoryService.FindAll(new SearchInventoryQuery(product.Id, 20, null, InventorySortBy.ProductId, true, 10));
+        PageResult<InventoryResponse> result = await _inventoryService.FindAll(new SearchInventoryQuery(product.Id, 20, null, InventorySortBy.ProductId, true, 10));
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data, Has.Count.EqualTo(1));
             Assert.That(result.Data[0].Id, Is.EqualTo(inventory.Id));
             Assert.That(result.Data[0].ProductId, Is.EqualTo(inventory.ProductId));
-            Assert.That(result.Data[0].Product, Is.EqualTo(inventory.Product));
             Assert.That(result.Data[0].Stock, Is.EqualTo(inventory.Stock));
         }
     }
@@ -202,12 +209,15 @@ public class InventoryServiceTest
     public async Task DeleteByIdShouldDeleteInventory(Product product)
     {
         _mockProductRepository.Setup(x => x.FindById(product.Id)).ReturnsAsync(product);
+        var inventory = new Inventory()
+        {
+            Product = product
+        };
         _mockInventoryRepository.Setup(x => x.Add(It.IsAny<Inventory>())).ReturnsAsync((Inventory i) => i);
-        Inventory inventory = await _inventoryService.Create(new InventoryDto(ProductId: product.Id, Stock: 20));
 
         _mockInventoryRepository.Setup(x => x.FindById(inventory.Id)).ReturnsAsync(inventory);
         var result = await _inventoryService.Delete(inventory.Id);
-        Assert.That(result, Is.EqualTo("Inventory deleted successfully"));
+        Assert.That(result, Is.True);
     }
 
     [Test]

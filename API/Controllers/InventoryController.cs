@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Queries;
 
@@ -16,14 +17,14 @@ public class InventoryController(IInventoryService service) : ControllerBase
     [HttpGet, ProducesResponseType(typeof(Inventory), 200), ProducesResponseType(500)]
     public async Task<IActionResult> FindAll([FromQuery] SearchInventoryQuery searchInventoryQuery)
     {
-        PageResult<Inventory> inventories = await service.FindAll(searchInventoryQuery);
+        PageResult<InventoryResponse> inventories = await service.FindAll(searchInventoryQuery);
         return Ok(inventories);
     }
 
     [HttpPost, ProducesResponseType(typeof(Inventory), 201), ProducesResponseType(401), ProducesResponseType(500)]
     public async Task<IActionResult> Create([FromBody] InventoryDto inventoryDto)
     {
-        Inventory result = await service.Create(inventoryDto);
+        InventoryResponse result = await service.Create(inventoryDto);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, result);
     }
 
