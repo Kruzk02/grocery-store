@@ -24,7 +24,7 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] OrderDto orderDto)
     {
-        Order result = await orderService.Create(orderDto);
+        OrderResponse result = await orderService.Create(orderDto);
 
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, result);
     }
@@ -37,7 +37,7 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, [FromBody] OrderDto orderDto)
     {
-        Order result = await orderService.Update(id, orderDto);
+        OrderResponse result = await orderService.Update(id, orderDto);
         return Ok(result);
     }
 
@@ -47,7 +47,7 @@ public class OrderController(IOrderService orderService, IOrderItemService itemS
      ProducesResponseType(500)]
     public async Task<IActionResult> FindById(int id)
     {
-        Order result = await orderService.FindById(id);
+        OrderResponse result = await orderService.FindById(id);
         return Ok(result);
     }
 

@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Repository;
 using Application.Services;
@@ -6,7 +7,6 @@ using Application.Services;
 using Domain.Entity;
 using Domain.Exception;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 using Moq;
@@ -55,9 +55,9 @@ public class OrderServiceTest
     {
         _mockCustomerRepository.Setup(x => x.FindById(customer.Id)).ReturnsAsync(_customer);
         _mockOrderRepository.Setup(x => x.Add(It.IsAny<Order>())).ReturnsAsync(_order);
-        Order result = await _orderService.Create(new OrderDto(customer.Id));
+        OrderResponse result = await _orderService.Create(new OrderDto(customer.Id));
 
-        Assert.That(result.Customer, Is.Not.Null);
+        Assert.That(result.CustomerId, Is.GreaterThan(0));
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class OrderServiceTest
     {
         _mockOrderRepository.Setup(x => x.FindById(1)).ReturnsAsync(_order);
         _mockCustomerRepository.Setup(x => x.FindById(1)).ReturnsAsync(_customer);
-        Order result = await _orderService.Update(1, new OrderDto(1));
+        OrderResponse result = await _orderService.Update(1, new OrderDto(1));
 
         using (Assert.EnterMultipleScope())
         {
@@ -102,7 +102,7 @@ public class OrderServiceTest
     public async Task FindById(Customer customer)
     {
         _mockOrderRepository.Setup(x => x.FindById(1)).ReturnsAsync(_order);
-        Order result = await _orderService.FindById(1);
+        OrderResponse result = await _orderService.FindById(1);
 
         using (Assert.EnterMultipleScope())
         {
@@ -121,7 +121,7 @@ public class OrderServiceTest
         var ex = Assert.ThrowsAsync<NotFoundException>(async () =>
             await _orderService.FindById(id));
 
-        Assert.That(ex.Message, Is.EqualTo($"Order with id {id} not found"));
+        Assert.That(ex.Message, Is.EqualTo($"Order with id: {id} not found."));
         return Task.CompletedTask;
     }
 
@@ -130,7 +130,7 @@ public class OrderServiceTest
     public async Task FindByCustomerId(Customer customer)
     {
         _mockOrderRepository.Setup(x => x.FindByCustomerId(customer.Id)).ReturnsAsync([_order]);
-        List<Order> result = await _orderService.FindByCustomerId(customer.Id);
+        List<OrderResponse> result = await _orderService.FindByCustomerId(customer.Id);
 
         using (Assert.EnterMultipleScope())
         {
@@ -166,6 +166,6 @@ public class OrderServiceTest
     private static IEnumerable<Customer> CreateCustomer()
     {
         yield return new Customer
-        { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3" };
+            { Name = "Name", Email = "Email@gmail.com", Phone = "84 123 456 78", Address = "2aad3" };
     }
 }

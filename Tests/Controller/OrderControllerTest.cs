@@ -2,8 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using Application.Dtos.Request;
-
-using Domain.Entity;
+using Application.Dtos.Response;
 
 namespace Tests.Controller;
 
@@ -19,7 +18,7 @@ public class OrderControllerTest : BaseControllerTest
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
 
-        var order = await response.Content.ReadFromJsonAsync<Order>();
+        var order = await response.Content.ReadFromJsonAsync<OrderResponse>();
         Assert.That(order, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -43,7 +42,7 @@ public class OrderControllerTest : BaseControllerTest
         HttpResponseMessage response = await Client.GetAsync("/order/1");
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        var order = await response.Content.ReadFromJsonAsync<Order>();
+        var order = await response.Content.ReadFromJsonAsync<OrderResponse>();
         Assert.That(order, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -82,7 +81,7 @@ public class OrderControllerTest : BaseControllerTest
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        var order = await response.Content.ReadFromJsonAsync<Order>();
+        var order = await response.Content.ReadFromJsonAsync<OrderResponse>();
         Assert.That(order, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

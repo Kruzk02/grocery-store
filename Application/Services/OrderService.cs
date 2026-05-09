@@ -1,4 +1,5 @@
 using Application.Dtos.Request;
+using Application.Dtos.Response;
 using Application.Interface;
 using Application.Repository;
 
@@ -9,9 +10,10 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Application.Services;
 
-public class OrderService(IOrderRepository orderRepository, ICustomerRepository customerRepository, IMemoryCache cache) : IOrderService
+public class OrderService(IOrderRepository orderRepository, ICustomerRepository customerRepository, IMemoryCache cache)
+    : IOrderService
 {
-    public async Task<Order> Create(OrderDto orderDto)
+    public async Task<OrderResponse> Create(OrderDto orderDto)
     {
         Customer? customer = await customerRepository.FindById(orderDto.CustomerId);
         if (customer == null)
@@ -25,10 +27,10 @@ public class OrderService(IOrderRepository orderRepository, ICustomerRepository 
             Customer = customer
         };
 
-        return await orderRepository.Add(order);
+        return OrderResponse.FromEntity(await orderRepository.Add(order));
     }
 
-    public async Task<Order> Update(int id, OrderDto orderDto)
+    public async Task<OrderResponse> Update(int id, OrderDto orderDto)
     {
         Order? order = await orderRepository.FindById(id);
         if (order == null)
@@ -49,45 +51,40 @@ public class OrderService(IOrderRepository orderRepository, ICustomerRepository 
         }
 
         await orderRepository.Update(order);
-        return order;
+        return OrderResponse.FromEntity(order);
     }
 
-    public async Task<Order> FindById(int id)
+    public async Task<OrderResponse> FindById(int id)
     {
         var cacheKey = $"order:{id}";
-        if (cache.TryGetValue(cacheKey, out Order? order))
-            if (order != null)
-                return order;
-        order = await orderRepository.FindById(id);
-        var cacheOptions = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
 
-        cache.Set(cacheKey, order, cacheOptions);
+            Order? order = await orderRepository.FindById(id);
 
-        return order ?? throw new NotFoundException($"Order with id {id} not found");
+            return OrderResponse.FromEntity(order ?? throw new NotFoundException($"Order with id: {id} not found."));
+        }) ?? throw new InvalidOperationException();
     }
 
-    public async Task<List<Order>> FindByCustomerId(int customerId)
+    public async Task<List<OrderResponse>> FindByCustomerId(int customerId)
     {
         var cacheKey = $"customer:{customerId}:orders";
-        if (cache.TryGetValue(cacheKey, out List<Order>? orders))
-            if (orders != null)
-                return orders;
+        return await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
 
-        orders = await orderRepository.FindByCustomerId(customerId);
+            IReadOnlyList<Order> orders = await orderRepository.FindByCustomerId(customerId);
 
-        var cacheOptions = new MemoryCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
-        cache.Set(cacheKey, orders, cacheOptions);
-
-        return orders;
+            return orders.Select(OrderResponse.FromEntity).ToList();
+        }) ?? throw new InvalidOperationException();
     }
 
     public async Task<bool> Delete(int id)
     {
-        var order = await orderRepository.FindById(id);
+        Order? order = await orderRepository.FindById(id);
         if (order == null)
         {
             throw new NotFoundException($"Order with id {id} not found");
