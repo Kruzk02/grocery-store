@@ -1,3 +1,3 @@
-namespace Application.Dtos.Request;
+namespace Application.DTOs.Request;
 
 public record RegisterDto(string Username, string Email, string Password);
