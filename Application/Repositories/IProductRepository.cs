@@ -3,7 +3,7 @@ using Application.Queries;
 
 using Domain.Entity;
 
-namespace Application.Repository;
+namespace Application.Repositories;
 
 public interface IProductRepository
 {

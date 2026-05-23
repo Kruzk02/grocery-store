@@ -1,9 +1,9 @@
-using Application.Repository;
+using Application.Repositories;
 
 using Domain.Entity;
 
 using Infrastructure.Persistence;
-using Infrastructure.Repository;
+using Infrastructure.Repositories;
 using Infrastructure.Users;
 
 using Microsoft.AspNetCore.Identity;

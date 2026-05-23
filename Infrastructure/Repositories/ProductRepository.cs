@@ -1,6 +1,6 @@
 using Application.Common;
 using Application.Queries;
-using Application.Repository;
+using Application.Repositories;
 
 using Domain.Entity;
 
@@ -9,7 +9,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Infrastructure.Repository;
+namespace Infrastructure.Repositories;
 
 public class ProductRepository(ApplicationDbContext ctx) : IProductRepository
 {

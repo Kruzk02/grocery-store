@@ -1,4 +1,4 @@
-using Application.Repository;
+using Application.Repositories;
 
 using Domain.Entity;
 

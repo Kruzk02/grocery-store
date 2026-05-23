@@ -4,7 +4,7 @@ using Application.Queries;
 using Domain.Entity;
 
 using Infrastructure.Persistence;
-using Infrastructure.Repository;
+using Infrastructure.Repositories;
 
 using Microsoft.EntityFrameworkCore;
 

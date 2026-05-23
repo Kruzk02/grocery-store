@@ -1,4 +1,4 @@
-using Application.Repository;
+using Application.Repositories;
 
 using Domain.Entity;
 
@@ -7,7 +7,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Infrastructure.Repository;
+namespace Infrastructure.Repositories;
 
 public class OrderRepository(ApplicationDbContext ctx) : IOrderRepository
 {

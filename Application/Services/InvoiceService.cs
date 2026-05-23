@@ -1,7 +1,7 @@
 using Application.DTOs.Request;
 using Application.DTOs.Response;
 using Application.Interfaces;
-using Application.Repository;
+using Application.Repositories;
 
 using Domain.Entity;
 using Domain.Exception;

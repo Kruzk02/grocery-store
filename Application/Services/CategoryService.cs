@@ -1,5 +1,5 @@
 using Application.Interfaces;
-using Application.Repository;
+using Application.Repositories;
 
 using Domain.Entity;
 

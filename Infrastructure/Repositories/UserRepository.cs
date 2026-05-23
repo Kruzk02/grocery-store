@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-using Application.Repository;
+using Application.Repositories;
 
 using Domain.Entity;
 using Domain.Exception;
@@ -11,7 +11,7 @@ using Infrastructure.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repository;
+namespace Infrastructure.Repositories;
 
 public class UserRepository(ApplicationDbContext ctx, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager) : IUserRepository
 {

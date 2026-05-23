@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 using Domain.Entity;
 
-namespace Application.Repository;
+namespace Application.Repositories;
 
 public interface IUserRepository
 {

@@ -1,6 +1,6 @@
 using Application.DTOs.Response;
 using Application.Interfaces;
-using Application.Repository;
+using Application.Repositories;
 using Application.Services;
 
 using Domain.Entity;

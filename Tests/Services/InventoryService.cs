@@ -3,7 +3,7 @@ using Application.DTOs.Request;
 using Application.DTOs.Response;
 using Application.Interfaces;
 using Application.Queries;
-using Application.Repository;
+using Application.Repositories;
 using Application.Services;
 
 using Domain.Entity;

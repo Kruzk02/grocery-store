@@ -5,13 +5,13 @@ using API.Middleware;
 
 using Application.Common;
 using Application.Interfaces;
-using Application.Repository;
+using Application.Repositories;
 using Application.Services;
 using Application.Settings;
 
 using Infrastructure.FileSystem;
 using Infrastructure.Persistence;
-using Infrastructure.Repository;
+using Infrastructure.Repositories;
 using Infrastructure.Users;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;

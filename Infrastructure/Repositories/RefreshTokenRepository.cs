@@ -1,4 +1,4 @@
-using Application.Repository;
+using Application.Repositories;
 
 using Domain.Entity;
 
@@ -6,7 +6,7 @@ using Infrastructure.Persistence;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repository;
+namespace Infrastructure.Repositories;
 
 public class RefreshTokenRepository(ApplicationDbContext dbContext) : IRefreshTokenRepository
 {
