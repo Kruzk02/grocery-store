@@ -1,3 +1,3 @@
-namespace Application.Dtos.Response;
+namespace Application.DTOs.Response;
 
 public record TokenResponse(string Token);

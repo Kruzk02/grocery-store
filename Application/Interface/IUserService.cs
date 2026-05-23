@@ -2,7 +2,7 @@
 using System.Security.Claims;
 
 using Application.Dtos.Request;
-using Application.Dtos.Response;
+using Application.DTOs.Response;
 
 using Domain.Entity;
 

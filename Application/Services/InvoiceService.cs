@@ -1,11 +1,10 @@
 using Application.Dtos.Request;
-using Application.Dtos.Response;
+using Application.DTOs.Response;
 using Application.Interface;
 using Application.Repository;
 
 using Domain.Entity;
 using Domain.Exception;
-
 
 namespace Application.Services;
 

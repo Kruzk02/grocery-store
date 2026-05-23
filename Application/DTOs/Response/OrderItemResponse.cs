@@ -1,6 +1,6 @@
 ﻿using Domain.Entity;
 
-namespace Application.Dtos.Response;
+namespace Application.DTOs.Response;
 
 public record OrderItemResponse(int Id, int OrderId, int ProductId, int Quantity, decimal SubTotal)
 {

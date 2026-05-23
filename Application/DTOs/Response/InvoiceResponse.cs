@@ -1,6 +1,6 @@
 ﻿using Domain.Entity;
 
-namespace Application.Dtos.Response;
+namespace Application.DTOs.Response;
 
 public record InvoiceResponse(int Id, int OrderId, string InvoiceNumber, DateTime IssueDate, DateTime DueTime)
 {

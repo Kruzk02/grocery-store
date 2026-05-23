@@ -1,4 +1,4 @@
-using Application.Dtos.Response;
+using Application.DTOs.Response;
 using Application.Interface;
 using Application.Repository;
 

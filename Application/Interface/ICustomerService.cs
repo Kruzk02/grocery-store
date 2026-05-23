@@ -1,6 +1,6 @@
 using Application.Common;
 using Application.Dtos.Request;
-using Application.Dtos.Response;
+using Application.DTOs.Response;
 using Application.Queries;
 
 using Domain.Entity;

@@ -1,6 +1,6 @@
 ﻿using Domain.Entity;
 
-namespace Application.Dtos.Response;
+namespace Application.DTOs.Response;
 
 public record CustomerResponse(
     int Id,

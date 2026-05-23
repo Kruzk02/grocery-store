@@ -1,6 +1,6 @@
 ﻿using Domain.Entity;
 
-namespace Application.Dtos.Response;
+namespace Application.DTOs.Response;
 
 public record InventoryResponse(int Id, int ProductId, int Stock, DateTime UpdatedAt)
 {
