@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 using Application.DTOs.Request;
 using Application.DTOs.Response;
-using Application.Interface;
+using Application.Interfaces;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

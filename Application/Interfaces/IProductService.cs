@@ -5,7 +5,7 @@ using Application.Queries;
 
 using Domain.Entity;
 
-namespace Application.Interface;
+namespace Application.Interfaces;
 
 /// <summary>
 /// Defines operations for managing products.

@@ -2,7 +2,7 @@ using Application.DTOs.Response;
 
 using Domain.Entity;
 
-namespace Application.Interface;
+namespace Application.Interfaces;
 
 /// <summary>
 /// Defines operations for managing notifications.

@@ -1,5 +1,5 @@
 using Application.DTOs.Response;
-using Application.Interface;
+using Application.Interfaces;
 using Application.Repository;
 
 using Domain.Entity;

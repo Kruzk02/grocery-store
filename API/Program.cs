@@ -4,7 +4,7 @@ using API.Data;
 using API.Middleware;
 
 using Application.Common;
-using Application.Interface;
+using Application.Interfaces;
 using Application.Repository;
 using Application.Services;
 using Application.Settings;

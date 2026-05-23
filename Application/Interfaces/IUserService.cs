@@ -6,7 +6,7 @@ using Application.DTOs.Response;
 
 using Domain.Entity;
 
-namespace Application.Interface;
+namespace Application.Interfaces;
 
 public interface IUserService
 {

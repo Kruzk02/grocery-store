@@ -1,7 +1,7 @@
 using System.Security.Claims;
 
 using Application.DTOs.Response;
-using Application.Interface;
+using Application.Interfaces;
 
 using Domain.Entity;
 
