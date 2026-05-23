@@ -1,7 +1,7 @@
 using API.Documents;
 
-using Application.Dtos.Request;
-using Application.Dtos.Response;
+using Application.DTOs.Request;
+using Application.DTOs.Response;
 using Application.Interface;
 
 using Domain.Entity;

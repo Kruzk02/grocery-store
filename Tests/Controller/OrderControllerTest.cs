@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using Application.Dtos.Request;
-using Application.Dtos.Response;
+using Application.DTOs.Request;
+using Application.DTOs.Response;
 
 namespace Tests.Controller;
 

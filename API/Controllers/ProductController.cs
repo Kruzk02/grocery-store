@@ -1,8 +1,8 @@
 using API.Dto;
 
 using Application.Common;
-using Application.Dtos.Request;
-using Application.Dtos.Response;
+using Application.DTOs.Request;
+using Application.DTOs.Response;
 using Application.Interface;
 using Application.Queries;
 

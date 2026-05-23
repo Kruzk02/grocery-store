@@ -1,10 +1,8 @@
 using System.Security.Claims;
 
-using Application.Dtos.Request;
-using Application.Dtos.Response;
+using Application.DTOs.Request;
+using Application.DTOs.Response;
 using Application.Interface;
-
-using Domain.Entity;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

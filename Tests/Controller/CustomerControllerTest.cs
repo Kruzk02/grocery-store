@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 
 using Application.Common;
-using Application.Dtos.Request;
-using Application.Dtos.Response;
+using Application.DTOs.Request;
+using Application.DTOs.Response;
 
 using Domain.Entity;
 

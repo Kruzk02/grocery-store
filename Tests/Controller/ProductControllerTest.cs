@@ -2,9 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using Application.Common;
-using Application.Dtos.Response;
-
-using Domain.Entity;
+using Application.DTOs.Response;
 
 namespace Tests.Controller;
 
